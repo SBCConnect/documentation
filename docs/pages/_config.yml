@@ -1,8 +1,6 @@
 theme: jekyll-theme-cayman
-name : SBC Connect
-title: SBC Connect Documentation
-brand : SBC Connect
-description : The documentation portal for the SBC Connect Teams Phone System platform
+title : SBC Connect Documentation
+tagline : The documentation portal for the SBC Connect Teams Phone System platform
 url : https://sbcconnect.com.au
 email : admin@sbcconnect.com.au
 author: SBC Connect

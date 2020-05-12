@@ -1,0 +1,34 @@
+theme: jekyll-theme-cayman
+name : SBC Connect
+brand : SBC Connect
+description : The documentation portal for the SBC Connect Teams Phone System platform
+url : https://jantoney.github.io/SBCConnect/
+email : admin@sbcconnect.com.au
+author: SBC Connect
+
+# To put a alert or notice on every page served, change the appropriate value
+# below from false to the message you want displayed (alert : Alert message
+# or notice : Notice message). Alerts tend to show in red or orange, while
+# notices in blue or green. But that is dependent upon the bootstrap theme
+# that you use.
+#
+# Here's an example configuration:
+# alert : This is a sample alert message.
+# notice : This is a sample notice message.
+alert : false
+notice : false
+
+
+favicon :
+  enabled : true
+  local :
+    enabled : true
+    partial_url : /img/ghpb-favicon.png
+    type : png
+  remote :
+    enabled : false
+    full_url : false
+    type : false
+    
+# Good example config page
+# https://github.com/thedereck/gh-pages-blog/blob/master/_config.yml

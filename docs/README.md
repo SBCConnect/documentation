@@ -1,3 +1,7 @@
+---
+title: SBC Connect Documentation
+---
+
 # Welcome to SBCConnect.com.au
 
 SBCConnect.com.au is a website designed to document the platforms connection requirements between the Session Border Controllers into the Microsoft Teams Phone system.

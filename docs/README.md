@@ -5,18 +5,18 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 ## Teams Platform Documentation
 
-- [Voice enable a user account](https://github.com/SBCConnect/documentation/blob/master/docs/pages/voice-enable-a-new-user.md)
+- [Voice enable a user account](pages/voice-enable-a-new-user.md)
 - [Creating a Call Queue (CQ)](pages/create-a-call-queue.md)
 - [Creating an Auto Attendant (AA)](pages/create-an-auto-attendant.md)
 - [Creating a Resource Account](pages/create-a-resource-account-user.md)
 
 ### Licensing
-- [License Requirements for Microsoft Teams Direct Routing](https://github.com/SBCConnect/documentation/blob/master/docs/pages/License-Requirements.md)
+- [License Requirements for Microsoft Teams Direct Routing]pages/License-Requirements.md)
 - [License a Phone System Resource Account](pages/license-a-phone-system-resource-account.md)
 - [Obtain a free Virtual Phone System License](pages/obtain-free-virtual-phone-system-licenses.md)
 
 ### Cloud Voicemail
-- [Cloud Voicemail Information](https://github.com/SBCConnect/documentation/blob/master/docs/pages/cloud-voicemail.md)
+- [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
 ## More about the platform
 

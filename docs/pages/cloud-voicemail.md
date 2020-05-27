@@ -1,4 +1,4 @@
-# Microsoft Teams Voice Mailboxes
+# Microsoft Teams Cloud Voicemail
 
 ## User Voice Mailboxes
 

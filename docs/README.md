@@ -11,7 +11,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Creating a Resource Account](pages/create-a-resource-account-user.md)
 
 ### Licensing
-- [License Requirements for Microsoft Teams Direct Routing]pages/License-Requirements.md)
+- [License Requirements for Microsoft Teams Direct Routing](pages/License-Requirements.md)
 - [License a Phone System Resource Account](pages/license-a-phone-system-resource-account.md)
 - [Obtain a free Virtual Phone System License](pages/obtain-free-virtual-phone-system-licenses.md)
 

@@ -17,7 +17,7 @@ Other Considerations
 
 
 ## Common Voice mailboxes
-> 🌐 [Voicemail Setup Reference]https://github.com/SBCConnect/documentation/blob/master/docs/pages/cloud-voicemail.md#microsoft-teams-cloud-voicemail)
+> 🌐 [Voicemail Setup Reference](https://github.com/SBCConnect/documentation/blob/master/docs/pages/cloud-voicemail.md#microsoft-teams-cloud-voicemail)
 
 Common Voice Mailboxes are received within an Office 365 Group and therefore don't require a Microsoft Teams license for Voice.
 

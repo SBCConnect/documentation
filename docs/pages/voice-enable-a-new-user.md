@@ -4,18 +4,22 @@ Users in Microsoft 365 require several licenses and setting changes before they 
 ## Requirements
 - Users require a **Microsoft 365 Phone System** license. Refer [Here](https://github.com/SBCConnect/documentation/blob/master/docs/pages/License-Requirements.md#license-requirements-for-microsoft-teams-direct-routing) for more information.
 
-#### Steps
-1. Log into the Microsoft Admin Center 
-   - https://admin.microsoft.com 
-1. Navigate to **Users** > **Active users** 
-1. Locate and select the resource account 
-1. Select **Licenses and Apps** 
-1. Select **Australia** from the **Select location** drop down list 
-1. Tick the license **Phone System – Virtual User**
-1. Click **Save changes** 
-
 ## PowerShell
+**You need to update the following details in the two (2) lines below**
+- {UPN} - User 
+- {DID_NUMBER} - The number for the user in E.164 format (eg: +61255558888)
 
 ```powershell
-write-host "Demo Code"
+#Connect to the Skype for Business PowerShell module 
+$skypeConnection = New-CsOnlineSession 
+Import-PSSession $skypeConnection -AllowClobber 
+
+#Confirm you’re logged into the correct tenant - Is it the correct name?
+Get-CsTenant | Select DisplayName 
+
+#Give the user a DID number and Voice Enable the user 
+Set-CsUser -Identity “{UPN}” -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI tel:{DID_NUMBER} 
+
+#Grant the user a Voice Policy 
+Grant-CsOnlineVoiceRoutingPolicy -Identity "{UPN}" -PolicyName Australia 
 ```

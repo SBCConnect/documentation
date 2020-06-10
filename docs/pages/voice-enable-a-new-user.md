@@ -18,7 +18,7 @@ Import-PSSession $skypeConnection -AllowClobber
 Get-CsTenant | Select DisplayName 
 
 #Give the user a DID number and Voice Enable the user 
-Set-CsUser -Identity “{UPN}” -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI tel:{DID_NUMBER} 
+Set-CsUser -Identity "{UPN}" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI tel:{DID_NUMBER} 
 
 #Grant the user a Voice Policy 
 Grant-CsOnlineVoiceRoutingPolicy -Identity "{UPN}" -PolicyName Australia 

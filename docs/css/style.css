@@ -4,4 +4,16 @@
 
 .page-header {
   padding:1rem 1rem;
+  padding-bottom: 0;
+}
+
+.project-tagline {
+  margin-bottom: 1rem;
+  margin-top: 0;
+  font-size:1rem;
+}
+
+.btn {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.8rem;
 }

@@ -64,3 +64,26 @@
 1. Select the **Resource Account** desired.
    - *This should already be created similar to RAAA_%name% as per 🌐 [Setup a Resource Account](https://sbcconnect.com.au/pages/create-a-resource-account-user.html)*
 1. Select **Submit** at the bottom of the page.
+
+
+## PowerShell
+The script will prompt for a name to use for the new Auto Attendant and will auto-format the name as required
+
+> ⚠ This script assumes you've already connected to the Skype for Business Online PowerShell Module. See [Here](connecting-to-sfbo-ps-module.md) to connect
+
+````PowerShell
+#Get the name of the new Auto Attendant from the user
+Write-Host "This script will create a new Resource Account and create the Auto Attendant" -BackgroundColor Yellow -ForegroundColor Black
+Write-Host "The only allowed symbols are - and _"
+$AaName = Read-Host "Please enter the name for the new Auto Attendant"
+
+#Create the username for the Resource Account by removing all spaces and adding RAAA_ to the start
+$AaDisplayName = $AaName -replace '[`~!@#$%^&\*()+={}|\[\]\;:\''",/<>?]',''
+$RaAaUserName = $AaName -replace '\s','' -replace '[`~!@#$%^&\*()+={}|\[\]\;:\''",/<>?]',''
+$RaAaUserName = "RAAA_$RaAaUserName{DOMAIN_NAME}"
+$RaAaDisplayName = $AaName -replace '[`~!@#$%^&\*()+={}|\[\]\;:\''",/<>?]',''
+$RaAaDisplayName = "RAAa_$RaAaDisplayName"
+
+#Create a new Auto Attendant
+New-CsOnlineApplicationInstance -UserPrincipalName $RaAaUserName -DisplayName $RaAaDisplayName -ApplicationId “ce933385-9390-45d1-9512-c8d228074e07”
+````

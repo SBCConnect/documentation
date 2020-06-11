@@ -4,6 +4,8 @@
 ## User Licenses
 > 🌐 [Microsoft: Direct Routing Licensing](https://docs.microsoft.com/en-us/microsoftteams/direct-routing-plan#licensing-and-other-requirements)
 
+> Microsoft Business Voice is a different product aimed at lower license types, is not avaliable in Australia and out-of-scope for this platform and documentation.
+
 Users require a **Microsoft Phone System** license which is available as an add-on or included in:
 - Office 365 E1 + Microsoft Phone System add-on; OR
 - Office 365 E3 + Microsoft Phone System add-on; OR

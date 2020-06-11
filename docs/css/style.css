@@ -17,3 +17,28 @@
     padding: 0.3rem 0.5rem;
     font-size: 0.8rem;
 }
+
+h1 {
+    font-size: 1.75em;
+}
+
+h2 {
+    font-size: 1.3em;
+}
+
+h3 {
+    font-size: 0.75em;
+}
+
+h4 {
+    font-size: 0.5em;
+}
+
+.main-content {
+    font-size: .9rem;
+}
+
+.main-content blockquote {
+  border-left-color: rgb(112, 175, 238);
+}
+

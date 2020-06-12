@@ -17,8 +17,9 @@ To create a Call Queue, you need to
 ## PowerShell
 The script will prompt for a name to use for the new Call Queue and will auto-format the name as required
 
-> ⚠ This script assumes you've already connected to the Skype for Business Online PowerShell Module. See [Here](connecting-to-sfbo-ps-module.md) to connect
+> ⚠ These scripts assume that you've already connected to the Skype for Business Online PowerShell Module. See [Here](connecting-to-sfbo-ps-module.md) to connect
 
+### Create the Resource Account
 ````PowerShell
 #Get the name of the new Call Queue from the user
 Write-Host "This script will create a new Resource Account and create the Call Queue" -BackgroundColor Yellow -ForegroundColor Black
@@ -35,3 +36,12 @@ $RaCqDisplayName = "RACQ_$RaCqDisplayName"
 #Create a new Call Queue
 New-CsOnlineApplicationInstance -UserPrincipalName $RaCqUserName -DisplayName $RaCqDisplayName -ApplicationId “11cd3e2e-fccb-42ad-ad00-878b93575e07”
 ````
+
+### Assign a PSTN phone number to the Resource Account
+````PowerShell
+$RaUPN = Read-Host "Please enter UPN for the Resource Account"
+Write-Host "The PSTN number must be in E.164 format - IE: +61299995555" -BackgroundColor Yellow -ForegroundColor Black
+$RaPSTN = Read-Host "Please enter PSTN number to assign to the Resource Account"
+
+Set-CsOnlineApplicationInstance -Identity $RaUPN -OnpremPhoneNumber $RaPSTN
+`````

@@ -23,7 +23,7 @@ $CppName = Read-Host "Please enter the name for the new Call Park Policy"
 
 #Create the name for the Call Park Policy by removing all spaces and adding CPP_ to the start
 $CppDisplayName = $CppName -replace '[`~!@#$%^&\*()+={}|\[\]\;:\''",/<>?]',''
-$CppUserName = "CPP_$CppDisplayName
+$CppUserName = "CPP_$CppDisplayName"
 
 #Create a new Call Park Policy Queue
 New-CsTeamsCallParkPolicy -Identity "$CppUserName" -AllowCallPark $true

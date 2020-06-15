@@ -18,6 +18,10 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Cloud Voicemail
 - [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
+## Troubleshooting
+- [Typical Call Flow SIP Messages](pages/typical-call-flows.md)
+- [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)
+
 ## More about the platform
 
 SBC Connect is proudly hosted on the 5GN Cloud.

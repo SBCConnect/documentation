@@ -22,7 +22,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Cloud Voicemail
 - [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
-## <span style="color: Red;"><i class="fas fa-camera"></i></span> Troubleshooting
+## <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> Troubleshooting <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span>
 ### Single User Troubleshooting and Call Quality Issues
 - [Check a single user's account for provisioning issues](pages/check-user-configuration.md)
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)

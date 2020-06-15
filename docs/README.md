@@ -25,7 +25,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)
 
 ## More about the platform
-[Click Here](pages/how-to-use-the-site.md) for key information on how to use the SBC Connect website
+[Click Here](pages/how-to-use-the-site.md) for key information on how to use the SBC Connect website and how to report errors in the documentation
 
 SBC Connect is proudly hosted on the 5GN Cloud.
 More information at [5G Network's](https://www.5gnetworks.com.au) website

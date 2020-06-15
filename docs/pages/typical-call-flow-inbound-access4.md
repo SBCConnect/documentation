@@ -8,6 +8,9 @@ This is a typical call flow and outlines the important SIP messages
 > Because SBC Connect is connected to multiple providers, you'll need to select the inbound call flow relivant to your call flow.
 More examples can be found: 🌐 [Here](typical-call-flows.md)
 
+### Notes on Access 4
+Because the Access 4 SIP trunk is internet authenticated, then there is an additional *401 Unauthorized* in the SIP ladder that isn't nromally present in other providers, for example AAPT. This is normal and a second INVITE is used to authenticate the call.
+
 ````mermaid
 sequenceDiagram
     participant C as Customer <br> A-Party
@@ -29,7 +32,6 @@ sequenceDiagram
     C-->P: Media Flow
     loop During the call
         C->P: 183 Session Progress (both ways)
-
     end
     alt A-Party Disconnects Call
         C->>S: BYE

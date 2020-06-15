@@ -19,6 +19,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="{{ '/assets/css/style.css?v=' | append: site.github.build_revision | relative_url }}">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/mermaid.min.js"></script>
   </head>
   <body>
     <header class="page-header" role="banner">
@@ -38,4 +39,16 @@
       
     </main>
   </body>
+<script>
+  var config = {
+      startOnLoad:true,
+      theme: 'default',
+      flowchart:{
+              useMaxWidth:false,
+              htmlLabels:true
+          }
+  };
+  mermaid.initialize(config);
+  window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
+</script>
 </html>

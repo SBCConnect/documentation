@@ -1,17 +1,68 @@
 # Microsoft Teams Cloud Voicemail
 
 ## User Voice Mailboxes
+A user voice mailbox is inlcuded in a correctly licensed Microsoft Phone System user.
+
+To enable a Voice mailbox for a user, the user must be Hosted Voicemail Enabled
+> ⚠ These scripts assume that you've already connected to the Skype for Business Online PowerShell Module. See [Here](connecting-to-sfbo-ps-module.md) to connect
+
+<i class="fas fa-keyboard"></i> SBC-Easy PowerShell Code
+````PowerShell
+function Get-UserUPN {
+    #Regex pattern for checking an email address
+    $EmailRegex = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
+
+    #Get the users UPN
+    Write-Host ""
+    $UserUPN = Read-Host "Please enter in the users full UPN"
+    while($UserUPN -notmatch $EmailRegex)
+    {
+     Write-Host "$UserUPN isn't a valid UPN. A UPN looks like an email address" -BackgroundColor Red -ForegroundColor White
+     $UserUPN = Read-Host "Please enter in the users full UPN"
+    }
+    return $UserUPN
+}
+
+Write-Host "This script will confirm a user is Enterprice Voice Enabled and will enable Hosted Voicemail" -BackgroundColor Yellow -ForegroundColor Black
+$UserUPN = Get-UserUPN
+
+# Check the user is enabled for Enterprise Voice
+$usr = Get-CsOnlineUser -Identity $UserUPN | Select DisplayName, HostedVoiceMail, EnterpriseVoiceEnabled
+if ($usr.EnterpriseVoiceEnabled -eq $false) {write-host "ERROR: User $($usr.DisplayName) is not Enterprise Voice Enabled. User must be Enterprise Voice Enabled before you can enable them for Hosted Voicemail" -BackgroundColor -Red -ForegroundColor White; pause; exit}
+
+#Enable for Hosted Voicemail
+Set-CsUser -Identity $UserUPN -HostedVoiceMail $true -erroraction SilentlyContinue
+
+#Check it enabled
+clear-variable usr
+Start-Sleep -s 5
+$usr = Get-CsOnlineUser -Identity $UserUPN | Select DisplayName, HostedVoiceMail, EnterpriseVoiceEnabled
+if ($usr.HostedVoiceMail -eq $true)
+  {write-host "PASS: User $($usr.DisplayName) is now Hosted Voicemail Enabled. It might take a few minutes for the service to provision." -BackgroundColor Green -ForegroundColor Black; pause; exit}
+else
+  {write-host "ERROR: User $($usr.DisplayName) is not Enterprise Voice Enabled. User must be Enterprise Voice Enabled before you can enable them for Hosted Voicemail" -BackgroundColor Red -ForegroundColor White; pause; exit}
+````
+
+<i class="fas fa-terminal"></i> SBC-Easy PowerShell Code
+````PowerShell
+Set-CsUser -Identity {USER_UPN} -HostedVoiceMail $true
+````
 
 
 ## Common Voice mailboxes
-Common Voicemails are refered to as a voice emailbox that isn't attached to a user.
-For example a company might need a common voice mailbox for the geenral receipt of voicemails as an overflow option during the day and for
-capturing calls after hours. This could be one common voice mailbox.
+Common Voicemails in the SBC Platform are refered to as a voice mailbox that isn't attached to a user.
+For example a company might need a common voice mailbox for the general receipt of voicemails as an overflow option during the day and for
+capturing calls after hours.
+
+Both scenarious could be a single common voice mailbox or multiple common voice mailboxes.
 
 Calls can be transfered to a common voice mailboxes from within an Auto Attendant. Transfers from a Call Queue are not possible.
 
-## Setup a common voice mailbox
+### Setup a common voice mailbox
 - Create an Office 365 Group
   - This group can be the same as a group used for call queue members
 - Add members to the group that you wish to have access to the voicemails
 - In an Auto Attendant, Select **Redirect to** > **Voice Mail** then select the Office 365 group
+
+### Licensing
+License requirements are listed under **Common Voice Mailboxes** 🌐 [Here](pages/License-Requirements.md#common-voice-mailboxes)

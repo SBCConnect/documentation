@@ -2,6 +2,7 @@
 
 SBCConnect.com.au is a website designed to document the platforms connection requirements between the Session Border Controllers into the Microsoft Teams Phone system.
 
+> <i class="fas fa-exclamation-triangle"></i> This website is designed to be viewed from https://sbcconnect.com.au and not from GitHub Directly. Certain parts of the website will not render when viewing on the GitHub platform.
 
 ## Teams Platform Documentation
 
@@ -19,10 +20,12 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
 ## Troubleshooting
+- [Check a single user's account for provisioning issues](pages/check-user-configuration.md)
 - [Typical Call Flow SIP Messages](pages/typical-call-flows.md)
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)
 
 ## More about the platform
+[Click Here](pages/how-to-use-the-site.md) for key information on how to use the SBC Connect website
 
 SBC Connect is proudly hosted on the 5GN Cloud.
 More information at [5G Network's](https://www.5gnetworks.com.au) website

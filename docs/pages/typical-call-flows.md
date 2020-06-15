@@ -1,36 +1,20 @@
-#Typical Call Flows
-There are 2 typical call flows - Inbound and Outbound.
-The **Calling** party is called the **A-party**
-The **Called** party is called the **B-party**
+# Typical Call Flows
+This page links to typical call flows that our platform sees, both from a customer and upstream provider perspective.
+Because the SBC Connect platform operates calls with multiple carriers, then you'll need to verify the upstream provider and use their call flow.
 
-````mermaid
-sequenceDiagram
-    participant C as Customer <br> A-Party
-    participant S as SBCconnect
-    participant P as Upstream Provider <br> B-Party
-    Note over C,P: Typical Outbound Call <br> from A-Party to B-Party
-    C->>S: Invite
-    S->>P: Invite
-    S->>C: 100 Trying
-    P->>S: 180 Ringing
-    S->>C: 180 Ringing
-    P->>S: 200 OK
-    S->>C: 200 OK
-    C->>S: ACK
-    S->>P: ACK
-    C-->P: Media Flow
-    loop During the call
-        C-->P: Check in loops
-    end
-    alt A-Party Disconnects Call
-        C->>S: BYE
-        S->>P: BYE
-        P->>S: 200 OK
-        S->>C: 200 OK
-    else B-Party Disconnects Call
-        P->>S: BYE
-        S->>C: BYE
-        C->>S: 200 OK
-        S->>P: 200 OK
-    end
-    ````
+In addition, the platform does have failover for outbound calls between different providers, so if you're not seeing the expected call flow, then please work through the other carriers as needed.
+
+## Call Flows
+There are several typical call flows linked here
+- Inbound
+  - AAPT
+  - Access 4
+- Outbound
+  - [AAPT](typical-call-flow-inbound-aapt.md)
+  - [Access 4](typical-call-flow-inbound-access4.md)
+- On-Hold
+- Transfer
+
+## Notes on call flows
+The **Calling** party (person making the call) is called the **A-party**
+The **Called** party (person receiving the call) is called the **B-party**

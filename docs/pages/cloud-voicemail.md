@@ -10,12 +10,14 @@ To confirm that the user is already enabled, or to enable it for a user where it
 <i class="fas fa-clipboard"></i> To enable a Voice mailbox for a user, the user must already be Enterprise Voice Enabled
 
 <i class="fas fa-terminal"></i> Raw PowerShell Code
+
 ````PowerShell
 Set-CsUser -Identity {USER_UPN} -HostedVoiceMail $true
 ````
 
 <i class="fas fa-keyboard"></i> SBC-Easy PowerShell Code
 > ⚠ These scripts assume that you've already connected to the **Skype for Business Online PowerShell Module**. <br>Connection details are [Here](connecting-to-sfbo-ps-module.md)
+
 ````PowerShell
 function Get-UserUPN {
     #Regex pattern for checking an email address

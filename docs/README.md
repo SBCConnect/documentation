@@ -5,7 +5,10 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 > <i class="fas fa-exclamation-triangle"></i> This website is designed to be viewed from https://sbcconnect.com.au and not from GitHub Directly. Certain parts of the website will not render when viewing on the GitHub platform.
 
 ## Teams Platform Documentation
+### Getting Started
+- [Setting up a new tenant for SBC Connect calling](pages/getting-started-new-tenant.md)
 
+### Individual Deployment Steps
 - [Voice enable a user account](pages/voice-enable-a-new-user.md)
 - [Creating a Call Queue (CQ)](pages/create-a-call-queue.md)
 - [Creating an Auto Attendant (AA)](pages/create-an-auto-attendant.md)
@@ -19,10 +22,18 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Cloud Voicemail
 - [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
-## Troubleshooting
+## <span style="color: Red;"><i class="fas fa-camera"></i></span> Troubleshooting
+### Single User Troubleshooting and Call Quality Issues
 - [Check a single user's account for provisioning issues](pages/check-user-configuration.md)
-- [Typical Call Flow SIP Messages](pages/typical-call-flows.md)
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)
+- [Voicemail Configuration](pages/cloud-voicemail.md#user-voice-mailboxes)
+
+### Multi-User Troubleshooting and Call Quality Issues
+
+
+### Platform Troubleshooting and Issues
+- [Typical Call Flow SIP Ladder/Messages](pages/typical-call-flows.md)
+
 
 ## More about the platform
 [Click Here](pages/how-to-use-the-site.md) for key information on how to use the SBC Connect website and how to report errors in the documentation

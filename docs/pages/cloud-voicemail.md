@@ -43,7 +43,7 @@ else
   {write-host "ERROR: User $($usr.DisplayName) is not Enterprise Voice Enabled. User must be Enterprise Voice Enabled before you can enable them for Hosted Voicemail" -BackgroundColor Red -ForegroundColor White; pause; exit}
 ````
 
-<i class="fas fa-terminal"></i> SBC-Easy PowerShell Code
+<i class="fas fa-terminal"></i> Raw PowerShell Code
 ````PowerShell
 Set-CsUser -Identity {USER_UPN} -HostedVoiceMail $true
 ````

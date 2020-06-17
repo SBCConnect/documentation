@@ -6,7 +6,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 ## Teams Platform Documentation
 ### Getting Started
-- [Setting up a new tenant for SBC Connect calling](pages/getting-started-new-tenant.md)
+- [Setting up a new tenant for SBC Connect calling](pages/getting-started-new-tenant-customer.md)
 
 ### Individual Deployment Steps
 - [Voice enable a user account](pages/voice-enable-a-new-user.md)

@@ -7,7 +7,7 @@ A user voice mailbox is inlcuded in a correctly licensed Microsoft Phone System 
 ### PowerShell
 To confirm that the user is already enabled, or to enable it for a user where it's disable, you can use the following PowerShell commands.
 
-<i class="fas fa-clipboard"></i> To enable a Voice mailbox for a user, the user must already be Enterprise Voice Enabled
+> <i class="fas fa-clipboard"></i> To enable a Voice mailbox for a user, the user must already be Enterprise Voice Enabled
 
 <i class="fas fa-terminal"></i> **Raw PowerShell Code**
 

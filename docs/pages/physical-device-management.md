@@ -28,6 +28,8 @@ Different Confiugration Profiles can be used to setup phones with common attribu
 - If you configure a Lock timeout with a PIN number from a Configuration Profile, then the device:
   - will lock at the time of the configured timeout period; and
   - will require a PIN number in order to make a call, check calendar items, etc; and
+  - will allow the user to change the pre-configured pin number; and
+  - will **NOT** allow the user to remove the pin lock requirement from the settings menu of the phone; and
   - will **NOT** require a PIN number in order to answer an incoming call.
   
 ## Microsoft Docs

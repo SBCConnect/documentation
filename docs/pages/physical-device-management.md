@@ -23,9 +23,12 @@ Different Confiugration Profiles can be used to setup phones with common attribu
 - [Assign a device Configuration Profile](assign-deivce-configuration-profile.md)
 - [Remove a device Configuration Profile](remove-deivce-configuration-profile.md)
 
-## Further Information
-### Device lock configuration profile
+## Configuration Profile Settings
+### Device Lock
 - If you configure a Lock timeout with a PIN number from a Configuration Profile, then the device:
   - will lock at the time of the configured timeout period; and
-  - will require a PIN number in order to make a call, check calendar, etc; and
-  - will NOT require a PIN number in order to answer a call.
+  - will require a PIN number in order to make a call, check calendar items, etc; and
+  - will **NOT** require a PIN number in order to answer an incoming call.
+  
+## Microsoft Docs
+[Manage your devices in Microsoft Teams](https://docs.microsoft.com/en-us/microsoftteams/devices/device-management)

@@ -1,4 +1,6 @@
 # Microsoft Teams Physical Device Management
+> <i class="fas fa-clipboard"></i> NOTE: As at June 2020, there are no options to confiugre the Device Configuration Profiles by API or PowerShell.
+
 There are a number of Microsoft Teams certified devices on the market from several different manufactures.\
 These devices are listed on the Microsoft Teams Devices Page 🌐 [Here](https://www.microsoft.com/en-au/microsoft-365/microsoft-teams/across-devices)
 
@@ -18,10 +20,10 @@ If the Microsoft 365 tenant also has Intune setup, then the device is registered
 Different Confiugration Profiles can be used to setup phones with common attributes 
 
 ## Device Configuration Management
-- [Create a new device Configuration Profile](new-deivce-configuration-profile.md)
-- [Edit a device Configuration Profile](edit-deivce-configuration-profile.md)
-- [Assign a device Configuration Profile](assign-deivce-configuration-profile.md)
-- [Remove a device Configuration Profile](remove-deivce-configuration-profile.md)
+- [Create a new device Configuration Profile](pages/new-deivce-configuration-profile.md)
+- [Edit a device Configuration Profile](pages/edit-deivce-configuration-profile.md)
+- [Assign a device Configuration Profile](pages/assign-deivce-configuration-profile.md)
+- [Remove a device Configuration Profile](pages/remove-deivce-configuration-profile.md)
 
 ## Configuration Profile Settings
 ### Device Lock

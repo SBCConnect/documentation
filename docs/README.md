@@ -13,6 +13,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Creating a Call Queue (CQ)](pages/create-a-call-queue.md)
 - [Creating an Auto Attendant (AA)](pages/create-an-auto-attendant.md)
 - [Creating a Resource Account](pages/create-a-resource-account-user.md)
+- [Adding required domain names to the Microsoft 365 tenant](pages/add-domain-name-to-tenant.md)
 
 ### Licensing
 - [License Requirements for Microsoft Teams Direct Routing](pages/License-Requirements.md)

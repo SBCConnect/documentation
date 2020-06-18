@@ -23,13 +23,62 @@ function Get-UserUPN {
      Write-Host "$UserUPN isn't a valid UPN" -BackgroundColor Red -ForegroundColor White
      $UserUPN = Read-Host "Please enter in the users full UPN"
     }
+
+    Clear-Variable OverrideAdminDomain
+
+    $msOnlineRegex = '^([\w-\.]+)@([a-zA-Z0-9]+)\.onmicrosoft\.com$'
+    If($UserUPN -notmatch $msOnlineRegex) 
+    {
+        Write-Host "It seems you've entered a UPN not ending in onmicrosoft.com. This is OK, however we need to get that domain to be able to login" -ForegroundColor Yellow
+        $OverrideAdminDomain = Read-Host "Please enter in your ______.onmicrosoft.com prefix"
+        $checkDomain = $true
+
+        while ($checkDomain)
+        {
+            If($OverrideAdminDomain -like '*.onmicrosoft.com')
+            {
+                $rootDomain = $OverrideAdminDomain.Substring(0, ($OverrideAdminDomain.Length - 16))
+                If($rootDomain -inotmatch '^[a-zA-Z0-9]+$')
+                {
+                    Write-Host "Prefix not valid" -ForegroundColor Yellow
+                } else {
+                    $checkDomain = $false
+                }
+            } else {
+                If($OverrideAdminDomain -notmatch '^[a-zA-Z0-9]+$')
+                {
+                    Write-Host "Prefix not valid" -ForegroundColor Yellow
+                } else {
+                    $checkDomain = $false
+                    $OverrideAdminDomain = "$OverrideAdminDomain.onmicrosoft.com"
+                }
+            }
+
+            If($checkDomain -ne $false) {$OverrideAdminDomain = Read-Host "Please enter in your ______.onmicrosoft.com prefix"}
+        }
+
+        while($OverrideAdminDomain -match $msOnlineRegex)
+        {
+         Write-Host "$UserUPN isn't a valid UPN" -BackgroundColor Red -ForegroundColor White
+         $UserUPN = Read-Host "Please enter in the users full UPN"
+        }
+    }
+
     return $UserUPN
 }
 
-#Connect to the Skype for Business PowerShell module 
+#Check first, then connect to the Skype for Business PowerShell module 
 Write-Host "Logging onto Skype for Business Online Powershell Module" -BackgroundColor Yellow -ForegroundColor Black
-$skypeConnection = New-CsOnlineSession -ErrorAction SilentlyContinue
-Import-PSSession $skypeConnection -AllowClobber -ErrorAction SilentlyContinue
+If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened') {
+	Write-Host 'Using existing session credentials'}
+Else {
+	if($OverrideAdminDomain) {
+        	$skypeConnection = New-CsOnlineSession -OverrideAdminDomain $OverrideAdminDomain
+    	} else {
+        	$skypeConnection = New-CsOnlineSession
+    	}
+	Import-PSSession $skypeConnection -AllowClobber
+}
 
 #Check we're connected - exit if not
 if ($skypeConnection.Availability -ne 'Available') {write-host "Unable to connect to online services. Please try the connection again." -BackgroundColor Red -ForegroundColor White; pause; exit}

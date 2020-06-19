@@ -67,11 +67,28 @@ Calls can only be transfered to a common voice mailboxes from within an Auto Att
 A Common Voice Mailbox is delivered using a Microsoft 365 Group. After configuring a Microsoft 365 Group, you're able to select it as a Voicemail routing option from an Auto Attendant.
 
 ### Setup a common voice mailbox
+If you're planning to deliver voicemails to a user or shared mailbox, then this may change the members of the group. Please read [Receiving Common Voicemails](#receiving-common-voicemails) in before proceeding with creating the group. 
 - Create a Microsoft 365 Group from the Microsoft Admin Portal
   - 🌐 https://admin.microsoft.com
   - This group can be the same as a group used for call queue members
 - Add members to the group that you wish to have access to the voicemails
 - In an Auto Attendant, Select **Redirect to** > **Voice Mail** then select the Microsoft 365 group
 
-### Licensing
-License requirements are listed under **Common Voice Mailboxes** 🌐 [Here](pages/License-Requirements.md#common-voice-mailboxes)
+### Receiving Common Voicemails
+Voicemails delivered to Common Voice Mailboxes can **only** be delivered to an Office 365 Group, however it is possible to get these emails forwarded to another mailbox, including a User or Shared Mailbox.\
+This forwarding will need to be done by a service account in the tenant with a Microsoft Flow license. Refer to the [Licensing](#licensing-for-common-voicemails) section below.
+
+### Configuring voicemail redirection to a User or Shared Mailbox
+Because voicemails can only be delivered to a Microsoft 365 group, this severly impacts the usability of the product as emails as part of a group can't easily be deleted, marked complete, moved to another folder, etc etc.\
+Customers may choose to have these voicemails forwarded from the group to a shared mailbox using the Microsoft Power Automate platform. From here you can create a tasks that triggers everytime an email is recevied and then forward that onto another mailbox.
+
+**Steps**
+- Log into the Microsft Power Automate website as a licensed user
+  - http://flow.microsoft.com
+- Create a new Flow
+- Add a trigger called **
+
+> Placeholder - Need to finish STEPS
+
+### Licensing for Common Voicemails
+License requirements are listed under **Common Voice Mailboxes** in 🌐 [License Requirements](pages/License-Requirements.md#common-voice-mailboxes)

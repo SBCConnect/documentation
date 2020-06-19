@@ -33,12 +33,7 @@ Grant-CsOnlineVoiceRoutingPolicy -Identity "$UserUPN" -PolicyName Australia
 Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)
 
 ```powershell
-#Variables to change
-#DID number must be in E.164 format. IE: +61299995555
-$UserUPN = "INSERT_USER_UPN_HERE"
-$UserDID = "INSERT_USER_DID_NUMBER_HERE"
-
-######## DO NOT CHANGE BELOW THIS LINE ########
+######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 
 function Get-UserUPN {
     #Regex pattern for checking an email address

@@ -4,6 +4,8 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 > <i class="fas fa-exclamation-triangle"></i> This website is designed to be viewed from https://sbcconnect.com.au and not from GitHub Directly. Certain parts of the website will not render when viewing on the GitHub platform.
 
+> <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> [Click here for troubleshooting information](#troubleshooting).
+
 ## Teams Platform Documentation
 ### Getting Started
 - [Setting up a new tenant for SBC Connect calling](pages/getting-started-new-tenant-customer.md)
@@ -23,6 +25,18 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Cloud Voicemail
 - [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
+### Teams Device Configuration Policies
+- [Physical Microsoft Teams device management](pages/physical-device-management.md)
+- [Assign a device configuration policy](pages/assign-deivce-configuration-profile.md)
+- [Create a new device configuration policy](pages/new-deivce-configuration-profile.md)
+- [Edit a device configuration policy](pages/edit-deivce-configuration-profile.md)
+- [Remove a device confiugration policy](pages/remove-deivce-configuration-profile.md)
+
+### General Changes
+- [Change the outbound caller ID](pages/change-outbound-caller-id.md)
+- [Create a Call Park policy](pages/create-a-call-park-policy.md)
+- [Create a Call Queue](pages/create-a-call-queue.md)
+
 ## <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> Troubleshooting <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span>
 ### Single User Troubleshooting and Call Quality Issues
 - [Check a single user's account for provisioning issues](pages/check-user-configuration.md)
@@ -30,6 +44,12 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Voicemail Configuration](pages/cloud-voicemail.md#user-voice-mailboxes)
 
 ### Multi-User Troubleshooting and Call Quality Issues
+
+
+### Typical Call Flows
+- [Typical call flow overview](pages/typical-call-flows.md)
+  - [Inbound AAPT](pages/typical-call-flow-inbound-aapt.md)
+  - [Inbound Access 4](pages/typical-call-flow-inbound-access4.md)
 
 
 ### Platform Troubleshooting and Issues

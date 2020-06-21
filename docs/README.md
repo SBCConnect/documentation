@@ -46,14 +46,10 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Multi-User Troubleshooting and Call Quality Issues
 
 
-### Typical Call Flows
-- [Typical call flow overview](pages/typical-call-flows.md)
+### Platform Troubleshooting and Issues
+- [Typical call flow SIP Ladder/Messages](pages/typical-call-flows.md)
   - [Inbound AAPT](pages/typical-call-flow-inbound-aapt.md)
   - [Inbound Access 4](pages/typical-call-flow-inbound-access4.md)
-
-
-### Platform Troubleshooting and Issues
-- [Typical Call Flow SIP Ladder/Messages](pages/typical-call-flows.md)
 
 
 ## More about the platform

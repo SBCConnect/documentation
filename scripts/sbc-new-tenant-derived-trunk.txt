@@ -1,0 +1,94 @@
+
+# Script for {@CUSTOMER@}
+# Domain {@TENANT4@}-dt.sbcconnect.com.au
+# Mode DERIVED TRUNK
+
+#Script is for provisioning process of additional MS Teams tenant on *.sbcconnect.com.au in Supertrunk setup
+#Assumes certificates have been activated and loaded
+#Assumes the base Global profiles and Supertrunk has been created (LRBT, IPSP, PSP, SMM)
+#Assumes Teams tenant Media Bypass=True
+#Red text to be replaced with actual planned value and varies for each tenant.
+#Green text to be replaced with actual planned value. This value is SBC specific.
+
+
+# New Tenant Provisioning on existing Teams Supertrunk
+# Configure Dedicated Tenant Egress Trunk Groups for Routes (External)
+##############################################################################
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG media mediaIpInterfaceGroupName EXTERNAL_IPIG
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling honorMaddrParam enabled 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy media packetServiceProfile TEAMS_PSP 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy signaling ipSignalingProfile TEAMS_IPSP 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG downstreamForkingSupport enabled 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling rel100Support enabled 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG services dnsSupportType a-only 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling relayNonInviteRequest enabled 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy media toneAndAnnouncementProfile LRBT_PROF 
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG media sdpAttributesSelectiveRelay enabled
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling methods update reject
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG mode inService state enabled
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling messageManipulation inputAdapterProfile TEAMS_SMM_IN
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling messageManipulation outputAdapterProfile SUPERTRK_SMM_OUT
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling messageManipulation smmProfileExecution fixedOrder
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG services natTraversal iceSupport iceWebrtc
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling acceptHistoryInfo enabled
+commit
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling transportPreference preference1 tls-tcp
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling authentication intChallengeResponse enabled
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG signaling authentication incInternalCredentials enabled
+commit
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy sipDomain SIP.PSTNHUB.MICROSOFT.COM
+commit
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy localizationVariant generic
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy country 64
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy featureControlProfile EXT_TEAMS_FCP
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy callRouting elementRoutingPriority TG_ERP
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy digitParameterHandling numberingPlan MS_TEAMS_NP
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy digitParameterHandling ingressDmPmRule REMOVE_PLUS64
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy digitParameterHandling egressDmPmRule TEAMS_{@TENANT4@}_DMPM
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy services classOfService DEFAULT_IP
+set addressContext default zone EXT_TEAMS_SUPERTRK_ZONE sipTrunkGroup EXT_{@TENANT4@}_TG policy signaling signalingProfile EXT_TEAMS_SP
+commit
+
+
+# Configure DM/PM Rule
+#############################################################################
+# No associated DM/PM Criteria required.
+set profiles digitParameterHandling dmPmRule TEAMS_{@TENANT4@}_DMPM subRule 0 ruleType uri 
+set profiles digitParameterHandling dmPmRule TEAMS_{@TENANT4@}_DMPM subRule 0 uriParameterManipulation uriType callingUri 
+set profiles digitParameterHandling dmPmRule TEAMS_{@TENANT4@}_DMPM subRule 0 uriParameterManipulation hostPortManipulation startCharacterPosition 0 numberOfCharacters 64 portNumber noChange 
+# value field in following command is tenant specific
+set profiles digitParameterHandling dmPmRule TEAMS_{@TENANT4@}_DMPM subRule 0 uriParameterManipulation hostPortManipulation replacement type constant value {@TENANT4@}-dt.sbcconnect.com.au 
+commit
+
+ 
+
+
+# Call Routing, Routing Labels
+#############################################################################
+set global callRouting routingLabel EXT_{@TENANT4@}_RL action routes routePrioritizationType sequence overflowNOA none overflowNPI none numRoutesPerCall 10
+
+
+# Call Routing, Routing Labels Routes
+#############################################################################
+set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 1 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_01 inService inService testing normal
+set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 2 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_02 inService inService testing normal
+set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 3 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_03 inService inService testing normal
+
+
+ 
+# SIP Domain
+#############################################################################
+set global sipDomain {@TENANT4@}-dt.sbcconnect.com.au
+
+
+# Call Routing Routes
+#############################################################################
+set global callRouting route none Sonus_NULL Sonus_NULL standard {@NUMBER@} all all ALL none Sonus_NULL routingLabel RL_A_TEAMS_{@TEANANT4@} set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+commit
+
+

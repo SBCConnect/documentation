@@ -4,7 +4,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 > <i class="fas fa-exclamation-triangle"></i> This website is designed to be viewed from https://sbcconnect.com.au and not from GitHub Directly. Certain parts of the website will not render when viewing on the GitHub platform.
 
-> <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> [Click here for troubleshooting information](#troubleshooting).
+> <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> [Click here for troubleshooting information](#-troubleshooting-).
 
 ## Teams Platform Documentation
 ### Getting Started

@@ -486,7 +486,7 @@ if (($totalLicenseEnabled - $totalLicenseConsumed) -lt $numUsers) {
                 #Catch {Write-Host "We're unable to set the users usage Location to Australia. $ErrorMsg" -ForegroundColor Yellow -BackgroundColor Red; Pause}
                 
             } else {
-                Write-Host "Location: $($userAzure.UsageLocation)"
+                Write-Host "Location: $($checkRP.UsageLocation)"
             }
             
 

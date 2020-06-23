@@ -1,0 +1,317 @@
+############################################
+#
+#
+#     THIS SCRIPT IS FOR MDC
+#     CUSTOMER: {@CUSTOMER@}
+#
+#
+############################################
+#Script is for provisioning process of additional MS Teams tenant on *.sbcconnect.com.au in Direct Trunk (Single-Tenant) setup
+#Assumes certificates have been activated and loaded
+#Assumes the base Global profiles has been created (LRBT, IPSP, PSP, SMM)
+#Assumes Teams tenant Media Bypass=True
+#Red text to be replaced with actual planned value and varies for each tenant.
+#Green text to be replaced with actual planned value. This value is SBC specific.
+#Variables Used
+#SBC_IP={@SBC_IP@}
+#TENANT4={@TENANT4@}
+#SIPSIGPORT={@SIPSIGPORT@}
+#PORT={@PORT@}
+#LOC={@LOC@}
+#
+#
+# Domain {@TENANT4@}-mdc.sbcconnect.com.au
+# Domain {@TENANT4@}sdc.sbcconnect.com.au
+# Mode NON-DERIVED TRUNK
+
+
+
+1.	New Tenant Provisioning (Single-Tenant Setup)
+# Configure SIP Domain
+##############################################################################
+set global sipDomain {@TENANT4@}.sbcconnect.com.au
+commit
+
+# Configure SMM to Modify Options Message
+##############################################################################
+
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS state enabled
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS advancedSMM disabled
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS profileType messageManipulation
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 applyMatchHeader one
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 1 message messageTypes response
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 1 message methodTypes options
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 1 message statusCode 200
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 2 header name Contact
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 criterion 2 header hdrInstance all
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 operation regsub
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 from type value
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 from value "<sip:{@TENANT4@}.sbcconnect.com.au:{@PORT@};transport=tls>"
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 to type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 to value Contact
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 regexp
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 regexp string .*
+set profiles signaling sipAdaptorProfile {@TENANT4@}_OPTIONS rule 1 action 1 regexp matchInstance all
+commit
+
+# Configure Zones
+##############################################################################
+
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE id {@SIPSIGPORT@}
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE domainName {@TENANT4@}.sbcconnect.com.au
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE messageManipulation outputAdapterProfile {@TENANT4@}_OPTIONS
+commit
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE dnsGroup DNS_GROUP_DEFAULT
+commit
+
+# Configure an IP Peer
+##############################################################################
+
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_01 policy sip fqdn sip.pstnhub.microsoft.com fqdnPort 5060
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_02 policy sip fqdn sip2.pstnhub.microsoft.com fqdnPort 5060
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_03 policy sip fqdn sip3.pstnhub.microsoft.com fqdnPort 5060
+commit
+#
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_01 pathCheck profile TEAMS_OPTIONS
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_01 pathCheck profile TEAMS_OPTIONS hostName sip.pstnhub.microsoft.com hostPort 5060 state enabled
+commit
+
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_02 pathCheck profile TEAMS_OPTIONS
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_02 pathCheck profile TEAMS_OPTIONS hostName sip2.pstnhub.microsoft.com hostPort 5060 state enabled
+commit
+
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_03 pathCheck profile TEAMS_OPTIONS
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE ipPeer PEER_A_TEAMS_{@TENANT4@}_03 pathCheck profile TEAMS_OPTIONS hostName sip3.pstnhub.microsoft.com hostPort 5060 state enabled
+commit
+
+# Create Signaling Ports
+##############################################################################
+
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipSigPort {@SIPSIGPORT@} ipInterfaceGroup EXTERNAL_IPIG
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipSigPort {@SIPSIGPORT@} ipAddressV4 {@SBC_IP@}
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipSigPort {@SIPSIGPORT@} portNumber {@PORT@}
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipSigPort {@SIPSIGPORT@} dscpValue 26
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipSigPort {@SIPSIGPORT@} transportProtocolsAllowed sip-tls-tcp
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipSigPort {@SIPSIGPORT@} tlsProfileName TLS_PROF
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipSigPort {@SIPSIGPORT@} state enabled mode inService
+commit
+
+# Configure SMM for per Tenant Trunk
+##############################################################################
+
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT state enabled
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT advancedSMM disabled
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT profileType messageManipulation
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 applyMatchHeader one
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 criterion 1 message messageTypes requestAll
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 criterion 2 header name From
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 operation modify
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 from type value
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 from value {@TENANT4@}.sbcconnect.com.au
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 to type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 1 action 1 to tokenValue urihostname
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 applyMatchHeader one
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 criterion 1 message messageTypes requestAll
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 criterion 2 header name P-Preferred-Identity
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 operation modify
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 from type value
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 from value {@TENANT4@}.sbcconnect.com.au
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 to type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 2 action 1 to tokenValue urihostname
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 1 message messageTypes requestAll
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 1 message condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 2 header name Contact
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 operation modify
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 from type value
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 from value {@TENANT4@}.sbcconnect.com.au
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 to type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 3 action 1 to tokenValue urihostname
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 1 message messageTypes request
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 1 message methodTypes invite
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 1 message condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 2 header name Request-Line
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 3 type parameter
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 3 parameter
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 3 parameter condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 3 parameter paramType uri
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 criterion 3 parameter name Ribbon
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 type parameter
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 operation store
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 paramType uri
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 from type parameter
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 from value Ribbon
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 to type variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 1 to variableValue var2
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 type parameter
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 operation delete
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 paramType uri
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 from type parameter
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 from value Ribbon
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 to type parameter
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 4 action 2 to value Ribbon
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 1 message messageTypes request
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 1 message methodTypes invite
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 1 message condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 2 header name From
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 3 type variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 3 variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 3 variable condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 criterion 3 variable variableID var2
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 operation modify
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 from type variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 from variableValue var2
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 to type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 5 action 1 to tokenValue urihostname
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 1 message messageTypes request
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 1 message methodTypes invite
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 1 message condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 2 header name Contact
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 3 type variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 3 variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 3 variable condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} criterion 3 variable variableID var2
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 operation modify
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 from type variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 from variableValue var2
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 to type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule {@SIPSIGPORT@} action 1 to tokenValue urihostname
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 1 type message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 1 message
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 1 message messageTypes request
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 1 message methodTypes invite
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 1 message condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 2 type header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 2 header
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 2 header name P-Preferred-Identity
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 2 header condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 3 type variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 3 variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 3 variable condition exist
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 criterion 3 variable variableID var2
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 operation modify
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 from
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 from type variable
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 from variableValue var2
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 to
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 to type token
+set profiles signaling sipAdaptorProfile {@TENANT4@}_SMM_OUT rule 7 action 1 to tokenValue urihostname
+commit
+
+# Configure Per Tenant Trunk Groups
+##############################################################################
+
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG media mediaIpInterfaceGroupName EXTERNAL_IPIG
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling methods update reject
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling rel100Support enabled
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling relayNonInviteRequest enabled
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling honorMaddrParam enabled
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG services dnsSupportType a-only
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG media sdpAttributesSelectiveRelay enabled
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG ingressIpPrefix 52.112.0.0 14
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling messageManipulation inputAdapterProfile TEAMS_SMM_IN
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling messageManipulation outputAdapterProfile {@TENANT4@}_SMM_OUT
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling messageManipulation smmProfileExecution fixedOrder
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG services natTraversal iceSupport iceWebrtc
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG state enabled mode inService
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling authentication intChallengeResponse enabled
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG signaling authentication incInternalCredentials enabled
+commit
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy sipDomain SIP.PSTNHUB.MICROSOFT.COM
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy signaling ipSignalingProfile TEAMS_IPSP
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy media packetServiceProfile TEAMS_PSP
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy media toneAndAnnouncementProfile LRBT_PROF
+commit
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy digitParameterHandling numberingPlan PSTN_NUM_PLAN 
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy country 61 localizationVariant Generic 
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy callRouting elementRoutingPriority TG_ERP 
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy signaling signalingProfile 5GN_SIG_PROFILE
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy signaling ipSignalingProfile EXT_TEAMS_IPSP 
+set addressContext default zone EXT_TEAMS_{@TENANT4@}_ZONE sipTrunkGroup EXT_TEAMS_{@TENANT4@}_TG policy featureControlProfile CORE_FCP 
+commit
+
+
+ 
+
+
+# Call Routing, Routing Labels
+#############################################################################
+set global callRouting routingLabel EXT_{@TENANT4@}_RL action routes routePrioritizationType sequence overflowNOA none overflowNPI none numRoutesPerCall 10
+
+
+# Call Routing, Routing Labels Routes
+#############################################################################
+set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 1 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_TEAMS_{@TENANT4@}_01 inService inService testing normal
+set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 2 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_TEAMS_{@TENANT4@}_02 inService inService testing normal
+set global callRouting routingLabel EXT_TENANT4_RL routingLabelRoute 3 routeType trunkGroup trunkGroup EXT_TENANT4_TG ipPeer PEER_A_TEAMS_{@TENANT4@}_03 inService inService testing normal
+
+
+# Call Routing Routes
+#############################################################################
+set global callRouting route none Sonus_NULL Sonus_NULL standard {@NUMBER@} all all ALL none Sonus_NULL routingLabel RL_A_TEAMS_{@TENANT4@}
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+commit
+
+

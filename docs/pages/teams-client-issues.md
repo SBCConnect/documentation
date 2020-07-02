@@ -1,4 +1,4 @@
-#Teams Client Issues - Local Desktop
+# Teams Client Issues - Local Desktop
 
 ## One-way audio on a call
 1. Check the device settings on the:

@@ -42,7 +42,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Check a single user's account for provisioning issues](pages/check-user-configuration.md)
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)
 - [Voicemail Configuration](pages/cloud-voicemail.md#user-voice-mailboxes)
-- [General Microsoft Teams client issues](teams-client-issues.md)
+- [General Microsoft Teams client issues](pages/teams-client-issues.md)
 
 ### Multi-User Troubleshooting and Call Quality Issues
 

@@ -26,6 +26,9 @@ Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $
 
 #Grant the user a Voice Policy 
 Grant-CsOnlineVoiceRoutingPolicy -Identity "$UserUPN" -PolicyName Australia 
+
+#Grant the user a Dial Plan
+Grant-CsDialoutPolicy -Identity "$UserUPN" -PolicyName "$dialPlan"
 ````
 
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**

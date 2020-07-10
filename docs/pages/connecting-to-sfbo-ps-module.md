@@ -73,7 +73,7 @@ function Get-UserUPN {
         }
     }
 
-    return $UserUPN
+    return $OverrideAdminDomain
 }
 
 #Check the Skype for Business Online PowerShell Module is installed
@@ -90,6 +90,8 @@ if(Get-Module SkypeOnlineConnector -ListAvailable)
         Start-Process "https://www.microsoft.com/en-us/download/details.aspx?id=39366"
         Break
     }
+
+$OverrideAdminDomain = Get-UserUPN
 
 #Check first, then connect to the Skype for Business PowerShell module 
 Write-Host "Logging onto Skype for Business Online Powershell Module" -BackgroundColor Yellow -ForegroundColor Black

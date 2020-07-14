@@ -136,7 +136,7 @@ if($error -ne $null)
 {
   Write-Host "Opps. Looks like there was an error!" -ForegroundColor Yellow
   Write-Host "Any errors may indicate that the resource account doesn't have a license OR the number is already in use."
-  Write-Host "Refer to this site for information on licensing resouce accounts" -ForegroundColor Yellow
+  Write-Host "Refer to the following site for information on licensing resource accounts" -ForegroundColor Yellow
   Write-Host "https://sbcconnect.com.au/pages/license-a-phone-system-resource-account.html" -ForegroundColor Yellow
   Pause
   Break #Exit script but don't close PowerShell to keep the logged in session

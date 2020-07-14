@@ -1,7 +1,8 @@
 # General platform FAQ questions
 
 ## When a user calls in, they can hear the skype ring tone
-The feature is refered to as the **Ringback bot for Direct Routing** by Microsoft and more information [can be found here](https://docs.microsoft.com/en-us/microsoftteams/direct-routing-ringback-bot)
+The feature is refered to as the **Ringback bot for Direct Routing** by Microsoft and it supplys a Skype/Teams ring tone back to the inbound caller instead of the Australian ring tone.\
+More information [can be found here](https://docs.microsoft.com/en-us/microsoftteams/direct-routing-ringback-bot)
 
 This feature can be enabled or disabled using powershell on the tenant.\
 After running the powershell command, the change can take up to one hour to apply

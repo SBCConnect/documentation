@@ -2,7 +2,7 @@
 > Applies to: Direct Routing only
 
 ## User Licenses
-> 🌐 [Microsoft: Direct Routing Licensing](https://docs.microsoft.com/en-us/microsoftteams/direct-routing-plan#licensing-and-other-requirements)
+> 🌐 [Microsoft: Direct Routing Licensing](https://docs.microsoft.com/en-us/microsoftteams/direct-routing-plan#licensing-and-other-requirements)\
 > 🌐 [Microsoft Business Voice License Requreiements](https://docs.microsoft.com/en-us/MicrosoftTeams/business-voice/whats-business-voice)
 
 > Microsoft Business Voice is the same platform and was released into the Australian market in JULY 2020.

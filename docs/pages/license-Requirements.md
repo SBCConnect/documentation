@@ -3,19 +3,30 @@
 
 ## User Licenses
 > 🌐 [Microsoft: Direct Routing Licensing](https://docs.microsoft.com/en-us/microsoftteams/direct-routing-plan#licensing-and-other-requirements)
+> 🌐 [Microsoft Business Voice License Requreiements](https://docs.microsoft.com/en-us/MicrosoftTeams/business-voice/whats-business-voice)
 
-> Microsoft Business Voice is a different product aimed at lower license types, is not avaliable in Australia and out-of-scope for this platform and documentation.
+> Microsoft Business Voice is the same platform and was released into the Australian market in JULY 2020.
 
-Users require a **Microsoft Phone System** license which is available as an add-on or included in:
-- Office 365 E1 + Microsoft Phone System add-on; OR
-- Office 365 E3 + Microsoft Phone System add-on; OR
-- Office 365 E5; OR
-- Microsoft 365 E1 + Microsoft Phone System add-on; OR
-- Microsoft 365 E3 + Microsoft Phone System add-on; OR
-- Microsoft 365 E5.
+Users require a valid license which is available as an add-on or included in:
+- Microsoft 365 Business Basic + Microsoft Phone System add-on; OR
+- Microsoft 365 Business Standard + Microsoft Phone System add-on; OR
+- Microsoft 365 Business Premium + Microsoft Phone System add-on; OR
+- Microsoft 365 F1 + Microsoft Phone System add-on; OR
+- Microsoft 365 F3 + Microsoft Phone System add-on; OR
+- Office 365 F3 + Microsoft Phone System add-on; OR
+- Microsoft and Office 365 Enterprise E1, E3 + Microsoft Phone System add-on; OR
+- Microsoft and Office 365 Enterprise E5; OR
+- Microsoft 365 and Office 365 Education A1, A3 + Microsoft Phone System add-on; OR
+- Microsoft 365 and Office 365 Education A5; OR
+- Microsoft 365 and Office 365 Government G1, G3 (GCC only) + Microsoft Phone System add-on; OR
+- Microsoft 365 and Office 365 Government G5 (GCC only); OR
+- Microsoft 365 Nonprofit Business Basic + Microsoft Phone System add-on; OR
+- Microsoft 365 Nonprofit Business Standard + Microsoft Phone System add-on; OR
+- Microsoft 365 and Office 365 Nonprofit E1, E3 + Microsoft Phone System add-on; OR
+- Microsoft 365 and Office 365 Nonprofit E5.
 
 Other Considerations
-- Users do not require a Call Pack for Direct Routing voice 
+- Users do not require a **Microsoft Call Pack** for Direct Routing that the SBC Connect platform uses 
 
 
 ## Common Voice mailboxes

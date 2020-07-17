@@ -18,7 +18,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Adding required domain names to the Microsoft 365 tenant](pages/add-domain-name-to-tenant.md)
 
 ### Licensing
-- [License Requirements for Microsoft Teams Direct Routing](pages/License-Requirements.md)
+- [License Requirements for Microsoft Teams Direct Routing](pages/license-Requirements.md)
 - [License a Phone System Resource Account](pages/license-a-phone-system-resource-account.md)
 - [Obtain a free Virtual Phone System License](pages/obtain-free-virtual-phone-system-licenses.md)
 

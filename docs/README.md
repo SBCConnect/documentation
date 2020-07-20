@@ -38,6 +38,9 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Create a Call Queue](pages/create-a-call-queue.md)
 
 ## <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> Troubleshooting <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span>
+### User Provisioning Issues
+- [Issues and errors when provisioning users](pages/troubleshooting-user-provisioning-issues.md)
+
 ### Single User Troubleshooting and Call Quality Issues
 - [Check a single user's account for provisioning issues](pages/check-user-configuration.md)
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)

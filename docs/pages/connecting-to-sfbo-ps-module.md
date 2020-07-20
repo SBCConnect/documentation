@@ -33,8 +33,8 @@ function Get-UserUPN {
      $UserUPN = Read-Host "Please enter in the users full UPN"
     }
 
-    Clear-Variable OverrideAdminDomain
-
+    Clear-Variable OverrideAdminDomain -ErrorAction SilentlyContinue
+    
     $msOnlineRegex = '^([\w-\.]+)@([a-zA-Z0-9]+)\.onmicrosoft\.com$'
     If($UserUPN -notmatch $msOnlineRegex) 
     {
@@ -72,8 +72,13 @@ function Get-UserUPN {
          $UserUPN = Read-Host "Please enter in the users full UPN"
         }
     }
+    
+    $returnstring = @{}
 
-    return $OverrideAdminDomain
+    $returnString.username = $UserUPN
+    $returnString.overrideAdminDomain = $OverrideAdminDomain
+
+    return $returnString
 }
 
 #Check the Skype for Business Online PowerShell Module is installed
@@ -91,7 +96,7 @@ if(Get-Module SkypeOnlineConnector -ListAvailable)
         Break
     }
 
-$OverrideAdminDomain = Get-UserUPN
+$userLogin = Get-UserUPN
 
 #Check first, then connect to the Skype for Business PowerShell module 
 Write-Host "Logging onto Skype for Business Online Powershell Module" -BackgroundColor Yellow -ForegroundColor Black
@@ -99,9 +104,9 @@ If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online
 	Write-Host 'Using existing session credentials'}
 Else {
 	if($OverrideAdminDomain) {
-        	$skypeConnection = New-CsOnlineSession -OverrideAdminDomain $OverrideAdminDomain
+        	$skypeConnection = New-CsOnlineSession -Username $userLogin.username -OverrideAdminDomain $userLogin.overrideAdminDomain
     	} else {
-        	$skypeConnection = New-CsOnlineSession
+        	$skypeConnection = New-CsOnlineSession -Username $userLogin.username
     	}
 	Import-PSSession $skypeConnection -AllowClobber
 }

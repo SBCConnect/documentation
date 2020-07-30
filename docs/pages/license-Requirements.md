@@ -26,7 +26,8 @@ Users require a valid license which is available as an add-on or included in:
 - Microsoft 365 and Office 365 Nonprofit E5.
 
 Other Considerations
-- Users do not require a **Microsoft Call Pack** for Direct Routing that the SBC Connect platform uses 
+- The SBC Connect platform uses **Microsoft Direct Routing** and not **Microsoft Call Packs** \
+  Therefore, if looking at documentation on the Microsoft website, please ignore any references to Microsoft Call Packs
 
 
 ## Common Voice mailboxes
@@ -35,7 +36,7 @@ Other Considerations
 Voicemails received to a Common Voice Mailboxe are delivered to an Office 365 Group and therefore don't require a Microsoft Teams license for Voice.
 
 ### Delivering common voicemails to user or shared mailboxes
-However if you forward these emails to a User or Shared Mailbox, then this needs to be done using Microsoft Power Automate and therefore requires a user account with an included Microsoft Power Automate Standard license. These are included in most Office 365 and Microsoft 365 subscriptions. Separate Microsoft Power Automate Per-User or Per-Flow license is not required.\
+However if you forward these emails to a User or Shared Mailbox, then this needs to be done using Microsoft Power Automate and therefore requires a user account with an included Microsoft Power Automate Standard license. These are included in most Office 365 and Microsoft 365 subscriptions. Separate Microsoft Power Automate Per-User or Per-Flow license is not required. \
 It's recommended to use a service type account for this instead of an employee incase the use leaves or the account is changed in any way.
 
 ## Auto Attendants and Call Queues

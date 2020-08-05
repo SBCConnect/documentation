@@ -76,7 +76,7 @@ Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
 Write-Host "DID Number: $($UserDetail.OnPremLineURI)"
 Write-Host "Online Voice Routing Policy: $($UserDetail.OnlineVoiceRoutingPolicy)"
 
-if ($UserDetail.OnPremEnterpriseVoiceEnabled -eq $true) {Write-Host "ERROR: OnPremEnterpriseVoiceEnabled = TRUE" -BackgroundColor Red -ForegroundColor White} else {Write-Host "PASS: OnPremEnterpriseVoiceEnabled = FALSE - User must be migrated to an Online only User to use Teams" -BackgroundColor Green -ForegroundColor Black}
+if ($UserDetail.OnPremEnterpriseVoiceEnabled -eq $true) {Write-Host "ERROR: OnPremEnterpriseVoiceEnabled = TRUE - User must be migrated to an Online only User to use Teams" -BackgroundColor Red -ForegroundColor White} else {Write-Host "PASS: OnPremEnterpriseVoiceEnabled = FALSE" -BackgroundColor Green -ForegroundColor Black}
 if ($UserDetail.EnterpriseVoiceEnabled -eq $true) {Write-Host "PASS: EnterpriseVoiceEnabled = TRUE" -BackgroundColor Green -ForegroundColor Black} else {Write-Host "ERROR: EnterpriseVoiceEnabled = FALSE - Run Set-CsUser with the '-EnterpriseVoiceEnabled $true' option to resolve" -BackgroundColor Red -ForegroundColor White}
 
 switch ($UserDetail.TeamsUpgradeEffectiveMode){

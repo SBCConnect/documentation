@@ -65,14 +65,14 @@ commit
 
 # Call Routing, Routing Labels
 #############################################################################
-set global callRouting routingLabel EXT_{@TENANT4@}_RL action routes routePrioritizationType sequence overflowNOA none overflowNPI none numRoutesPerCall 10
+set global callRouting routingLabel RL_A_TEAMS_{@TENANT4@} action routes routePrioritizationType sequence overflowNOA none overflowNPI none numRoutesPerCall 10
 
 
 # Call Routing, Routing Labels Routes
 #############################################################################
-set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 1 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_01 inService inService testing normal
-set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 2 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_02 inService inService testing normal
-set global callRouting routingLabel EXT_{@TENANT4@}_RL routingLabelRoute 3 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_03 inService inService testing normal
+set global callRouting routingLabel RL_A_TEAMS_{@TENANT4@} routingLabelRoute 1 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_01 inService inService testing normal
+set global callRouting routingLabel RL_A_TEAMS_{@TENANT4@} routingLabelRoute 2 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_02 inService inService testing normal
+set global callRouting routingLabel RL_A_TEAMS_{@TENANT4@} routingLabelRoute 3 routeType trunkGroup trunkGroup EXT_{@TENANT4@}_TG ipPeer PEER_A_SUP_TEAMS_03 inService inService testing normal
 
 
  
@@ -83,12 +83,12 @@ set global sipDomain {@TENANT4@}-dt.sbcconnect.com.au
 
 # Call Routing Routes
 #############################################################################
-set global callRouting route none Sonus_NULL Sonus_NULL standard {@NUMBER@} all all ALL none Sonus_NULL routingLabel RL_A_TEAMS_{@TEANANT4@} set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
-set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
-set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
-set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
-set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
-set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel EXT_{@TENANT4@}_RL
+set global callRouting route none Sonus_NULL Sonus_NULL standard {@NUMBER@} all all ALL none Sonus_NULL routingLabel RL_A_TEAMS_{@TENANT4@} set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel RL_A_TEAMS_{@TENANT4@}
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel RL_A_TEAMS_{@TENANT4@}
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel RL_A_TEAMS_{@TENANT4@}
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip.pstnhub.microsoft.com routingLabel RL_A_TEAMS_{@TENANT4@}
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip2.pstnhub.microsoft.com routingLabel RL_A_TEAMS_{@TENANT4@}
+set global callRouting route trunkGroup EXT_{@TENANT4@}_TG VBO-5GN-{@LOC@}-SBC username Sonus_NULL Sonus_NULL all all ALL none sip3.pstnhub.microsoft.com routingLabel RL_A_TEAMS_{@TENANT4@}
 commit
 
 

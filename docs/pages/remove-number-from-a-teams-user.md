@@ -1,4 +1,4 @@
-# Disable a Teams User Account
+# Remove a number from a Teams User Account
 When a Teams enabled user leaves the business, you need to remove the phone number from the user account, then remove the license.
 
 ## Steps

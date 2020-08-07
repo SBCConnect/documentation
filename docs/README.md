@@ -12,7 +12,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 ### User Account Management
 - [Voice enable a user account](pages/voice-enable-a-new-user.md)
-- [Remove a user account](pages/disable-a-teams-user.md)
+- [Remove a number from a user account](pages/remove-number-from-a-teams-user.md)
 
 
 ### Call Queue / Auto Attendant Management

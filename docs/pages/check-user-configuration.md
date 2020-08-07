@@ -41,7 +41,7 @@ Else {
 }
 
 #Check we're connected - exit if not
-If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -ne 'Opened') {write-host "Unable to connect to online services. Please try the connection again." -BackgroundColor Red -ForegroundColor White; pause; exit}
+If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -ne 'Opened') {write-host "Unable to connect to online services. Please try the connection again." -BackgroundColor Red -ForegroundColor White; pause; break}
 
 #Confirm you’re logged into the correct tenant - Is it the correct name?
 $tenant = Get-CsTenant | Select DisplayName

@@ -10,13 +10,33 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Getting Started
 - [Setting up a new tenant for SBC Connect calling](pages/getting-started-new-tenant-customer.md)
 
-### Individual Deployment Steps
+### User Account Management
 - [Voice enable a user account](pages/voice-enable-a-new-user.md)
+- [Remove a user account](pages/disable-a-teams-user.md)
+
+
+### Call Queue / Auto Attendant Management
 - [Creating a Call Queue (CQ)](pages/create-a-call-queue.md)
 - [Creating an Auto Attendant (AA)](pages/create-an-auto-attendant.md)
 - [Creating a Resource Account](pages/create-a-resource-account-user.md)
-- [Adding required domain names to the Microsoft 365 tenant](pages/add-domain-name-to-tenant.md)
+
+### Teams Rooms and Collaboration Bars
 - [Create a meeting room account](pages/create-a-meeting-room-account.md)
+
+### Tenant Management
+- [Adding required domain names to the Microsoft 365 tenant](pages/add-domain-name-to-tenant.md)
+- [Change the outbound caller ID](pages/change-outbound-caller-id.md)
+- [Create a Call Park policy](pages/create-a-call-park-policy.md)
+- [Create a Call Queue](pages/create-a-call-queue.md)
+
+### Teams Device Management
+- [Physical Microsoft Teams device management](pages/physical-device-management.md)
+- [Assign a device configuration policy](pages/assign-deivce-configuration-profile.md)
+- [Create a new device configuration policy](pages/new-deivce-configuration-profile.md)
+- [Edit a device configuration policy](pages/edit-deivce-configuration-profile.md)
+- [Remove a device confiugration policy](pages/remove-deivce-configuration-profile.md)
+
+
 
 ### Licensing
 - [License Requirements for Microsoft Teams Direct Routing](pages/license-Requirements.md)
@@ -26,17 +46,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Cloud Voicemail
 - [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
-### Teams Device Configuration Policies
-- [Physical Microsoft Teams device management](pages/physical-device-management.md)
-- [Assign a device configuration policy](pages/assign-deivce-configuration-profile.md)
-- [Create a new device configuration policy](pages/new-deivce-configuration-profile.md)
-- [Edit a device configuration policy](pages/edit-deivce-configuration-profile.md)
-- [Remove a device confiugration policy](pages/remove-deivce-configuration-profile.md)
-
-### General Changes
-- [Change the outbound caller ID](pages/change-outbound-caller-id.md)
-- [Create a Call Park policy](pages/create-a-call-park-policy.md)
-- [Create a Call Queue](pages/create-a-call-queue.md)
+<hr width="100%" noshade color="grey">
 
 ## <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> Troubleshooting <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span>
 ### User Provisioning Issues

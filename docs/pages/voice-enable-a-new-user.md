@@ -43,11 +43,10 @@ function Get-UserUPN {
     $EmailRegex = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
 
     #Get the users UPN
-    Write-Host ""
     $UserUPN = Read-Host "Please enter in the users full UPN"
     while($UserUPN -notmatch $EmailRegex)
     {
-     Write-Host "$UserUPN isn't a valid UPN. A UPN looks like an email address" -BackgroundColor Red -ForegroundColor White
+     Write-Host "$UserUPN isn't a valid UPN. A UPN looks like an email address" -ForegroundColor Red
      $UserUPN = Read-Host "Please enter in the users full UPN"
     }
     return $UserUPN
@@ -58,11 +57,10 @@ function Get-UserDID {
     $DIDRegex = '^\+?[1-9]\d{1,14}$'
 
     #Get the users DID
-    Write-Host ""
     $UserDID = Read-Host "Please enter in the users DID number"
     while($UserDID -notmatch $DIDRegex)
     {
-     Write-Host "$UserDID isn't a valid DID number, or is not in the correct format. A DID must be in E.164 Format. IE: +61299995555" -ForegroundColor Yellow
+     Write-Host "$UserDID isn't a valid DID number, or is not in the correct format. A DID must be in E.164 Format. IE: +61299995555" -ForegroundColor Red
      $UserDID = Read-Host "Please re-enter in the users full UPN"
     }
     return $UserDID
@@ -72,7 +70,7 @@ function Get-UserDID {
 If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened') {
 	Write-Host 'SFB Logged in - Using existing session credentials'}
 Else {
-	Write-Host 'Skype for Business NOT Logged in - Please connect and try run the script again' -ForegroundColor Yellow; pause; exit
+	Write-Host 'Skype for Business NOT Logged in - Please connect and try run the script again' -ForegroundColor Yellow; pause; break
 }
 
 #Confirm you’re logged into the correct tenant - Is it the correct name?
@@ -84,6 +82,7 @@ Write-Host "The tenant you've connected to is: $tenantName" -BackgroundColor Yel
 Write-Host "We're ready to go!" -ForegroundColor Green
 $UserUPN = Get-UserUPN
 
+Write-Host ""
 Write-Host "We now need the Users NEW DID number you want to assign in E.164 format. IE: +61299995555"
 $UserDID = Get-UserDID
 

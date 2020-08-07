@@ -41,7 +41,11 @@ Else {
 }
 
 #Check we're connected - exit if not
-If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -ne 'Opened') {write-host "Unable to connect to online services. Please try the connection again." -BackgroundColor Red -ForegroundColor White; pause; break}
+If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened') {
+	Write-Host 'SFB Logged in - Using existing session credentials'}
+Else {
+	Write-Host 'Skype for Business NOT Logged in - Please connect and try run the script again' -ForegroundColor Yellow; pause; break
+}
 
 #Confirm you’re logged into the correct tenant - Is it the correct name?
 $tenant = Get-CsTenant | Select DisplayName

@@ -2,8 +2,11 @@
 
 ## Management object not found for identity {USERNAME}
 This is often a fault found when using an on-prem server and syncing Active Directory to Azure Active Directory.\
-The fault is caused by the users **Logon Name** and **pre-Windows 2000 logon name** being different.
-**FIX PENDING**
+The fault is caused by either:
+- The users **Logon Name** and **pre-Windows 2000 logon name** being different; or
+- The user doesn't have a skype license. You may need to remove the license, wait 2 mins then re-add the license.
+
+
 
 
 ## No dial pad for a voice enabled user
@@ -23,12 +26,12 @@ The fault is caused by the users **Logon Name** and **pre-Windows 2000 logon nam
   
   # Add in the 
   Grant-CsOnlineVoiceRoutingPolicy -Identity {UPN} -PolicyName {POLICY_NAME}
-```
+````
 
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 > ⚠ These scripts assume that you've already connected to the **Skype for Business Online PowerShell Module**.\
 Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)
 
-```powershell
+````powershell
 ## TO BE BUILT
-```
+````

@@ -10,6 +10,8 @@ Copy and paste the script into a new PowerShell window. You will be prompted for
 The Skype for Business Online PowerShell module is required. If not installed, you can obtain it from 🌐 [Here](https://www.microsoft.com/en-us/download/details.aspx?id=39366)
 
 ## PowerShell script
+Copy and paste this script into PowerShell. The script will check for an exsiting Skype for Business Online login, before logging you in
+
 ````PowerShell
 function Get-UserUPN {
     #Regex pattern for checking an email address

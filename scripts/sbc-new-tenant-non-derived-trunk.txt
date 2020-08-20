@@ -35,7 +35,7 @@
 #
 #PHONE={@PHONE_NUMBER@}
 #> An initial number range for the customer
-#> Acts as a mask for the number - IE: "02555599 61" will capture all numbers from the country code 61 between 0255559900 & 0255559999
+#> Acts as a mask for the number - IE: "02555599 61" will capture all numbers from the country code 61 between 0255559900 & 0255559999 because the last 2 numbers are missing from the mask
 #
 #CARRIER_SIP_TRUNK_RL={@CARRIER_SIP_TRUNK_RL@}
 #> This is the sip trunk Routing Label that is used to reach the carrier

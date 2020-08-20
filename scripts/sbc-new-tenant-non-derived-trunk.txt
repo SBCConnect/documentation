@@ -33,6 +33,10 @@
 #LOC={@LOC@}
 #> This is the SBC ID - IE: MDC or SDC
 #
+#PHONE={@PHONE_NUMBER@}
+#> An initial number range for the customer
+#> Acts as a mask for the number - IE: "02555599 61" will capture all numbers from the country code 61 between 0255559900 & 0255559999
+#
 #CARRIER_SIP_TRUNK_RL={@CARRIER_SIP_TRUNK_RL@}
 #> This is the sip trunk Routing Label that is used to reach the carrier
 #
@@ -326,7 +330,7 @@ set global callRouting routingLabel RL_A_TEAMS_{@TENANTID@} routingLabelRoute 3 
 # Create the routes to use the routing labels
 #############################################################################
 # Call routing TO Teams
-set global callRouting route none Sonus_NULL Sonus_NULL standard {@NUMBER@} all all ALL none Sonus_NULL routingLabel RL_A_TEAMS_{@TENANTID@}
+set global callRouting route none Sonus_NULL Sonus_NULL standard {@PHONE_NUMBER@} all all ALL none Sonus_NULL routingLabel RL_A_TEAMS_{@TENANTID@}
 # Call routing FROM Teams
 set global callRouting route trunkGroup EXT_TEAMS_{@TENANTID@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none {@TENANTID@}-{@LOC@}.sbcconnect.com.au routingLabel {@CARRIER_SIP_TRUNK_RL@}
 #Call routing for Teams - CALL TRANSFER

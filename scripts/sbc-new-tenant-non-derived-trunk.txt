@@ -1,7 +1,7 @@
 ############################################
 #
 #
-#     THIS SCRIPT IS FOR MDC
+#     THIS SCRIPT IS FOR {@LOC@}
 #     CUSTOMER: {@CUSTOMER@}
 #
 #

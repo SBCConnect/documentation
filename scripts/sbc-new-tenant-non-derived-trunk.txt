@@ -28,7 +28,7 @@
 #
 #SBCID={@SBCID@}
 #> This is used as the ID of the customer through out the configuration on the SBC.
-#> This is ALWAYS the SIG_PORT number minus (-) 4,000 (IE: 1067)
+#> This is ALWAYS the CONNECT_PORT number minus (-) 4,000 (IE: 1067)
 #
 #LOC={@LOC@}
 #> This is the SBC ID - IE: MDC or SDC

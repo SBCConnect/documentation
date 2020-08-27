@@ -8,6 +8,11 @@ There may be more than one PSTN gateway required by the platform. Please refer t
 - Gateway port
 - Maximum concurrent channels
 
+## Troubleshooting
+> Can not use the "{GATEWAY}" domain as it was not configured for this tenant
+
+After adding the domain to the Microsoft Admin Portal, you must create a new user using the new domain as their primary username domain and assign the user an E3 or E5 license. The activation might take between 20 minutes and 48 hours before the command will run without error.
+
 ## PowerShell
 **You need to update the following details in the three (3) lines below**
 - {GATEWAY} - The FQDN of the gateway
@@ -18,7 +23,7 @@ There may be more than one PSTN gateway required by the platform. Please refer t
 
 ````PowerShell
 #Give the user a DID number and Voice Enable the user 
-New-CsOnlinePSTNGateway -Fqdn {GATEWAY} -SipSignallingPort {PORT} -MaxConcurrentSessions {CHANNELS} -ForwardCallHistory $true -Enabled $true 
+New-CsOnlinePSTNGateway -Fqdn {GATEWAY} -SipSignalingPort {PORT} -MaxConcurrentSessions {CHANNELS} -ForwardCallHistory $true -Enabled $true 
 ````
 
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**

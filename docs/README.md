@@ -28,6 +28,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Change the outbound caller ID](pages/change-outbound-caller-id.md)
 - [Create a Call Park policy](pages/create-a-call-park-policy.md)
 - [Create a Call Queue](pages/create-a-call-queue.md)
+- [Configure anonymous user calling policies](pages/configure-anonymous-outbound-calling.md)
 
 ### Teams Device Management
 - [Physical Microsoft Teams device management](pages/physical-device-management.md)

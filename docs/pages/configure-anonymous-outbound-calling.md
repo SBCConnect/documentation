@@ -1,14 +1,14 @@
-# Configure outbound anonymous calling
+# Configure outbound anonymous calling policies
 Outbound anonymous calling can be configured in multiple ways
 
-- Per user forced
-  The policy is applied per user and the user is unable to configure if their number is shown or not when making an outboud call
-- Per user enabled
-  The policy is applied per user and the user has the option to enable or disable their number from showing when making an outboud call
-- Globally forced
-  The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user is unable to configure if their number is shown or not when making an outboud call
-- Globally enabled
-  The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user has the option to enable or disable their number from showing when making an outboud call
+- **Per user forced**
+  - The policy is applied per user and the user is unable to configure if their number is shown or not when making an outboud call
+- **Per user enabled**
+  - The policy is applied per user and the user has the option to enable or disable their number from showing when making an outboud call
+- **Globally forced**
+  - The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user is unable to configure if their number is shown or not when making an outboud call
+- **Globally enabled**
+  - The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user has the option to enable or disable their number from showing when making an outboud call
 
 The options can be set via the Teams interface or through PowerShell.
 
@@ -60,14 +60,14 @@ New-CsCallingLineIdentity -Identity "Anonymous Per-User User Selected" -CallingI
 New-CsCallingLineIdentity -Identity "Anonymous Per-User User Selected" -CallingIdSubstitute "LineUri" -EnableUserOverride $true
 
 # Globally forced
-# The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user is unable to configure if their number is shown or not when making an outboud call
+# The policy is applied to all users by default that don't have another per user policy applied to them individually. The user is unable to configure if their number is shown or not when making an outboud call
 # Outbound number = anonymous
 Set-CsCallingLineIdentity -Identity Global -CallingIdSubstitute "Anonymous" -EnableUserOverride $false
 # Outbound number = Users phone number
 Set-CsCallingLineIdentity -Identity Global -CallingIdSubstitute "LineUri" -EnableUserOverride $false
 
 # Globally enabled
-#The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user has the option to enable or disable their number from showing when making an outboud call
+#The policy is applied to all users by default that don't have another per user policy applied to them individually. The user has the option to enable or disable their number from showing when making an outboud call
 # Outbound number = anonymous
 Set-CsCallingLineIdentity -Identity Global -CallingIdSubstitute "Anonymous" -EnableUserOverride $true
 # Outbound number = Users phone number

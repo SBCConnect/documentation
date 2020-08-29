@@ -15,7 +15,7 @@ The options can be set via the Teams interface or through PowerShell.
 ## Via the Teams Interface
 1. Navigate to https://admin.teams.microsoft.com
 1. Click **Voice**
-1. Click **Caller ID policies
+1. Click **Caller ID policies**
 
 ### To configure the Global Policy
 - Click **Global (Org-wide default)**

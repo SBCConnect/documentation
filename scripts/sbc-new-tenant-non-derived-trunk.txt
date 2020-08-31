@@ -278,6 +278,51 @@ set profiles signaling sipAdaptorProfile {@SBCID@}_SMM_OUT rule 7 action 1 to to
 commit
 
 
+# Configure inbound SMM profile from Teams for the tenancy
+# This is where you can put in Number Masking Rules
+# Remember if you were to apply this to an inbound profile from a carrier, it might come in E.164 or another format. To/From Teams is E.164
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" applyMatchHeader "one"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" action "1" type "header" operation "regsub" headerInfo "fieldValue"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" action "1" from type "value" value "+61{@NUMBER_REPLACE_WITH}"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" action "1" regexp string "(\+61{@NUMBER_TO_FIND})" matchInstance "all"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" action "1" to type "header" value "From"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" criterion "1" type "message"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" criterion "1" message messageTypes "all"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" criterion "2" type "header"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" criterion "2" header regexp string "(\+{@NUMBER_TO_FIND})"
+# set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "4" criterion "2" header name "From" condition "regex-match" hdrInstance "all"
+##############################################################################
+
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" state "enabled" advancedSMM "enabled" profileType "messageManipulation"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" applyMatchHeader "one"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" action "1" type "token" operation "store"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" action "1" from type "token" tokenValue "urihostname"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" action "1" to type "variable" variableValue "var1" variableScopeValue "local"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" criterion "1" type "message"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" criterion "1" message methodTypes [ refer ] messageTypes "request"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" criterion "2" type "header"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "1" criterion "2" header name "To" condition "exist" hdrInstance "all"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" applyMatchHeader "one"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" action "1" type "parameter" operation "add" paramType "uri"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" action "1" from type "variable" variableValue "var1"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" action "1" to type "parameter" value "Ribbon"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" criterion "1" type "message"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" criterion "1" message methodTypes [ refer ] messageTypes "request"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" criterion "2" type "header"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "2" criterion "2" header name "Refer-To" condition "exist" hdrInstance "all"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" applyMatchHeader "one"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" action "1" type "token" operation "store"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" action "1" from type "token" tokenValue "uriusername"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" action "1" to type "variable" variableValue "var10" variableScopeValue "message"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "1" type "message"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "1" message methodTypes [ invite ] messageTypes "request"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "2" type "header"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "2" header numberOfInstances number "0" qualifier "undefined"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "2" header name "referred-by" condition "exist"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "3" type "token"
+set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "3" token condition "exist" tokenType "uriusername"
+
+
 # Configure Per Tenant Trunk Groups
 ##############################################################################
 set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG media mediaIpInterfaceGroupName EXTERNAL_IPIG
@@ -288,7 +333,7 @@ set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS
 set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG services dnsSupportType a-only
 set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG media sdpAttributesSelectiveRelay enabled
 set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG ingressIpPrefix 52.112.0.0 14
-set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG signaling messageManipulation inputAdapterProfile TEAMS_SMM_IN
+set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG signaling messageManipulation inputAdapterProfile {@SBCID@}_SMM_IN
 set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG signaling messageManipulation outputAdapterProfile {@SBCID@}_SMM_OUT
 set addressContext default zone EXT_TEAMS_{@SBCID@}_ZONE sipTrunkGroup EXT_TEAMS_{@SBCID@}_TG signaling messageManipulation smmProfileExecution fixedOrder
 #IF Media Bypass=TRUE, set iceSupport iceWebrtc

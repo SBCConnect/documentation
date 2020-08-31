@@ -375,6 +375,7 @@ set global callRouting routingLabel RL_A_TEAMS_{@SBCID@} routingLabelRoute 3 rou
 # Create the routes to use the routing labels
 #############################################################################
 # Call routing TO Teams
+# Delete from CLI: delete global callRouting route none Sonus_NULL Sonus_NULL standard {@PHONE_NUMBER@} all all ALL none Sonus_NULL
 set global callRouting route none Sonus_NULL Sonus_NULL standard {@PHONE_NUMBER@} all all ALL none Sonus_NULL routingLabel RL_A_TEAMS_{@SBCID@}
 # Call routing FROM Teams
 set global callRouting route trunkGroup EXT_TEAMS_{@SBCID@}_TG VBO-5GN-{@LOC@}-SBC standard Sonus_NULL Sonus_NULL all all ALL none {@CONNECT_PORT@}-{@LOC@}.sbcconnect.com.au routingLabel {@CARRIER_SIP_TRUNK_RL@}

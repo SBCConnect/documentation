@@ -321,7 +321,7 @@ set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "
 set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "2" header name "referred-by" condition "exist"
 set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "3" type "token"
 set profiles signaling sipAdaptorProfile "{@SBCID@}_SMM_IN" rule "3" criterion "3" token condition "exist" tokenType "uriusername"
-
+commit
 
 # Configure Per Tenant Trunk Groups
 ##############################################################################

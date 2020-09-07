@@ -10,7 +10,7 @@ Each VRP contains one or more of the following call types
 
 ## Call Types
 |     Call Type    |                         Description                         |                                            Notes                                           |
-|------------------|-------------------------------------------------------------|:------------------------------------------------------------------------------------------:|
+|------------------|-------------------------------------------------------------|--------------------------------------------------------------------------------------------|
 | AU-National      | - All Australian landline numbers<br>- Emergency Calls      |                                                                                            |
 | AU-Mobile        | - All Australian mobiles                                    |                                                                                            |
 | AU-International | - All international numbers outside of the +61 country code |                                                                                            |
@@ -20,7 +20,7 @@ Each VRP contains one or more of the following call types
 
 ## Voice Routing Policy Vs Call Type Matrix
 |      Voice Routing Policy     |                                       Call Types Included                                       |                    Notes                    |
-|-------------------------------|-------------------------------------------------------------------------------------------------|:-------------------------------------------:|
+|-------------------------------|-------------------------------------------------------------------------------------------------|---------------------------------------------|
 | AU-National                   | - AU-National<br>- AU-Mobile                                                                    |                                             |
 | AU-National-1300              | - AU-National<br>- AU-Mobile<br>- AU-1300                                                       |                                             |
 | AU-National-1300-Premium      | - AU-National<br>- AU-Mobile<br>- AU-1300<br>- AU-Service<br>- AU-Premium                       | CAUTION: Includes Premium and Service Calls |

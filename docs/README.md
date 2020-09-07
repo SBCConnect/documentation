@@ -37,7 +37,8 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Edit a device configuration policy](pages/edit-deivce-configuration-profile.md)
 - [Remove a device confiugration policy](pages/remove-deivce-configuration-profile.md)
 
-
+### Call Restrictions and Call Types
+- [Explanation of Voice Routing Policies and call types](pages/explanation-of-voice-routing-policies.md)
 
 ### Licensing
 - [License Requirements for Microsoft Teams Direct Routing](pages/license-Requirements.md)

@@ -12,7 +12,16 @@ To create a Call Queue, you need to
 1. Create the Call Queue
 
 ## Steps
-
+1. Create a Resource Account
+   - [Link to create a Resource Account](pages/create-a-resource-account-user.md)
+1. Assign the Resource account a license
+   - [License a resource account](pages/license-a-phone-system-resource-account.md)
+1. [Optional] If wanting to forward an unanswered call to a Voice Mail, then you'll need to:
+   - Need a service account with a Microsoft Flow license
+   - Create an Office 365 Group to receive the Voice Mails (recommend to start the name of the account with VM. IE: VM Finance)
+   - Assign the service account as an owner and member of the new Microsoft 365 group
+   - Create a flow to get the email and pass it to a destination email address (See Jay for template)
+1. Create the Call Queue
 
 ## PowerShell
 The script will prompt for a name to use for the new Call Queue and will auto-format the name as required

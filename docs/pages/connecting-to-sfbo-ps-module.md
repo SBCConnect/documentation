@@ -95,7 +95,7 @@ if(Get-Module SkypeOnlineConnector -ListAvailable)
         Start-Process "https://www.microsoft.com/en-us/download/details.aspx?id=39366"
         Break
     }
-
+clear
 $userLogin = Get-UserUPN
 
 #Check first, then connect to the Skype for Business PowerShell module 

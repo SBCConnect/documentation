@@ -3,17 +3,36 @@
 This script is an ever evolving script to deploy users into a Microsoft 365 tenancy.
 The script will
 - prompt for a CSV file to import from
-- look at and prompt for the Voice Routing Policy to use
+- If the CSV user doesn't have a Voice Routing Policy tagged, then it will look at and prompt for the Voice Routing Policy to use
+- If the CSV user doesn't have a Dial Plan tagged, then it will look at and prompt for the Dial Plan to use
+- Will check if there is an ext extention in the CSV and use that if required 
 
 ** NOTES **
-- All users imported by this script will have the same voice routing policy applied to them
-- The script can be run as many times as you like for the same users
+- If there are users without a Voice Routing Policy, then the prompted VRP will be applied to all users with an invalid or blank VRP in the CSV
+- The script can be run as many times as you like for the same users, it will just over write the current information
+
+The Imported CSV should have the following named columns
+- UserPrincipalName
+- DID
+- EXT
+- VoiceRoutingPolicy
+- DialPlan
+
+The CSV file should be formatted so
+- The DID is in E.164 format (IE: +61255556666)
+- The EXT is between 3-5 digits long
+- The EXT is not 000, 112, or 911
 
 Script written by Jay Antoney - 5G Networks
 https://5gn.com.au
 jaya@5gn.com.au
 
-Script version v1.0 - 22/6/2020
+Script version v1.1 - 2020/09/17
+
+TO DO / BROKEN
+- Need to do a check for the EXT when importing the user
+- Need to do a check for the VRP when importing the user, else use selected
+- Need to do a check for the TDP when importing the user, else use selected
 
 #>
 
@@ -291,45 +310,107 @@ Function Disconnect-AllSessions()
 
 }
 
+
+############################
+# Function Validate-CSVData is used to confirm that the CSV data is valid and basic checks on the tenant
+#
+# - Check all the required columns are there
+# - Check the UPN is in a valid format
+# - Check the DID number is in a valid format
+# - Check the EXT is in a valid format and between 3-5 digits long
+# - Check the EXT is not 000, 112 or 911
+
 Function Validate-CSVData()
 {
+    clear
+    Write-Host
     Write-Debug "Enter Validate-CSVData"
-    Write-Host "Validating data in the CSV file"
+    Write-Host "Validating data in the CSV file..."
 
+    #Confirm that the CSV has the minumum required fields UserPrincipalName & DID
+    if($global:inputdata.UserPrincipalName -eq $null) {write-host; write-host "The imported CSV doesn't contain a UserPrincipalName field. This is required for correct script operation" -ForegroundColor red; return $false}
+    if($global:inputdata.DID -eq $null) {write-host; write-host "The imported CSV doesn't contain a DID field. This is required for correct script operation" -ForegroundColor red; return $false}
+       
     #RegEx pattern for an email address
     $EmailRegex = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
-    #Regex pattern for a DID number MINUS the + symbol
+    #Regex pattern for a DID number with or without the + symbol (accept either)
     $DIDRegex = '^\+?[1-9]\d{1,14}$'
+    #Regex pattern for the EXT number
+    $EXTRegex = '^[1-9]\d{2,4}$'
 
+    [bool]$importError = $false
     foreach($csvUser in $global:inputdata)
     {
-        #Check there is an @ symbol in the UPN. If not then exit
+        [string]$comment = $null
+        write-host $csvUser.UserPrincipalName
+
+        #Check the UPN is in a valid format
         if($csvUser.UserPrincipalName -notmatch $EmailRegex)
         {
-            Write-Host "The UPN for "$csvUser.UserPrincipalName" is not formatted correctly. Others may also be incorrectly formatted. Please correct and re-run script" -ForegroundColor Red
-            Disconnect-AllSessions
-            return $false
+            Write-Host "ERROR: UPN $($csvUser.UserPrincipalName) is not formatted correctly." -ForegroundColor Red
+            $comment = "UPN not formatted Correctly"
         }
         
+        #Check the DID number is valid
         if ($csvUser.DID -notmatch $DIDRegex) {
             #DID doesn't match RegEx pattern
-            #No idea what is wrong, just exit
-            Write-Host "User number in an invalid format [$($csvUser.UserPrincipalName)] - Number Entered: [$($csvUser.DID)]" -BackgroundColor Red
-            Write-Host "Please check other users, then re-run the script" -BackgroundColor Red
-            Disconnect-AllSessions
-            return $false
-
+            if($comment) {$comment += " & DID incorrectly formatted"} else {$comment = "DID incorrectly formatted"}
+            Write-Host "ERROR: $($csvUser.UserPrincipalName) - The number entered '$($csvUser.DID)' is incorrectly formatted" -ForegroundColor Red
+            
         } else {
             #DID does match RegEx pattern - Check if first char is a plus [+], if not, then add it
             if ($csvUser.DID.SubString(0,1) -ne "+") {$csvUser.DID = "+" + $csvUser.DID}
         }
 
+        #Check the EXT of the user
+        if ($csvUser.EXT -ne $null -and $csvUser.EXT -notmatch $EXTRegex) {
+            if($comment) {$comment += " & EXT incorrectly formatted"} else {$comment = "EXT incorrectly formatted"}
+            Write-Host "ERROR: $($csvUser.UserPrincipalName) - The EXT entered '$($csvUser.EXT)' is incorrectly formatted" -ForegroundColor Red
+        }
+
+        #Check the Voice Routing Policy of the user actually matches something in the tenant
+        if ($csvUser.VoiceRoutingPolicy -ne $null -and $csvUser.VoiceRoutingPolicy -ne '') {
+            if(-not $global:UsagePolicy.identity.tolower().Contains("tag:$($csvUser.VoiceRoutingPolicy.tolower())")) {
+                if($comment) {$comment += " & Voice Routing Policy doesn't exist in the tenant"} else {$comment = "Voice Routing Policy doesn't exist in the tenant"}
+                Write-Host "ERROR: $($csvUser.UserPrincipalName) - The Voice Routing Policy '$($csvUser.VoiceRoutingPolicy)' doesn't exist in the tenant" -ForegroundColor Red
+            }
+        } else {
+            $global:noVrpUsers += $csvUser
+        }
+
+        #Check the Dial Plan of the user actually matches something in the tenant
+        if ($csvUser.DialPlan -ne $null -and $csvUser.DialPlan -ne '') {
+            if(-not $global:DialPlan.identity.tolower().Contains("tag:$($csvUser.DialPlan.tolower())")) {
+                if($comment) {$comment += " & Dial Plan doesn't exist in the tenant"} else {$comment = "Dial Plan doesn't exist in the tenant"}
+                Write-Host "ERROR: $($csvUser.UserPrincipalName) - The Dial Plan '$($csvUser.DialPlan)' doesn't exist in the tenant" -ForegroundColor Red
+            }
+        } else {
+            $global:noDialPlanUsers += $csvUser
+        }
+
+        #If the $comment variable has anything in it, then there was an error so we need to record it
+        if ($comment) {
+            $importError = $true
+            $global:invalidUsers += @([pscustomobject]@{UserPrincipalName=$csvUser.UserPrincipalName;Comment=$comment})
+            $global:invalidUsers | export-csv -Path c:\temp\Failed_user_import.csv -NoTypeInformation
+        }
     }
 
-    #if we got this far, then everything is good!
-    Write-Host "Data in the CSV all looks good" -ForegroundColor Green
-    Write-Debug "Exit Validate-CSVData"
-    return $true
+    #Check if there was an error in the process and display it
+    if ($importError) {
+        Write-Host
+        Write-Host "Errors were found during the import of users that must be corrected before we can continue." -ForegroundColor Yellow
+        Write-Host "Please correct the CSV and re-import the CSV when ready" -ForegroundColor Yellow
+        Write-Host
+        Write-Host
+        Write-Debug "Exit Validate-CSVData"
+        return $false
+    } else {
+        #If we got this far, then everything is good - return true
+        Write-Host "Data in the CSV has been verified" -ForegroundColor Green
+        Write-Debug "Exit Validate-CSVData"
+        return $true
+    }
 }
 
 Check-InstalledModules
@@ -357,39 +438,98 @@ if($opt1 -eq 1) {
 }
 ###########################>
 
+$global:invalidUsers = $null
+$global:noVrpUsers = @()
+$global:noDialPlanUsers = @()
+$global:csvimportCheck = $false
+#Set the SKU for the Microsoft Phone System License. Other wise refered to as MCOEV and MicrosoftCommunicationsOnline
+$phoneSystemLicenseSKU = '4828c8ec-dc2e-4779-b502-87ac9ce28ab7'
 
-#get the CSV list of users & validate the data
-while($global:csvimportCheck -ne $true){$global:csvimportCheck = Get-UsersFromCsv; Write-Debug "ImportCheck = $csvimportcheck"; if($global:csvimportCheck -ne $true){Pause}}
-#do {$global:csvimportCheck = Get-UsersFromCsv} until($global:csvimportCheck = $true) #### This line never worked
-Write-host "We've got the users and all looks OK"
-$numUsers = ($global:inputdata | Measure-Object).Count
-Write-Host $numUsers" users were imported from the CSV"
+Clear
 
 ###########################################################
 
 #Check the Azure Login and that it's the correct tenant
-Check-AzureADLogin
-Check-SkypeLogin
-Write-Host "Cool! We're all logged in" -ForegroundColor Green
+#Check-AzureADLogin
+#Check-SkypeLogin
+Clear
+Write-Host
+Write-Host "---- You're logged into ----"
+Write-Host "Azure AD Tenant: $((Get-AzureADTenantDetail).DisplayName)" -ForegroundColor Yellow
+Write-Host "Skype for Business Online Tenant: $((Get-CsTenant).DisplayName)" -ForegroundColor Yellow
+Write-Host "----------------------------"
+Write-Host
+Write-Host
 
 ###########################################################
 
-# Check for existence of PSTN gateways and prompt to add PSTN usages/routes
-	$UsagePolicy = Get-CsOnlineVoiceRoutingPolicy
+Write-Host "Loading tenant data..."
+#Get the CSOnlineVoiceRoutingPolicies used through the script
+#$global:UsagePolicy = Get-CsOnlineVoiceRoutingPolicy
+Write-Host "$($global:UsagePolicy.count) Voice Routing Policies loaded"
+
+#Check if there are any Voice Usage Policies in the tenant
+If (($UsagePolicy.Identity -eq $NULL) -and ($UsagePolicy.Count -eq 0)) {
+    clear		
+    Write-Host
+    Write-Host 'No Voice Usage Policies were found in the tenant. Before we can configure users for Calling, you have to define at least one voice usage policy.' -ForegroundColor Red
+    Write-Host "https://sbcconnect.com.au/pages/getting-started-new-tenant-customer.html" -ForegroundColor Yellow
+    Write-Host "Sorry, we can't continue" -ForegroundColor Yellow
+    pause
+    Break #Break to maintain the login connection
+}
+
+
+#Get the CSOnlineVoiceRoutingPolicies used through the script
+#$global:DialPlan = Get-CsTenantDialPlan
+Write-Host "$($global:DialPlan.count) Tenant Dial Plans loaded"
+Write-Host
+
+#Check if there are any Tenant Dial Plans in the tenant
+If (($DialPlan.Identity -eq $NULL) -and ($DialPlan.Count -eq 0)) {
+    clear		
+    Write-Host
+    Write-Host 'No Tenant Dial Plans were found in the tenant. Before we can configure users for Calling, you have to define at least one Tenant Dial Plan.' -ForegroundColor Red
+    Write-Host "https://sbcconnect.com.au/pages/getting-started-new-tenant-customer.html" -ForegroundColor Yellow
+    Write-Host "Sorry, we can't continue" -ForegroundColor Yellow
+    pause
+    Break #Break to maintain the login connection
+}
+
+###########################################################
+
+#get the CSV list of users & validate the data
+Write-Host "Loading CSV file..."
+while($global:csvimportCheck -ne $true){$global:csvimportCheck = Get-UsersFromCsv; Write-Debug "ImportCheck = $csvimportcheck"; if($global:csvimportCheck -ne $true){Pause}}
+$numUsers = ($global:inputdata | Measure-Object).Count
+
+
+###########################################################
+###########################################################
+
+#Check if we need to prompt the user for a selection of the default Voice Routing Policies
+#This will only run if during CSV verification we decided that a user didn't have a Voice Routing Policy applied
+if ($global:noVrpUsers.count -gt 0) {
+    #We've already checked that there are polices in the tenant. Now prompt for a default
     $UsagePolicyList = @()
-	If (($UsagePolicy.Identity -eq $NULL) -and ($UsagePolicy.Count -eq 0)) {
-		Write-Host
-		Write-Host 'No Voice Usage Policies were found in the tenant. Before we can configure users for Calling, you have to define at least one voice usage policy.' -ForegroundColor Red
-        Write-Host "https://sbcconnect.com.au/pages/getting-started-new-tenant-customer.html" -ForegroundColor Yellow
-        Write-Host "Sorry, we can't continue" -ForegroundColor Yellow
-        pause
-		Exit
-	}
 
 	If ($UsagePolicy.Count -gt 1) {
-		
+		$select = $null
         While ($UsagePolicyList.Count -ne 1) {
             $UsagePolicyList = @()		
+            Clear
+            Write-Host
+            Write-Host "$($numUsers) users were imported from the CSV"
+            Write-Host "$($global:noVrpUsers.count) user(s) don't have any Voice Routing Policies assigned to them on the imported CSV" -ForegroundColor Yellow
+            Write-Host
+            Write-Host "Please select a Voice Routing Policy to apply to them"
+
+            if ($select -eq 'u') {
+                Write-Host
+                Write-Host "Users affected by this selection are:" -ForegroundColor Green
+                Write-Host "$($noVrpUsers.UserPrincipalName)"
+            }
+
             Write-Host
 		    Write-Host "ID    Voice Routing Policy"
 		    Write-Host "==    ============"
@@ -397,25 +537,37 @@ Write-Host "Cool! We're all logged in" -ForegroundColor Green
 			    $a = $i + 1
 			    $name = $UsagePolicy[$i].Identity
                 if ($name -like "Tag:*"){$name = $name.SubString(4)}
-                Write-Host ($a, $name) -Separator "     "
+                $forColor = "white"
+                if ($name -eq "AU-National-1300") {$name = $name + "  [Recommended]"; $forColor = "Green"}
+                Write-Host ($a, $name) -Separator "     " -ForegroundColor $forColor
 		    }
+            
+            Write-Host
+            Write-Host "u     List users that this policy will apply to"
 
-		    $Range = '(1-' + $UsagePolicy.Count + ')'
+		    $Range = '(1-' + $UsagePolicy.Count + '|u)'
 		    Write-Host
-		    $Select = Read-Host "Select a Voice Routing Policy to apply to all Users in this CSV file" $Range
+		    $Select = Read-Host "Select a Voice Routing Policy to apply to $($noVrpUsers.count) user(s) " $Range
 
-		    If (($Select -gt $UsagePolicy.Count) -or ($Select -lt 1)) {
-			    Write-Host 'Invalid selection' -ForegroundColor Yellow
-		    }
-		    Else {
-			    $UsagePolicyList += $UsagePolicy[$Select-1]
-		    }
+		    #If $Select = 'u' then loop back to the start of the menu
+            if ($select -ne 'u') {
+                If (([System.Convert]::ToDecimal($Select) -gt $UsagePolicy.Count) -or ([System.Convert]::ToDecimal($Select) -lt 1)) {
+                    Write-Host			        
+                    Write-Host 'Invalid selection' -ForegroundColor Red
+                    Write-Host
+                    Pause
+		        }
+		        Else {
+			        $UsagePolicyList += $UsagePolicy[$Select-1]
+		        }
+            }
         }
 
 	}
 	Else { # There is only one PSTN gateway
 		$UsagePolicyList = Get-CsOnlineVoiceRoutingPolicy
 	}
+}
 
 $UsagePolicyName = $UsagePolicyList.Identity
 if ($UsagePolicyName -like "Tag:*"){$UsagePolicyName = $UsagePolicyName.SubString(4)}
@@ -424,6 +576,76 @@ if ($UsagePolicyName -eq "Global"){$UsagePolicyName = $null}
 Write-Debug "Voice Routing Policy Identity Selected: $($UsagePolicyList.Identity)"
 
 ###########################################################
+###########################################################
+
+#Check if we need to prompt the user for a selection of the default Tenant Dial Plan
+#This will only run if during CSV verification we decided that a user didn't have a Dial Plan applied
+if ($global:noDialPlanUsers.count -gt 0) {
+    #We've already checked that there are polices in the tenant. Now prompt for a default
+    $tenantDialPlanList = @()
+
+	If ($DialPlan.Count -gt 1) {
+		$select = $null
+        While ($tenantDialPlanList.Count -ne 1) {
+            $tenantDialPlanList = @()		
+            Clear
+            Write-Host
+            Write-Host "$($numUsers) users were imported from the CSV"
+            Write-Host "$($global:noDialPlanUsers.count) user(s) don't have any Tenant Dial Plans assigned to them on the imported CSV" -ForegroundColor Yellow
+            Write-Host
+            Write-Host "Please select a Voice Routing Policy to apply to them"
+
+            if ($select -eq 'u') {
+                Write-Host
+                Write-Host "Users affected by this selection are:" -ForegroundColor Green
+                Write-Host "$($noDialPlanUsers.UserPrincipalName)"
+            }
+
+            Write-Host
+		    Write-Host "ID    Tenant Dial Plan"
+		    Write-Host "==    ============"
+		    For ($i=0; $i -lt $DialPlan.Count; $i++) {
+			    $a = $i + 1
+			    $name = $DialPlan[$i].Identity
+                if ($name -like "Tag:*"){$name = $name.SubString(4)}
+                Write-Host ($a, $name) -Separator "     "
+		    }
+            
+            Write-Host
+            Write-Host "u     List users that this policy will apply to"
+
+		    $Range = '(1-' + $DialPlan.Count + '|u)'
+		    Write-Host
+		    $Select = Read-Host "Select a Tenant Dial Plan to apply to $($noDialPlanUsers.count) user(s) " $Range
+
+		    #If $Select = 'u' then loop back to the start of the menu
+            if ($select -ne 'u') {
+                If (([System.Convert]::ToDecimal($Select) -gt $DialPlan.Count) -or ([System.Convert]::ToDecimal($Select) -lt 1)) {
+                    Write-Host			        
+                    Write-Host 'Invalid selection' -ForegroundColor Red
+                    Write-Host
+                    Pause
+		        }
+		        Else {
+			        $tenantDialPlanList += $DialPlan[$Select-1]
+		        }
+            }
+        }
+
+	}
+	Else { # There is only one PSTN gateway
+		$tenantDialPlanList = Get-CsOnlineVoiceRoutingPolicy
+	}
+}
+
+$tenantDialPlanName = $tenantDialPlanList.Identity
+if ($tenantDialPlanName -like "Tag:*"){$tenantDialPlanName = $UsagePolicyName.SubString(3)}
+if ($tenantDialPlanName -eq "Global"){$tenantDialPlanName = $null}
+
+Write-Debug "Tenant Dial Plan Identity Selected: $($tenantDialPlanName.Identity)"
+
+###########################################################
+###########################################################
 
 <# 
 Now we need to test
@@ -431,8 +653,10 @@ Now we need to test
 - If the tenant has spare licenses
 #>
 
-#Set the SKU for the Microsoft Phone System License. Other wise refered to as MCOEV and MicrosoftCommunicationsOnline
-$phoneSystemLicenseSKU = '4828c8ec-dc2e-4779-b502-87ac9ce28ab7'
+clear
+Write-Host
+Write-Host "$($numUsers) users were imported from the CSV"
+Write-Host
 
 #Get all the enabled and consumed licenses in the tenant, then add them up.
 $totalLicenseEnabled = 0
@@ -465,13 +689,16 @@ if (($totalLicenseEnabled - $totalLicenseConsumed) -lt $numUsers) {
 [int]$alreadyAssigned = 0
 [int]$missingLicense = 0
 
+Write-Host
+Write-Host
+
     foreach($csvUser in $global:inputdata)
-    {}
-        Write-Host "Setting up user: $($csvUser.UserPrincipalName)" -ForegroundColor Yellow -BackgroundColor Gray     
+    {
+        Write-Host "Setting up user: $($csvUser.UserPrincipalName)" -ForegroundColor Green   
 
         #Check user is a Skype for Business ONLINE user and not On-Prem
         Try {$checkRP = Get-CsOnlineUser -Identity $csvUser.UserPrincipalName -ErrorAction Stop}
-        Catch {Write-Host "Something is wrong with this user. Please check the UPN is correct. $ErrorMsg" -ForegroundColor Red; $checkRP.RegistrarPool = "NOTHING"; Pause}
+        Catch {Write-Host "Something is wrong with this user. Please check the UPN is correct. $ErrorMsg" -ForegroundColor Red; $checkRP.RegistrarPool = "NOTHING"; Write-Host; Pause}
         Write-Debug "variable checkRP.RegistrarPool is $($checkRP.RegistrarPool)"
         if($checkRP.RegistrarPool.Contains("infra.lync.com"))
         {
@@ -502,20 +729,27 @@ if (($totalLicenseEnabled - $totalLicenseConsumed) -lt $numUsers) {
             }
 
             # Finish assigning licenses and setting up the user
-            $pstnNumber = "tel:"+$csvUser.DID
-            Write-Host "Setting PSTN Number "$csvUser.DID
+            $pstnNumber = "tel:$($csvUser.DID);ext=$($csvUser.EXT)"
             #Enable Enterprise Voice, Enable Hosted Voicemail or Add the users PSTN Number
+            Write-Host "[1/3] | Assigning the number $($csvUser.DID) to the user and Voice Enabling the user"
             Try {Set-CsUser -Identity $csvUser.UserPrincipalName -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $pstnNumber -ErrorAction Stop}
-            Catch {Write-Host "Unable to either Enable Enterprise Voice, Enable Hosted Voicemail or Add the users PSTN Number. $ErrorMsg" -ForegroundColor Yellow -BackgroundColor Red; Pause}
+            Catch {Write-Host "Unable to either Enable Enterprise Voice, Enable Hosted Voicemail or Add the users PSTN Number. $ErrorMsg" -ForegroundColor Yellow -BackgroundColor Red; Write-Host; Pause}
             # Set the calling policy to Australia
-            Try {Grant-CsOnlineVoiceRoutingPolicy -Identity $csvUser.UserPrincipalName -PolicyName $UsagePolicyName -ErrorAction Stop}
-            Catch {Write-Host "Unable Set the users Voice Calling policy to $UsagePolicyName. $ErrorMsg" -ForegroundColor Red}
+            Write-Host "[2/3] | Assigning the Voice Routing Policy - $($csvUser.VoiceRoutingPolicy)"
+            Try {Grant-CsOnlineVoiceRoutingPolicy -Identity $csvUser.UserPrincipalName -PolicyName $csvUser.VoiceRoutingPolicy -ErrorAction Stop}
+            Catch {Write-Host "Unable Set the users Voice Calling policy to $($csvUser.VoiceRoutingPolicy). $ErrorMsg" -ForegroundColor Red; Write-Host; Pause}
+            # Set the Tenant Dial Plan
+            Write-Host "[3/3] | Assigning the Dial Plan - $($csvUser.DialPlan)"
+            Try {Grant-CsTenantDialPlan -Identity $csvUser.UserPrincipalName -PolicyName $csvUser.DialPlan -ErrorAction Stop}
+            Catch {Write-Host "Unable Set the users Tenant Dial Plan to $($csvUser.DialPlan). $ErrorMsg" -ForegroundColor Red; Write-Host; Pause}
 
         } else {
             if($checkRP.RegistrarPool -ne "NOTHING") {
                 Write-Host "User "$csvUser.UserPrincipalName" isn't correctly setup and isn't homed in Office 365. Maybe it's an On-Prem user? We can't continue with this user" -ForegroundColor Red
             }
         }
+        Write-Host
+    }
 
 Write-Host "                   " -ForegroundColor Black -BackgroundColor Green
 Write-Host "                   " -ForegroundColor Black -BackgroundColor Green

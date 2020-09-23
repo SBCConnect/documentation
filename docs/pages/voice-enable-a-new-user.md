@@ -10,10 +10,6 @@ If you're looking to modify an existing user, you can re-run the same on-boardin
 
 
 ## PowerShell
-**You need to update the following details in the two (2) lines below**
-- {UPN} - User 
-- {DID_NUMBER} - The number for the user in E.164 format (eg: +61255558888)
-
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 > ⚠ These scripts assume that you've already connected to the **Skype for Business Online PowerShell Module**.\
 Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)

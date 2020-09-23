@@ -6,18 +6,17 @@ Users in Microsoft 365 require several licenses and setting changes before they 
 Refer to 🌐 [License requriements for Microsoft Teams Direct Routing](License-Requirements.md#license-requirements-for-microsoft-teams-direct-routing) for more information.
 
 ## Modifying an existing user?
-If you're looking to modify an existing user, see [Modify an existing users account](modify-exsiting-user-account.md)\
-Example modifications include:
-- Enable or disable hosted voicemail
-- Change their DID phone number
-- Add/remove/change an extention for their account
+If you're looking to modify an existing user, you can re-run the same on-boarding script as below.
+
 
 ## PowerShell
 **You need to update the following details in the two (2) lines below**
 - {UPN} - User 
 - {DID_NUMBER} - The number for the user in E.164 format (eg: +61255558888)
 
-<i class="fas fa-terminal"></i> **Raw PowerShell Code**
+<i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
+> ⚠ These scripts assume that you've already connected to the **Skype for Business Online PowerShell Module**.\
+Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)
 
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########

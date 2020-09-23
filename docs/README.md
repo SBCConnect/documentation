@@ -55,6 +55,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Issues and errors when provisioning users](pages/troubleshooting-user-provisioning-issues.md)
 
 ### Single User Troubleshooting and Call Quality Issues
+- [Outbound call issues](pages/troubleshooting-outbound-call-issues.md)
 - [Check a single user's account for provisioning issues](pages/check-user-configuration.md)
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)
 - [Voicemail Configuration](pages/cloud-voicemail.md#user-voice-mailboxes)

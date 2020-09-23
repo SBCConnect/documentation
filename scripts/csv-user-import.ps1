@@ -27,12 +27,10 @@ Script written by Jay Antoney - 5G Networks
 https://5gn.com.au
 jaya@5gn.com.au
 
-Script version v1.1 - 2020/09/17
+Script version v1.2 - 2020/09/22
 
 TO DO / BROKEN
-- Need to do a check for the EXT when importing the user
-- Need to do a check for the VRP when importing the user, else use selected
-- Need to do a check for the TDP when importing the user, else use selected
+- Nill outstanding
 
 #>
 
@@ -339,59 +337,59 @@ Function Validate-CSVData()
     $EXTRegex = '^[1-9]\d{2,4}$'
 
     [bool]$importError = $false
-    foreach($csvUser in $global:inputdata)
+    foreach($csvUserValidate in $global:inputdata)
     {
         [string]$comment = $null
-        write-host $csvUser.UserPrincipalName
+        write-host "$($csvUserValidate.UserPrincipalName) - $($csvUserValidate.VoiceRoutingPolicy)"
 
         #Check the UPN is in a valid format
-        if($csvUser.UserPrincipalName -notmatch $EmailRegex)
+        if($csvUserValidate.UserPrincipalName -notmatch $EmailRegex)
         {
-            Write-Host "ERROR: UPN $($csvUser.UserPrincipalName) is not formatted correctly." -ForegroundColor Red
+            Write-Host "ERROR: UPN $($csvUserValidate.UserPrincipalName) is not formatted correctly." -ForegroundColor Red
             $comment = "UPN not formatted Correctly"
         }
         
         #Check the DID number is valid
-        if ($csvUser.DID -notmatch $DIDRegex) {
+        if ($csvUserValidate.DID -notmatch $DIDRegex) {
             #DID doesn't match RegEx pattern
             if($comment) {$comment += " & DID incorrectly formatted"} else {$comment = "DID incorrectly formatted"}
-            Write-Host "ERROR: $($csvUser.UserPrincipalName) - The number entered '$($csvUser.DID)' is incorrectly formatted" -ForegroundColor Red
+            Write-Host "ERROR: $($csvUserValidate.UserPrincipalName) - The number entered '$($csvUserValidate.DID)' is incorrectly formatted" -ForegroundColor Red
             
         } else {
             #DID does match RegEx pattern - Check if first char is a plus [+], if not, then add it
-            if ($csvUser.DID.SubString(0,1) -ne "+") {$csvUser.DID = "+" + $csvUser.DID}
+            if ($csvUserValidate.DID.SubString(0,1) -ne "+") {$csvUserValidate.DID = "+" + $csvUserValidate.DID}
         }
 
         #Check the EXT of the user
-        if ($csvUser.EXT -ne $null -and $csvUser.EXT -notmatch $EXTRegex) {
+        if ($csvUserValidate.EXT -ne $null -and $csvUserValidate.EXT -notmatch $EXTRegex) {
             if($comment) {$comment += " & EXT incorrectly formatted"} else {$comment = "EXT incorrectly formatted"}
-            Write-Host "ERROR: $($csvUser.UserPrincipalName) - The EXT entered '$($csvUser.EXT)' is incorrectly formatted" -ForegroundColor Red
+            Write-Host "ERROR: $($csvUserValidate.UserPrincipalName) - The EXT entered '$($csvUserValidate.EXT)' is incorrectly formatted" -ForegroundColor Red
         }
 
         #Check the Voice Routing Policy of the user actually matches something in the tenant
-        if ($csvUser.VoiceRoutingPolicy -ne $null -and $csvUser.VoiceRoutingPolicy -ne '') {
-            if(-not $global:UsagePolicy.identity.tolower().Contains("tag:$($csvUser.VoiceRoutingPolicy.tolower())")) {
+        if ($csvUserValidate.VoiceRoutingPolicy -ne $null -and $csvUserValidate.VoiceRoutingPolicy -ne '') {
+            if(-not $global:UsagePolicy.identity.tolower().Contains("tag:$($csvUserValidate.VoiceRoutingPolicy.tolower())")) {
                 if($comment) {$comment += " & Voice Routing Policy doesn't exist in the tenant"} else {$comment = "Voice Routing Policy doesn't exist in the tenant"}
-                Write-Host "ERROR: $($csvUser.UserPrincipalName) - The Voice Routing Policy '$($csvUser.VoiceRoutingPolicy)' doesn't exist in the tenant" -ForegroundColor Red
+                Write-Host "ERROR: $($csvUserValidate.UserPrincipalName) - The Voice Routing Policy '$($csvUserValidate.VoiceRoutingPolicy)' doesn't exist in the tenant" -ForegroundColor Red
             }
         } else {
-            $global:noVrpUsers += $csvUser
+            $global:noVrpUsers += $csvUserValidate
         }
 
         #Check the Dial Plan of the user actually matches something in the tenant
-        if ($csvUser.DialPlan -ne $null -and $csvUser.DialPlan -ne '') {
-            if(-not $global:DialPlan.identity.tolower().Contains("tag:$($csvUser.DialPlan.tolower())")) {
+        if ($csvUserValidate.DialPlan -ne $null -and $csvUserValidate.DialPlan -ne '') {
+            if(-not $global:DialPlan.identity.tolower().Contains("tag:$($csvUserValidate.DialPlan.tolower())")) {
                 if($comment) {$comment += " & Dial Plan doesn't exist in the tenant"} else {$comment = "Dial Plan doesn't exist in the tenant"}
-                Write-Host "ERROR: $($csvUser.UserPrincipalName) - The Dial Plan '$($csvUser.DialPlan)' doesn't exist in the tenant" -ForegroundColor Red
+                Write-Host "ERROR: $($csvUserValidate.UserPrincipalName) - The Dial Plan '$($csvUserValidate.DialPlan)' doesn't exist in the tenant" -ForegroundColor Red
             }
         } else {
-            $global:noDialPlanUsers += $csvUser
+            $global:noDialPlanUsers += $csvUserValidate
         }
 
         #If the $comment variable has anything in it, then there was an error so we need to record it
         if ($comment) {
             $importError = $true
-            $global:invalidUsers += @([pscustomobject]@{UserPrincipalName=$csvUser.UserPrincipalName;Comment=$comment})
+            $global:invalidUsers += @([pscustomobject]@{UserPrincipalName=$csvUserValidate.UserPrincipalName;Comment=$comment})
             $global:invalidUsers | export-csv -Path c:\temp\Failed_user_import.csv -NoTypeInformation
         }
     }
@@ -442,6 +440,7 @@ $global:invalidUsers = $null
 $global:noVrpUsers = @()
 $global:noDialPlanUsers = @()
 $global:csvimportCheck = $false
+$csvUser = $null
 #Set the SKU for the Microsoft Phone System License. Other wise refered to as MCOEV and MicrosoftCommunicationsOnline
 $phoneSystemLicenseSKU = '4828c8ec-dc2e-4779-b502-87ac9ce28ab7'
 
@@ -692,12 +691,12 @@ if (($totalLicenseEnabled - $totalLicenseConsumed) -lt $numUsers) {
 Write-Host
 Write-Host
 
-    foreach($csvUser in $global:inputdata)
+    foreach($csvUserDetail in $global:inputdata)
     {
-        Write-Host "Setting up user: $($csvUser.UserPrincipalName)" -ForegroundColor Green   
+        Write-Host "Setting up user: $($csvUserDetail.UserPrincipalName)" -ForegroundColor Green   
 
         #Check user is a Skype for Business ONLINE user and not On-Prem
-        Try {$checkRP = Get-CsOnlineUser -Identity $csvUser.UserPrincipalName -ErrorAction Stop}
+        Try {$checkRP = Get-CsOnlineUser -Identity $csvUserDetail.UserPrincipalName -ErrorAction Stop}
         Catch {Write-Host "Something is wrong with this user. Please check the UPN is correct. $ErrorMsg" -ForegroundColor Red; $checkRP.RegistrarPool = "NOTHING"; Write-Host; Pause}
         Write-Debug "variable checkRP.RegistrarPool is $($checkRP.RegistrarPool)"
         if($checkRP.RegistrarPool.Contains("infra.lync.com"))
@@ -709,7 +708,7 @@ Write-Host
                 Write-Host "Script will now exit"
                 pause
                 exit
-                #Try {Set-AzureADUser -ObjectID $csvUser.UserPrincipalName -UsageLocation "AU" -ErrorAction Stop}
+                #Try {Set-AzureADUser -ObjectID $csvUserDetail.UserPrincipalName -UsageLocation "AU" -ErrorAction Stop}
                 #Catch {Write-Host "We're unable to set the users usage Location to Australia. $ErrorMsg" -ForegroundColor Yellow -BackgroundColor Red; Pause}
                 
             } else {
@@ -718,7 +717,7 @@ Write-Host
             
 
             #Check if user has a Phone System license
-            if((Get-AzureADUserLicenseDetail -objectid $csvUser.UserPrincipalName | Select -Expand ServicePlans | where ServicePlanId -eq $phoneSystemLicenseSKU).length)
+            if((Get-AzureADUserLicenseDetail -objectid $csvUserDetail.UserPrincipalName | Select -Expand ServicePlans | where ServicePlanId -eq $phoneSystemLicenseSKU).length)
             {
                 $alreadyAssigned++
             } else {
@@ -729,23 +728,57 @@ Write-Host
             }
 
             # Finish assigning licenses and setting up the user
-            $pstnNumber = "tel:$($csvUser.DID);ext=$($csvUser.EXT)"
+            #####################################
+            #If the user has a EXT, then add it now
+            if ($csvUserDetail.EXT -ne $null -and $csvUserDetail.EXT -ne '') {
+                $pstnNumber = "tel:$($csvUserDetail.DID);ext=$($csvUserDetail.EXT)"
+            } else {
+                $pstnNumber = "tel:$($csvUserDetail.DID)"
+            }
+
             #Enable Enterprise Voice, Enable Hosted Voicemail or Add the users PSTN Number
-            Write-Host "[1/3] | Assigning the number $($csvUser.DID) to the user and Voice Enabling the user"
-            Try {Set-CsUser -Identity $csvUser.UserPrincipalName -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $pstnNumber -ErrorAction Stop}
-            Catch {Write-Host "Unable to either Enable Enterprise Voice, Enable Hosted Voicemail or Add the users PSTN Number. $ErrorMsg" -ForegroundColor Yellow -BackgroundColor Red; Write-Host; Pause}
+            Write-Host "[1/3] | Assigning the number $($csvUserDetail.DID) to the user and Voice Enabling the user"
+            $error.Clear()
+            Try {Set-CsUser -Identity $csvUserDetail.UserPrincipalName -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $pstnNumber -ErrorAction Stop}
+            Catch {Write-Host "Unable to either Enable Enterprise Voice, Enable Hosted Voicemail or Add the users PSTN Number. $ErrorMsg" -ForegroundColor Yellow -BackgroundColor Red; Write-Host "------------------"; Write-Host $error; Write-Host "------------------"; Write-Host; Pause}
+
+            #####################################
+            #If the user does NOT a Voice Routing Policy, then add the selected default now
+            if ([string]::IsNullOrWhiteSpace($csvUserDetail.VoiceRoutingPolicy)) {
+                $cusVRP = $UsagePolicyList.identity
+            } else {
+                $cusVRP = $csvUserDetail.VoiceRoutingPolicy
+            }
+            
             # Set the calling policy to Australia
-            Write-Host "[2/3] | Assigning the Voice Routing Policy - $($csvUser.VoiceRoutingPolicy)"
-            Try {Grant-CsOnlineVoiceRoutingPolicy -Identity $csvUser.UserPrincipalName -PolicyName $csvUser.VoiceRoutingPolicy -ErrorAction Stop}
-            Catch {Write-Host "Unable Set the users Voice Calling policy to $($csvUser.VoiceRoutingPolicy). $ErrorMsg" -ForegroundColor Red; Write-Host; Pause}
+            $error.Clear()
+            Write-Host "[2/3] | Assigning the Voice Routing Policy - $($cusVRP)"
+            Try {Grant-CsOnlineVoiceRoutingPolicy -Identity $csvUserDetail.UserPrincipalName -PolicyName $cusVRP -ErrorAction Stop}
+            Catch {Write-Host "Unable Set the users Voice Calling policy to $($cusVRP). $ErrorMsg" -ForegroundColor Red; Write-Host "------------------"; Write-Host $error; Write-Host "------------------"; Write-Host; Pause}
+
+
+
+            #####################################
+            #If the user does NOT a Tenant Dial Plan, then add the selected default now
+            if ([string]::IsNullOrWhiteSpace($csvUserDetail.DialPlan)) {
+                $cusDP = $tenantDialPlanList.identity
+            } else {
+                $cusDP = $csvUserDetail.DialPlan
+            }
+            
             # Set the Tenant Dial Plan
-            Write-Host "[3/3] | Assigning the Dial Plan - $($csvUser.DialPlan)"
-            Try {Grant-CsTenantDialPlan -Identity $csvUser.UserPrincipalName -PolicyName $csvUser.DialPlan -ErrorAction Stop}
-            Catch {Write-Host "Unable Set the users Tenant Dial Plan to $($csvUser.DialPlan). $ErrorMsg" -ForegroundColor Red; Write-Host; Pause}
+            $error.Clear()
+            Write-Host "[3/3] | Assigning the Dial Plan - $($cusDP)"
+            Try {Grant-CsTenantDialPlan -Identity $csvUserDetail.UserPrincipalName -PolicyName $cusDP -ErrorAction Stop}
+            Catch {Write-Host "Unable Set the users Tenant Dial Plan to $($cusDP). $ErrorMsg" -ForegroundColor Red; Write-Host "------------------"; Write-Host $error; Write-Host "------------------"; Write-Host; Pause}
+
+
 
         } else {
             if($checkRP.RegistrarPool -ne "NOTHING") {
-                Write-Host "User "$csvUser.UserPrincipalName" isn't correctly setup and isn't homed in Office 365. Maybe it's an On-Prem user? We can't continue with this user" -ForegroundColor Red
+                Write-Host "User "$csvUserDetail.UserPrincipalName" isn't correctly setup and isn't homed in Office 365. Maybe it's an On-Prem user? We can't continue with this user" -ForegroundColor Red
+                Write-Host
+                Pause
             }
         }
         Write-Host
@@ -759,4 +792,15 @@ if ($missingLicense -gt 0) {Write-Host "Users that had missing licenses: "$newly
 Write-Host "                   " -ForegroundColor Black -BackgroundColor Green
 Write-Host "OK, We're all done!" -ForegroundColor Black -BackgroundColor Green
 Write-Host "                   " -ForegroundColor Black -BackgroundColor Green
+write-host
+write-host
+Write-Host "Thanks for using this script" -ForegroundColor Yellow
+Write-Host
+Write-Host "For bug, feedback and comments, please see the 5G Networks GitHub"
+Write-Host "https://github.com/sbcconnect"
+Write-Host
+Write-Host "5G Networks"
+Write-Host "+61 1300 10 11 12"
+Write-Host "5gnetworks.com.au"
+write-host
 Pause

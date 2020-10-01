@@ -464,7 +464,7 @@ Write-Host
 
 Write-Host "Loading tenant data..."
 #Get the CSOnlineVoiceRoutingPolicies used through the script
-#$global:UsagePolicy = Get-CsOnlineVoiceRoutingPolicy
+$global:UsagePolicy = Get-CsOnlineVoiceRoutingPolicy
 Write-Host "$($global:UsagePolicy.count) Voice Routing Policies loaded"
 
 #Check if there are any Voice Usage Policies in the tenant
@@ -480,7 +480,7 @@ If (($UsagePolicy.Identity -eq $NULL) -and ($UsagePolicy.Count -eq 0)) {
 
 
 #Get the CSOnlineVoiceRoutingPolicies used through the script
-#$global:DialPlan = Get-CsTenantDialPlan
+$global:DialPlan = Get-CsTenantDialPlan
 Write-Host "$($global:DialPlan.count) Tenant Dial Plans loaded"
 Write-Host
 

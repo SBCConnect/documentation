@@ -20,6 +20,16 @@ Import-PSSession $skypeConnection -AllowClobber -ErrorAction SilentlyContinue
 
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
+####
+# Login script Version 0.1
+# 
+# Required Changes at a later date
+# - Check for ExecutionPolicy = Restricted
+# - Set ExecutionPolicy = RemoteSigned
+# - Maybe migrate to the Microsoft Teams powershell module instead of Skype one (?)
+# - Check Microsoft Teams powershell module installed version
+####
+
 function Get-UserUPN {
     #Regex pattern for checking an email address
     $EmailRegex = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'

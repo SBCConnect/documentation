@@ -160,8 +160,29 @@ while ($mainLoop -eq $true) {
                 break
         }
         'rem' {
-                Write-Host "OFF BOARD"
+                Write-Host
+                Write-Host
+                Write-Host "Removing users number"
                 Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null 
+                Write-Host
+                Write-Host
+                Write-Host "Script Complete" -ForegroundColor Green
+                Write-Host
+                Write-Host
+                pause
+                
+                $nextConfirm = $null
+                while ($nextConfirm -ne 'n' -and $nextConfirm -ne 'e') {
+                    clear
+                    Write-Host
+                    Write-Host "What would you like to do now?"
+                    Write-Host
+                    Write-Host "n     New user"
+                    Write-Host "e     Exit"
+                    Write-Host
+                    $nextConfirm = Read-Host "Please confirm all OK [n/e]"
+                }
+                if ($nextConfirm -eq 'e') {$mainLoop = $false; break}
         }
         'off' {
                 $remSelection = $null

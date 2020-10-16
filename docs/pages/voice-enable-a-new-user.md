@@ -99,7 +99,7 @@ function Get-UserDID {
         Write-Host
         Write-Host "-or enter-"
         Write-Host "rem    Remove the number from the user but leave calling capabilites enabled"
-        Write-Host "off    Disable and remove all calling capabilities and numbers from the user"
+        Write-Host "off    Remove all calling capabilities and numbers from the user"
         Write-Host "n      New User"
         Write-Host "e      Exit"
         Write-Host
@@ -146,7 +146,7 @@ while ($mainLoop -eq $true) {
     #Get the user's UPN
     $Global:UserDetail = Get-UserUPN
     $UserUPN = $UserDetail.UserPrincipalName
-
+    
     #Get the user's DID
     $UserDID = Get-UserDID
 
@@ -162,8 +162,12 @@ while ($mainLoop -eq $true) {
         'rem' {
                 Write-Host
                 Write-Host
-                Write-Host "Removing users number"
-                Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null 
+                Write-Host "Remove the users phone number: $($UserDetail.OnPremLineURI)" -ForegroundColor Yellow
+                $error.Clear()
+                try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -ErrorAction Stop}
+                catch {write-host "Unable to remove the number $($UserDetail.OnPremLineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                Write-Host "OK" -ForegroundColor Green
+
                 Write-Host
                 Write-Host
                 Write-Host "Script Complete" -ForegroundColor Green
@@ -200,7 +204,7 @@ while ($mainLoop -eq $true) {
                     Write-Host
                     Write-Host "Are you sure you want to off-board this user from Teams Calling?" -ForegroundColor Yellow
                     Write-Host
-                    Write-Host "yes    Disable and remove all calling capabilities and numbers from the user"
+                    Write-Host "yes    Remove all calling capabilities and numbers from the user"
                     Write-Host "n      Select a new user"
                     Write-Host "e      Exit script with no changes"
                     Write-Host
@@ -219,12 +223,7 @@ while ($mainLoop -eq $true) {
                     'yes' {
                             clear
                             Write-Host
-                            Write-Host "Off board the user"
-                            #
-                            #
-                            # NEED TO ADD A STACK OF ERROR CHECKING AND ENSURE THAT ENTVOICEENABLED = FALSE
-                            #
-                            #
+                            Write-Host "Removing all calling capabilities and numbers from the user"
                             
                             Write-Host
                             Write-Host
@@ -259,17 +258,23 @@ while ($mainLoop -eq $true) {
                             $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
                             
                             #Check enterprisevoiceenabled is $false
-                            $ievecheck = 0;
-                            while ($Global:UserDetail.enterprisevoiceenabled -eq $true -and $ievecheck -lt 2) {
-                                Write-Host "Scripts not complete - Waiting a further 4 seconds for scripts to complete..."
-                                Start-Sleep -Seconds 4
-                                $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
+                            if ($Global:UserDetail.enterprisevoiceenabled -eq $true) {
+                                #enterprisevoiceenabled is still enabled
+                                $ievecheck = 0;
+                                while ($Global:UserDetail.enterprisevoiceenabled -eq $true -and $ievecheck -lt 2) {
+                                    Write-Host "Scripts not complete - Waiting a further 4 seconds for scripts to complete..."
+                                    Start-Sleep -Seconds 4
+                                    $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
+                                    Write-Host
+                                    $ievecheck++
+                                }
+                                if ($ievecheck -gt 2) {Write-Host "Scripts have been run but are taking longer than expected to complete. Please wait 20 minutes for the platform to remove the calling capabilities from the user" -ForegroundColor Yellow; Write-Host;}
+                            } else {
+                                #enterprisevoiceenabled has been disabled
+                                Write-Host "The users voice services have been disabled and numbers removed" -ForegroundColor Green
                                 Write-Host
-                                $ievecheck++
                             }
-                            if ($ievecheck -gt 2) {Write-Host "Scripts have been run but are taking longer than expected to complete. Please wait 20 minutes for the platform to remove the calling capabilities from the user" -ForegroundColor Yellow;}
 
-                            Write-Host
                             Write-Host
                             Write-Host "Script Complete" -ForegroundColor Green
                             Write-Host

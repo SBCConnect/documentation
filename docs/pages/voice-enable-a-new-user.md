@@ -41,7 +41,7 @@ function Get-UserUPN {
         $usrDetail = $null
         $error.Clear()
         try {$usrDetail = Get-CsOnlineUser -Identity $UserUPN -ErrorAction Stop}
-        Catch {Write-Host; Write-Host "No username found with username $UserUPN. Please try again" -ForegroundColor Yellow; pause}
+        Catch {Write-Host; Write-Host "No username found with username $UserUPN or the users calling licenses have been removed. Please try again" -ForegroundColor Yellow; pause}
         if (-not $error) {$UserUPNloop = 'n'}
     }
 
@@ -99,7 +99,7 @@ function Get-UserDID {
         Write-Host
         Write-Host "-or enter-"
         Write-Host "rem    Remove the number from the user but leave calling capabilites enabled"
-        Write-Host "off    Offboard the user and remove all calling capabilites"
+        Write-Host "off    Disable and remove all calling capabilities and numbers from the user"
         Write-Host "n      New User"
         Write-Host "e      Exit"
         Write-Host
@@ -200,7 +200,7 @@ while ($mainLoop -eq $true) {
                     Write-Host
                     Write-Host "Are you sure you want to off-board this user from Teams Calling?" -ForegroundColor Yellow
                     Write-Host
-                    Write-Host "yes    Off-board the user"
+                    Write-Host "yes    Disable and remove all calling capabilities and numbers from the user"
                     Write-Host "n      Select a new user"
                     Write-Host "e      Exit script with no changes"
                     Write-Host
@@ -225,21 +225,19 @@ while ($mainLoop -eq $true) {
                             # NEED TO ADD A STACK OF ERROR CHECKING AND ENSURE THAT ENTVOICEENABLED = FALSE
                             #
                             #
-                            #Remove-CsOnlineVoiceRoutingPolicy -Identity $UserDetail.UserPrincipalName
-                            #Remove-CsTenantDialPlan -Identity $UserDetail.UserPrincipalName
-                            #Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -EnterpriseVoiceEnabled $false -HostedVoiceMail $false
+                            
                             Write-Host
                             Write-Host
                             Write-Host "[1/3] | Remove the users Voice Routing Policy" -ForegroundColor Yellow
                             $error.Clear()
-                            try {Remove-CsOnlineVoiceRoutingPolicy -Identity $UserDetail.UserPrincipalName -ErrorAction Stop}
+                            try {Grant-CsOnlineVoiceRoutingPolicy -Identity $UserDetail.UserPrincipalName -PolicyName $null -ErrorAction Stop}
                             catch {write-host "Unable to remove the Voice Routing Policy from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                             Write-Host "OK" -ForegroundColor Green
 
                             Write-Host
                             Write-Host "[2/3] | Remove the Dial Plan" -ForegroundColor Yellow
                             $error.Clear()
-                            try {Remove-CsTenantDialPlan -Identity $UserDetail.UserPrincipalName -ErrorAction Stop}
+                            try {Grant-CsTenantDialPlan -Identity $UserDetail.UserPrincipalName -PolicyName $null -ErrorAction Stop}
                             catch {write-host "Unable to remove the Dial Plan from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                             Write-Host "OK" -ForegroundColor Green
                             
@@ -248,14 +246,35 @@ while ($mainLoop -eq $true) {
                             Try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -EnterpriseVoiceEnabled $false -HostedVoiceMail $false -ErrorAction Stop}
                             catch {write-host "Unable to remove the number from the user or Disable Enterprise Voice" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                             Write-Host "OK" -ForegroundColor Green
+                            Write-Host
+                            Write-Host
+
+                            #Confirm that voice services have been removed
+                            Write-Host "Waiting 4 seconds for scripts to complete..."
+                            Start-Sleep -Seconds 4
+                            Write-Host "Confirming users voice services have been disabled"
+                            Write-Host
+                            
+                            #Get the user's UPN
+                            $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
+                            
+                            #Check enterprisevoiceenabled is $false
+                            $ievecheck = 0;
+                            while ($Global:UserDetail.enterprisevoiceenabled -eq $true -and $ievecheck -lt 2) {
+                                Write-Host "Scripts not complete - Waiting a further 4 seconds for scripts to complete..."
+                                Start-Sleep -Seconds 4
+                                $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
+                                Write-Host
+                                $ievecheck++
+                            }
+                            if ($ievecheck -gt 2) {Write-Host "Scripts have been run but are taking longer than expected to complete. Please wait 20 minutes for the platform to remove the calling capabilities from the user" -ForegroundColor Yellow;}
 
                             Write-Host
                             Write-Host
                             Write-Host "Script Complete" -ForegroundColor Green
                             Write-Host
-                            Write-Host
-                            pause
                             
+                            #Check with the user what to do now                                            
                             $nextConfirm = $null
                             while ($nextConfirm -ne 'n' -and $nextConfirm -ne 'e') {
                                 clear

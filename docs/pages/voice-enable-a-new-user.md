@@ -16,6 +16,12 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
+#
+# Script version 0.1
+# Jay Antoney
+# 19 October 2020
+#
+#####################
 
 function Get-UserUPN {
     #Regex pattern for checking an email address
@@ -115,7 +121,7 @@ function Display-ScriptExit {
     write-host
     Write-Host "Thanks for using this script" -ForegroundColor Yellow
     Write-Host
-    Write-Host "For bug, feedback and comments, please see the 5G Networks GitHub"
+    Write-Host "For bug, feedback and comments, please see the SBC Connect GitHub"
     Write-Host "https://github.com/sbcconnect"
     Write-Host
     pause

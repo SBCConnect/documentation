@@ -419,7 +419,8 @@ New-CsOnlineVoiceRoute -Name "AU-International" -Priority 7 -OnlinePstnUsages "A
 ################################################################
 ################################################################
 #Anonymous Caller ID Policy for Outbound Calls
-New-CsCallingLineIdentity  -Identity Anonymous -Description "Anonymous outbound caller policy" -CallingIDSubstitute Anonymous -EnableUserOverride $false
+New-CsCallingLineIdentity  -Identity AnonymousForced -Description "Anonymous outbound caller policy. Forced with no user selection" -CallingIDSubstitute Anonymous -EnableUserOverride $false
+New-CsCallingLineIdentity  -Identity AnonymousUserSelect -Description "Anonymous outbound caller policy. Allows the user to decide if they want the policy applied or not" -CallingIDSubstitute Anonymous -EnableUserOverride $true
 
 
 

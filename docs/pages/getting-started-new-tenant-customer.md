@@ -29,7 +29,7 @@ The high level steps are:
 - Setup Holidays
 - Run the required base PowerShell configuration based on the type of trunk deployed
   - Derived Trunk; OR
-  - Non-Derived Trunk
+  - [Non-Derived Trunk - New SBC](pages/new-sbc-deployment-to-tenant.md)
 - Complete user deployment configuration
   - Assign licenses
   - Assign DID

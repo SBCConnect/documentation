@@ -26,6 +26,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 ### Tenant Management
 - [Adding required domain names to the Microsoft 365 tenant](pages/add-domain-name-to-tenant.md)
+- [Create Anonymous calling policies for outbound caller ID policies](pages/configure-anonymous-outbound-calling.md)
 - [Change the outbound caller ID](pages/change-outbound-caller-id.md)
 - [Create a Call Park policy](pages/create-a-call-park-policy.md)
 - [Create a Call Queue](pages/create-a-call-queue.md)

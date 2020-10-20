@@ -418,16 +418,6 @@ New-CsOnlineVoiceRoute -Name "AU-International" -Priority 7 -OnlinePstnUsages "A
 ################################################################
 ################################################################
 ################################################################
-#Anonymous Caller ID Policy for Outbound Calls
-New-CsCallingLineIdentity  -Identity AnonymousForced -Description "Anonymous outbound caller policy. Forced with no user selection" -CallingIDSubstitute Anonymous -EnableUserOverride $false
-New-CsCallingLineIdentity  -Identity AnonymousUserSelect -Description "Anonymous outbound caller policy. Allows the user to decide if they want the policy applied or not" -CallingIDSubstitute Anonymous -EnableUserOverride $true
-
-
-
-################################################################
-################################################################
-################################################################
-################################################################
 #Creating outbound translation rules
 $OutboundTeamsNumberTranslations = New-Object 'System.Collections.Generic.List[string]'
 $OutboundPSTNNumberTranslations = New-Object 'System.Collections.Generic.List[string]'
@@ -438,3 +428,18 @@ Write-Host 'Adding translation rules to PSTN gateways'
 ForEach ($PSTNGW in $PSTNGWList) {
 	Set-CsOnlinePSTNGateway -Identity $PSTNGW.Identity -OutboundTeamsNumberTranslationRules $OutboundTeamsNumberTranslations -OutboundPstnNumberTranslationRules $OutboundPSTNNumberTranslations -ErrorAction SilentlyContinue
 }
+
+
+Write-Host
+Write-Host
+Write-Host
+Write-Host "####    We're all done!    ####" -ForegroundColor Green
+Write-Host "From here, you may wish to assign Calling ID policies to allow Anonymous calling outbound"
+Write-Host "https://sbcconnect.com.au/pages/configure-anonymous-outbound-calling.html"
+Write-Host
+Write-Host
+Write-Host
+Write-Host
+Write-Host "The script will now exit"
+Write-Host
+pause

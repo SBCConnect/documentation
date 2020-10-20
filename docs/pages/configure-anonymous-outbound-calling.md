@@ -2,13 +2,13 @@
 Outbound anonymous calling can be configured in multiple ways
 
 - **Per user forced**
-  - The policy is applied per user and the user is unable to configure if their number is shown or not when making an outboud call
+  - This policy can be provisioned per user and set's their outbound number to Anonymous/Private. As a result, the user is unable to configure if their number is shown or not when making an outboud call
 - **Per user enabled**
-  - The policy is applied per user and the user has the option to enable or disable their number from showing when making an outboud call
+  - This policy can be provisioned per user and allows the user to choose to set their outbound number to Anonymous/Private. The user is able to change this setting under **Settings** > **Calls** within their Microsoft Teams client.
 - **Globally forced**
-  - The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user is unable to configure if their number is shown or not when making an outboud call
+  - This policy is applied to all users by default that don't have another **per user** policy applied to them individually. When applicable to a user, the user is unable to configure if their number is shown or not when making an outboud call
 - **Globally enabled**
-  - The policy is applied to all users by default that don't have another **per user** policy applied to them individually. The user has the option to enable or disable their number from showing when making an outboud call
+  - This policy is applied to all users by default that don't have another **per user** policy applied to them individually. When applicable to a user, this policy allows the user to choose to set their outbound number to Anonymous/Private. The user is able to change this setting under **Settings** > **Calls** within their Microsoft Teams client.
 
 The options can be set via the Teams interface or through PowerShell.
 
@@ -44,29 +44,35 @@ The options can be set via the Teams interface or through PowerShell.
 
 
 ## Via PowerShell
+### Per-User Policies
+It's safe to deploy this script to the tenant as a whole. This will allow selection and application of the policies against the users individual profiles within the Teams Admin Centre
 ````PowerShell
-# Per user forced
-# The policy is applied per user and the user is unable to configure if their number is shown or not when making an outboud call
+### Per user forced
+# These policies set the options for the user, and restricts the user from changing the options
 # Outbound number = anonymous
-New-CsCallingLineIdentity -Identity "Anonymous Per-User Forced" -CallingIdSubstitute "Anonymous" -EnableUserOverride $false
-# Outbound number = Users phone number
-New-CsCallingLineIdentity -Identity "Anonymous Per-User Forced" -CallingIdSubstitute "LineUri" -EnableUserOverride $false
+New-CsCallingLineIdentity -Identity "Anonymous Per-User Forced" -CallingIdSubstitute "Anonymous" -EnableUserOverride $false -Description "This policy can be provisioned per user and set's their outbound number to Anonymous/Private. As a result, the user is unable to configure if their number is shown or not when making an outboud call"
 
-# Per user enabled
-# The policy is applied per user and the user has the option to enable or disable their number from showing when making an outboud call
+# Outbound number = Users phone number
+New-CsCallingLineIdentity -Identity "Users Number Per-User Forced" -CallingIdSubstitute "LineUri" -EnableUserOverride $false -Description "This policy can be provisioned per user and set's their outbound number to their assigned PSTN dialing number. As a result, the user is unable to configure their outbound calling number within the Microsoft Teams client"
+
+### Per user enabled
+# These policies set the default options for the user, but allows the user to change options
 # Outbound number = anonymous
-New-CsCallingLineIdentity -Identity "Anonymous Per-User User Selected" -CallingIdSubstitute "Anonymous" -EnableUserOverride $true
+New-CsCallingLineIdentity -Identity "Anonymous Per-User User Selected" -CallingIdSubstitute "Anonymous" -EnableUserOverride $true -Description "This policy can be provisioned per user and allows the user to choose to set their outbound number to Anonymous/Private. The user is able to change this setting under Settings > Calls within their Microsoft Teams client."
 # Outbound number = Users phone number
-New-CsCallingLineIdentity -Identity "Anonymous Per-User User Selected" -CallingIdSubstitute "LineUri" -EnableUserOverride $true
+New-CsCallingLineIdentity -Identity "Users Number Per-User User Selected" -CallingIdSubstitute "LineUri" -EnableUserOverride $true -Description "This policy can be provisioned per user and defaults their outbound number to their assigned PSTN dialing number. Where applicable within the tenant, the user may be able to select an alternate number as well."
+````
 
-# Globally forced
+### Apply to all users that don't have manually over-ridded policies
+````PowerShell
+### Globally forced
 # The policy is applied to all users by default that don't have another per user policy applied to them individually. The user is unable to configure if their number is shown or not when making an outboud call
 # Outbound number = anonymous
 Set-CsCallingLineIdentity -Identity Global -CallingIdSubstitute "Anonymous" -EnableUserOverride $false
 # Outbound number = Users phone number
 Set-CsCallingLineIdentity -Identity Global -CallingIdSubstitute "LineUri" -EnableUserOverride $false
 
-# Globally enabled
+### Globally enabled
 #The policy is applied to all users by default that don't have another per user policy applied to them individually. The user has the option to enable or disable their number from showing when making an outboud call
 # Outbound number = anonymous
 Set-CsCallingLineIdentity -Identity Global -CallingIdSubstitute "Anonymous" -EnableUserOverride $true

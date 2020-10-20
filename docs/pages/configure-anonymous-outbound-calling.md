@@ -1,5 +1,5 @@
-# Configure outbound anonymous calling policies
-Outbound anonymous calling can be configured in multiple ways
+# Configure outbound calling policies to allow User PSTN or Anonymous calling
+Outbound calling ID's can be configured in multiple ways
 
 - **Anonymous Per-User Forced**
   - This policy can be provisioned per user and set's their outbound number to Anonymous/Private. As a result, the user is unable to configure if their number is shown or not when making an outboud call

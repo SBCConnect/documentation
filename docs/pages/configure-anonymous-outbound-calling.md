@@ -51,7 +51,6 @@ It's safe to deploy this script to the tenant as a whole. This will allow select
 # These policies set the options for the user, and restricts the user from changing the options
 # Outbound number = anonymous
 New-CsCallingLineIdentity -Identity "Anonymous Per-User Forced" -CallingIdSubstitute "Anonymous" -EnableUserOverride $false -Description "This policy can be provisioned per user and set's their outbound number to Anonymous/Private. As a result, the user is unable to configure if their number is shown or not when making an outboud call"
-
 # Outbound number = Users phone number
 New-CsCallingLineIdentity -Identity "Users Number Per-User Forced" -CallingIdSubstitute "LineUri" -EnableUserOverride $false -Description "This policy can be provisioned per user and set's their outbound number to their assigned PSTN dialing number. As a result, the user is unable to configure their outbound calling number within the Microsoft Teams client"
 

@@ -15,7 +15,7 @@ The high level steps are:
     - Derived Trunk; OR
     - Non-Derived Trunk
 - Add and Verify the DNS name in the Microsoft 365 tenant
-  - [Add Domain Name to Tenant](pages/add-domain-name-to-tenant.md)
+  - [Add Domain Name to Tenant](add-domain-name-to-tenant.md)
   - Add domains to https://admin.microsoft.com
   - Verification codes need to get entered by the SBC Connect platform team to the DNS
   - Use TXT record
@@ -29,7 +29,7 @@ The high level steps are:
 - Setup Holidays
 - Run the required base PowerShell configuration based on the type of trunk deployed
   - Derived Trunk; OR
-  - [Non-Derived Trunk - New SBC](pages/new-sbc-deployment-to-tenant.md)
+  - [Non-Derived Trunk - New SBC](new-sbc-deployment-to-tenant.md)
 - Complete user deployment configuration
   - Assign licenses
   - Assign DID

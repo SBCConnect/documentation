@@ -10,6 +10,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Getting Started
 - [Setting up a new tenant for SBC Connect calling](pages/getting-started-new-tenant-customer.md)
 - [Microsoft 365 tenant Data Collection](pages/tenant-data-collection.md)
+- [Call Flow Checklist](pages/call-flow-testing.md)
 
 ### User Account Management
 - [Voice enable a user account](pages/voice-enable-a-new-user.md)

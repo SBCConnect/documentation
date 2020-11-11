@@ -17,9 +17,10 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 0.1
-# Jay Antoney
-# 19 October 2020
+# Script version 0.2
+# Written by Jay Antoney
+# 5G Networks
+# 11 November 2020
 #
 #####################
 

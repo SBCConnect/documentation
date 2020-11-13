@@ -64,6 +64,9 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Voicemail Configuration](pages/cloud-voicemail.md#user-voice-mailboxes)
 - [General Microsoft Teams client issues](pages/teams-client-issues.md)
 
+### Device Troubleshooting and Call Quality Issues
+- [Desktop phone](pages/troubleshooting-user-device.md)
+
 ### Multi-User Troubleshooting and Call Quality Issues
 
 

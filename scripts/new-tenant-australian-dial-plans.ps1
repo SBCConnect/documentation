@@ -1,9 +1,9 @@
 ############################
 # THERE IS LOTS WRONG WITH THIS AROUND THE PSTN GATEWAY SELECTION
 # DO - NOT - RUN
-############################
+#############################
 
-clear
+Clear-Host
 Write-Host
 Write-Host "THERE IS LOTS WRONG WITH THIS AROUND THE PSTN GATEWAY SELECTION" -foregroundcolor Yellow
 Write-Host "DO - NOT - RUN"
@@ -21,7 +21,7 @@ $ErrorActionPreference = 'SilentlyContinue'
 $UrlRegex = "^[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$"
 
 #Clear the screen
-clear
+Clear-Host
 
 ################################################################
 ################################################################
@@ -120,7 +120,7 @@ $PSTNGW = Get-CsOnlinePSTNGateway
 $PSTNGWList = @()
 $inputRouteType = $null
 while($inputRouteType -ne 1 -and $inputRouteType -ne 2) {
-    clear
+    Clear-Host
     Write-Host
     Write-Host "PSTN Gateway Selection" -ForegroundColor Yellow
     If (($PSTNGW.Identity -eq $NULL) -and ($PSTNGW.Count -eq 0)) {
@@ -141,12 +141,12 @@ while($inputRouteType -ne 1 -and $inputRouteType -ne 2) {
     Write-Host "e  Exit"
     Write-Host
     $inputRouteType = Read-Host "Please make a selection [1-2]"
-    if ($inputRouteType -eq 'e') {Clear; Write-Host; Write-Host "You've selected EXIT and no changes were made" -ForegroundColor Yellow; Write-Host; pause; break}
+    if ($inputRouteType -eq 'e') {Clear-Host; Write-Host; Write-Host "You've selected EXIT and no changes were made" -ForegroundColor Yellow; Write-Host; pause; break}
 }
 
 Switch ($inputRouteType) {
     1{
-        Clear
+        Clear-Host
         Write-Host
         Write-Host "PSTN Gateway Selection - Derived Trunk" -ForegroundColor Yellow
         Write-Host
@@ -154,7 +154,7 @@ Switch ($inputRouteType) {
         If (($PSTNGW.Identity -eq $NULL) -and ($PSTNGW.Count -eq 0)) {
             $inputPstnGateway = $null
             While ($inputPstnGateway -ne 'c') {
-                Clear
+                Clear-Host
                 Write-Host
                 Write-Host "PSTN Gateway Selection - Derived Trunk" -ForegroundColor Yellow
                 Write-Host
@@ -181,7 +181,7 @@ Switch ($inputRouteType) {
                 $inputPstnGateway = $null
                 $inputPstnGateway = Read-Host "Please enter the FQDN"
                 # Exit if E is selected
-                if ($inputPstnGateway -eq 'e') {Clear; Write-Host; Write-Host "You've selected EXIT and no changes were made" -ForegroundColor Yellow; Write-Host; pause; break}
+                if ($inputPstnGateway -eq 'e') {Clear-Host; Write-Host; Write-Host "You've selected EXIT and no changes were made" -ForegroundColor Yellow; Write-Host; pause; break}
                 if ($inputPstnGateway -ne 'c') {
                     if ($inputPstnGateway -notmatch $UrlRegex) {
                         Write-Host
@@ -211,7 +211,7 @@ Switch ($inputRouteType) {
 
 
         
-        Clear
+        Clear-Host
         Write-Host
         Write-Host "PSTN Gateway Selection - Derived Trunk" -ForegroundColor Yellow
         Write-Host

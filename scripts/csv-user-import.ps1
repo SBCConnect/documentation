@@ -449,8 +449,8 @@ Clear
 ###########################################################
 
 #Check the Azure Login and that it's the correct tenant
-#Check-AzureADLogin
-#Check-SkypeLogin
+Check-AzureADLogin
+Check-SkypeLogin
 Clear
 Write-Host
 Write-Host "---- You're logged into ----"

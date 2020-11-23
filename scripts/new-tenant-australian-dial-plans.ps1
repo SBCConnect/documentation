@@ -65,6 +65,8 @@ function New-PstnTrunk {
                     Write-Host "Customer Details" -ForegroundColor Yellow
                     Write-Host
                     Write-Host "Please enter in the assigned SBC Connect customer ID"
+                    Write-Host "This is the 4 digit number at the start of the customers domain"
+                    Write-Host "EG: XXXX-sdc.sbcconnect.com.au"
                     Write-Host
                     Write-Host "E    Exit"
                     Write-Host
@@ -616,8 +618,9 @@ while ($finalConfirm -ne 'y' -and $finalConfirm -ne 'e') {
 #Setup the Queensland (07) Dial Plans
 
 $DPParent = "AU-Queensland"
-
-Write-Host "Creating Queensland (07) normalization rules"
+Clear-Host
+Write-Host
+Write-Host "Creating Queensland (07) normalization rules" -foregroundcolor Yellow
 $NR = @()
 $NR += New-CsVoiceNormalizationRule -Name "AU-Queensland-Local" -Parent $DPParent -Pattern '^([2-9]\d{7})$' -Translation '+617$1' -InMemory -Description "Local number normalization for Queensland, Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-TollFree' -Parent $DPParent -Pattern '^(1[8]\d{4,8})\d*$' -Translation '+61$1' -InMemory -Description "TollFree number normalization for Australia"
@@ -634,7 +637,7 @@ New-CsTenantDialPlan $DPParent -Description "Normalization rules for Queensland,
 
 $DPParent = "AU-CentralandWest"
 
-Write-Host "Creating Central and West (08) normalization rules"
+Write-Host "Creating Central and West (08) normalization rules" -foregroundcolor Yellow
 $NR = @()
 $NR += New-CsVoiceNormalizationRule -Name "AU-CentralandWest-Local" -Parent $DPParent -Pattern '^([2-9]\d{7})$' -Translation '+618$1' -InMemory -Description "Local number normalization for Central and West, Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-TollFree' -Parent $DPParent -Pattern '^(1[8]\d{4,8})\d*$' -Translation '+61$1' -InMemory -Description "TollFree number normalization for Australia"
@@ -651,7 +654,7 @@ New-CsTenantDialPlan $DPParent -Description "Normalization rules for Central and
 
 $DPParent = "AU-CentralEast"
 
-Write-Host "Creating Central East (02) normalization rules"
+Write-Host "Creating Central East (02) normalization rules" -foregroundcolor Yellow
 $NR = @()
 $NR += New-CsVoiceNormalizationRule -Name "AU-CentralEast-Local" -Parent $DPParent -Pattern '^([2-9]\d{7})$' -Translation '+612$1' -InMemory -Description "Local number normalization for Central East, Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-TollFree' -Parent $DPParent -Pattern '^(1[8]\d{4,8})\d*$' -Translation '+61$1' -InMemory -Description "TollFree number normalization for Australia"
@@ -668,7 +671,7 @@ New-CsTenantDialPlan $DPParent -Description "Normalization rules for Central Eas
 
 $DPParent = "AU-SouthEast"
 
-Write-Host "Creating South East (03) normalization rules"
+Write-Host "Creating South East (03) normalization rules" -foregroundcolor Yellow
 $NR = @()
 $NR += New-CsVoiceNormalizationRule -Name "AU-SouthEast-Local" -Parent $DPParent -Pattern '^([2-9]\d{7})$' -Translation '+613$1' -InMemory -Description "Local number normalization for South East, Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-TollFree' -Parent $DPParent -Pattern '^(1[8]\d{4,8})\d*$' -Translation '+61$1' -InMemory -Description "TollFree number normalization for Australia"
@@ -686,6 +689,8 @@ New-CsTenantDialPlan $DPParent -Description "Normalization rules for SouthEast, 
 ################################################################
 ################################################################
 #Setup Online PSTN Usages
+Write-Host
+Write-Host "Creating Online PSTN Usages" -foregroundcolor Yellow
 Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-National" } -WarningAction:SilentlyContinue | Out-Null
 Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-Mobile" } -WarningAction:SilentlyContinue | Out-Null
 Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-Premium" } -WarningAction:SilentlyContinue | Out-Null
@@ -699,6 +704,8 @@ Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-Service" } -WarningAct
 ################################################################
 ################################################################
 #Define PSTN Usage Policy Lists
+Write-Host
+Write-Host "Creating PSTN Usage Lists" -foregroundcolor Yellow
 $AU_NationalList = "AU-National", "AU-Mobile"
 $AU_National_1300List = "AU-National", "AU-Mobile", "AU-1300"
 $AU_National_1300_PremiumList = "AU-National", "AU-Mobile", "AU-Premium", "AU-1300", "AU-Service"
@@ -713,6 +720,8 @@ $AU_International_1300_PremiumList = "AU-National", "AU-Mobile", "AU-Premium", "
 ################################################################
 ################################################################
 #Setup Online Voice Routing Policy
+Write-Host
+Write-Host "Creating Online Voice Routing Policies" -foregroundcolor Yellow
 New-CsOnlineVoiceRoutingPolicy "AU-National" -Description "Allows local/national calls from  Australia to National and Emergency numbers" -OnlinePstnUsages @{Add = $AU_NationalList }
 New-CsOnlineVoiceRoutingPolicy "AU-National-1300" -Description "Allows local/national calls from  Australia to National, Emergency and 1300 numbers" -OnlinePstnUsages @{Add = $AU_National_1300List }
 New-CsOnlineVoiceRoutingPolicy "AU-National-1300-Premium" -Description "Allows local/national calls from  Australia to National, Emergency, 1300 and Premium numbers" -OnlinePstnUsages @{Add = $AU_National_1300_PremiumList }
@@ -727,7 +736,8 @@ New-CsOnlineVoiceRoutingPolicy "AU-International-1300-Premium" -Description "All
 ################################################################
 ################################################################
 #Creating voice routes
-Write-Host "Creating voice routes"
+Write-Host
+Write-Host "Creating Online Voice Routes" -foregroundcolor Yellow
 New-CsOnlineVoiceRoute -Name "AU-Emergency" -Priority 0 -OnlinePstnUsages "AU-National" -OnlinePstnGatewayList $PSTNGWList.Identity -NumberPattern '^(000|911|112)$' -Description "Emergency call routing for Australia" | Out-Null
 New-CsOnlineVoiceRoute -Name "AU-National" -Priority 1 -OnlinePstnUsages "AU-National" -OnlinePstnGatewayList $PSTNGWList.Identity -NumberPattern '^\+610?[23578]\d{8}' -Description "Local routing for Australia" | Out-Null
 New-CsOnlineVoiceRoute -Name "AU-Mobile" -Priority 2 -OnlinePstnUsages "AU-Mobile" -OnlinePstnGatewayList $PSTNGWList.Identity -NumberPattern '^\+61([45]\d{8})$' -Description "Mobile routing for Australia" | Out-Null
@@ -743,12 +753,15 @@ New-CsOnlineVoiceRoute -Name "AU-International" -Priority 7 -OnlinePstnUsages "A
 ################################################################
 ################################################################
 #Creating outbound translation rules
+Write-Host
+Write-Host "Creating Outbound Translation Rules" -foregroundcolor Yellow
 $OutboundTeamsNumberTranslations = New-Object 'System.Collections.Generic.List[string]'
 $OutboundPSTNNumberTranslations = New-Object 'System.Collections.Generic.List[string]'
 New-CsTeamsTranslationRule -Identity "SBCconnect-AllCalls" -Pattern '^\+(1|7|2[07]|3[0-46]|39\d|4[013-9]|5[1-8]|6[0-6]|8[1246]|9[0-58]|2[1235689]\d|24[013-9]|242\d|3[578]\d|42\d|5[09]\d|6[789]\d|8[035789]\d|9[679]\d)(?:0)?(\d{6,14})(;ext=\d+)?$' -Translation '+$1$2' -Description "Outbound translation rules" | Out-Null
 $OutboundTeamsNumberTranslations.Add("SBCconnect-AllCalls")
 
-Write-Host 'Adding translation rules to PSTN gateways'
+Write-Host
+Write-Host "Adding translation rules to PSTN gateways" -foregroundcolor Yellow
 ForEach ($PSTNGW in $PSTNGWList) {
     Set-CsOnlinePSTNGateway -Identity $PSTNGW.Identity -OutboundTeamsNumberTranslationRules $OutboundTeamsNumberTranslations -OutboundPstnNumberTranslationRules $OutboundPSTNNumberTranslations -ErrorAction SilentlyContinue
 }
@@ -767,3 +780,4 @@ Write-Host
 Write-Host "The script will now exit"
 Write-Host
 pause
+Show-ScriptExit

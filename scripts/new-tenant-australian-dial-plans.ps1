@@ -459,7 +459,9 @@ Switch ($inputRouteType) {
             Write-Host
             Write-Host "ID    SELECTED    DOMAIN"
             Write-Host "--    --------    ------"
-            for ($i = 0; $i -lt $PSTNGW.Length; $i++) {
+            $gwlen = 0
+            foreach ($n in $PSTNGW) {$gwlen++}
+            for ($i = 0; $i -lt $gwlen; $i++) {
                 if ($PSTNGWList.count -gt 0) {
                     if ($PSTNGWList.Identity -match $PSTNGW[$i].Identity ) {
                         $selectedId = $null
@@ -493,7 +495,7 @@ Switch ($inputRouteType) {
             }
             if ($inputPstnGateway -eq 'n') { New-PstnTrunk; pause; $inputPstnGateway = $null }
             if ($inputPstnGateway -ne 'c') {
-                if ([int]$inputPstnGateway -ge 0 -and [int]$inputPstnGateway -le $PSTNGW.length - 1) {
+                if ([int]$inputPstnGateway -ge 0 -and [int]$inputPstnGateway -le $gwlen - 1) {
                     if ($PSTNGWList.Identity -match $PSTNGW[$inputPstnGateway].Identity ) {
                         $inputPstnGateway = "Duplicate of ID $($inputPstnGateway)"
                     }

@@ -478,7 +478,7 @@ Switch ($inputRouteType) {
                 }
                 Write-Host "$($i)     $($gwSelected)    $($PSTNGW[$i].Identity)"
             }
-                
+
             Write-Host
             Write-Host "Type c once all are complete"
             Write-Host "Type n to create a new PSTN gateway"
@@ -715,7 +715,15 @@ $AU_InternationalList = "AU-National", "AU-Mobile", "AU-International"
 $AU_International_1300List = "AU-National", "AU-Mobile", "AU-International", "AU-1300"
 $AU_International_1300_PremiumList = "AU-National", "AU-Mobile", "AU-Premium", "AU-International", "AU-1300", "AU-Service"
 
-
+Write-Host
+Write-Host
+Write-Host "********************" -ForegroundColor Yellow
+Write-Host "We just need to pause here for 3 mins to allow the first half of the configuration to sync" -ForegroundColor Yellow
+Write-Host "********************" -ForegroundColor Yellow
+Start-Sleep -s 300 #300 = 5 mins
+Write-Host
+Write-Host "... OK - Let's keep going" -ForegroundColor Green
+Write-Host
 
 ################################################################
 ################################################################

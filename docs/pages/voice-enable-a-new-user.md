@@ -107,7 +107,7 @@ function Get-UserDID {
         Write-Host "-or enter-"
         Write-Host "rem    Remove the number from the user but leave calling capabilites enabled"
         Write-Host "off    Remove all calling capabilities and numbers from the user"
-        Write-Host "n      New User"
+        Write-Host "n      Next User"
         Write-Host "e      Exit"
         Write-Host
         $UserDID = Read-Host "Please enter your selection"
@@ -188,7 +188,7 @@ while ($mainLoop -eq $true) {
                     Write-Host
                     Write-Host "What would you like to do now?"
                     Write-Host
-                    Write-Host "n     New user"
+                    Write-Host "n     Next user"
                     Write-Host "e     Exit"
                     Write-Host
                     $nextConfirm = Read-Host "Please confirm all OK [n/e]"
@@ -212,7 +212,7 @@ while ($mainLoop -eq $true) {
                     Write-Host "Are you sure you want to off-board this user from Teams Calling?" -ForegroundColor Yellow
                     Write-Host
                     Write-Host "yes    Remove all calling capabilities and numbers from the user"
-                    Write-Host "n      Select a new user"
+                    Write-Host "n      Select a different user"
                     Write-Host "e      Exit script with no changes"
                     Write-Host
                     $remSelection = Read-Host "Please enter selection"
@@ -293,7 +293,7 @@ while ($mainLoop -eq $true) {
                                 Write-Host
                                 Write-Host "What would you like to do now?"
                                 Write-Host
-                                Write-Host "n     New user"
+                                Write-Host "n     Next user"
                                 Write-Host "e     Exit"
                                 Write-Host
                                 $nextConfirm = Read-Host "Please confirm all OK [n/e]"
@@ -472,7 +472,7 @@ while ($mainLoop -eq $true) {
                     Write-Host
                     Write-Host "What would you like to do now?"
                     Write-Host
-                    Write-Host "n     New user"
+                    Write-Host "n     Next user"
                     Write-Host "e     Exit"
                     Write-Host
                     $nextConfirm = Read-Host "Please confirm all OK [n/e]"

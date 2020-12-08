@@ -1,6 +1,4 @@
 # Getting started deploying SBC Connect to a new Microsoft 365 Tenant - Customer
-> These are the deployment instructions for confiuring the Microsoft 365 tenant.
-<br> For SBC Connect platform deployment instructions, please see [Here](getting-started-new-tenant-platform.md)
 
 ## Overview
 This document outlines the process for deploying a new customer to the SBC Connect calling platform.
@@ -8,15 +6,14 @@ This document outlines the process for deploying a new customer to the SBC Conne
 The high level steps are:
 - Obtain the following settings from the SBC Connect platform team
   - Customer Domain Name (DNS)
-  - Number range
-  - Port number (non-Derived trunk only)
-  - Trunk capacity (non-Derived trunk only)
+  - Any new PSTN number ranges
   - Trunk type
     - Derived Trunk; OR
     - Non-Derived Trunk
+  - Port number (non-Derived trunk only)
+  - Trunk capacity (non-Derived trunk only)
 - Add and Verify the DNS name in the Microsoft 365 tenant
   - [Add Domain Name to Tenant](add-domain-name-to-tenant.md)
-  - Add domains to https://admin.microsoft.com
   - Verification codes need to get entered by the SBC Connect platform team to the DNS
   - Use TXT record
   - Add your own DNS records

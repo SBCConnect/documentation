@@ -36,7 +36,7 @@ function Get-UserUPN {
 
     #Get the users UPN
     Write-Host ""
-    $UserUPN = Read-Host "Please enter in the users full UPN"
+    $UserUPN = Read-Host "Please enter in your username to log into the Microsoft 365 tenant"
     while($UserUPN -notmatch $EmailRegex)
     {
      Write-Host "$UserUPN isn't a valid UPN" -BackgroundColor Red -ForegroundColor White

@@ -17,8 +17,8 @@ For the:
    This is selected by default
 1. If verification is required, you'll receive a TXT= value record to add into DNS. Please pass this onto the SBC Connect team
 
-## After Verification
-After the SBC Connect platform team has added in the TXT= record value
+## After Verification from the SBC Connect Platform Team
+After the SBC Connect platform team has added in the **TXT=** record value
 1. Navigate back to the domain in the Microsoft Admin Portal
 1. Complete verification of the domain
 1. On the **Add DNS Records** page, untick all records as no Exchange, Teams, etc records are required

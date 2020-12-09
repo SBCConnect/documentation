@@ -722,7 +722,7 @@ if ($pstnAdditionalDomains) {
     $pstnUsageConfirm = $null
     $pstnUsageConfirm = Read-Host "Do you want to remove these PSTN Usages? [Y/N]"
     if ($pstnUsageConfirm -eq 'y') {
-        Set-CsOnlinePSTNUsage -Identity global -Usage @{Remove = $pu } -WarningAction:SilentlyContinue | Out-Null
+        Set-CsOnlinePSTNUsage -Identity global -Usage @{Remove = $pu }
     }
 }
 

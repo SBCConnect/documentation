@@ -110,7 +110,7 @@ function Get-UserDID {
         Write-Host "n      Next User"
         Write-Host "e      Exit"
         Write-Host
-        $UserDID = Read-Host "Please enter your selection"
+        $UserDID = Read-Host "Please enter the DID number to assign"
         $UserDID = $UserDID.trim()
         Write-Host
     }
@@ -128,6 +128,43 @@ function Display-ScriptExit {
     pause
     $global:mainLoop = $false
     clear
+}
+
+function Get-UserEXT {
+    #Regex pattern for checking an email address
+    $EXTRegex = '^\+[1-9]\d{3,4}$'
+    $UserEXT = "TBA"
+    $UserDetail = $Global:UserDetail
+
+    #Get the users Extension Number
+    while($UserEXT -notmatch $EXTRegex -and $UserEXT -ne 'e' -and $UserEXT -ne $null)
+    {
+        $UserEXT = $null
+        Clear
+        Write-Host
+        Display-UserDetails
+        if ($UserDID -ne $null) {
+            Write-Host
+            Write-Host "------------------------------------"
+            Write-Host
+            Write-Host "Invalid Selection" -ForegroundColor Yellow
+            Write-Host "$UserEXT isn't a valid extension number, or is not in the correct format." -ForegroundColor Yellow
+        }
+        Write-Host
+        Write-Host "------------------------------------"
+        Write-Host
+        Write-Host "Please enter in the users extenation number" -ForegroundColor Yellow
+        Write-Host "An extension number can be between 3-4 digits and can not start with a 0"
+        Write-Host
+        Write-Host "-or enter-"
+        Write-Host "{ENTER}  Leave blank to skip and not use an extension"
+        Write-Host "e        Exit and not assign any number to the user"
+        Write-Host
+        $UserEXT = Read-Host "Please enter the extension number"
+        $UserEXT = $UserEXT.trim()
+        Write-Host
+    }
+    return $UserEXT
 }
 
 
@@ -307,6 +344,8 @@ while ($mainLoop -eq $true) {
         }
         default {
                             ##############
+                #Get the users Extension number
+                $UserEXT = Get-UserEXT
                 # List and select the dial plan to assign to the user
                 clear
                 Write-Host
@@ -322,6 +361,7 @@ while ($mainLoop -eq $true) {
                     Write-Host "What dial plan should we assign to the user?"
                     Write-Host "User UPN: $($UserUPN)"
                     Write-Host "User DID: $($UserDID)"
+                    if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
                     Write-Host
                     If ($gotDialPlan.Count -gt 10) {
                         Write-Host "ID     PLAN NAME"
@@ -369,6 +409,7 @@ while ($mainLoop -eq $true) {
                     Write-Host "What dial plan should we assign to the user?"
                     Write-Host "User UPN: $($UserUPN)"
                     Write-Host "User DID: $($UserDID)"
+                    if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
                     Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
                     Write-Host
                     If ($gotVRP.Count -gt 10) {
@@ -408,6 +449,7 @@ while ($mainLoop -eq $true) {
                     Write-Host "-----------------------------------------------------"
                     Write-Host "User UPN: $($UserUPN)"
                     Write-Host "User DID: $($UserDID)"
+                    if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
                     Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
                     Write-Host "Voice Routing Policy: $($selectedVrp.Identity.Substring(4))"
                     Write-Host "-----------------------------------------------------"
@@ -431,17 +473,23 @@ while ($mainLoop -eq $true) {
                 Write-Host "-----------------------------------------------------"
                 Write-Host "User UPN: $($UserUPN)"
                 Write-Host "User DID: $($UserDID)"
+                if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
                 Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
                 Write-Host "Voice Routing Policy: $($selectedVrp.Identity.Substring(4))"
                 Write-Host "-----------------------------------------------------"
                 Write-Host
                 Write-Host
-
+                
+                if ($userEXT) {
+                    $UserNumberToAssign = "tel:$($UserDID);ext=$($UserEXT)"
+                } else {
+                    $UserNumberToAssign = "tel:$($UserDID)"
+                }
 
                 #Give the user a DID number and Voice Enable the user 
                 Write-Host "[1/3] | Assigning the number to the user and Voice Enabling the user" -ForegroundColor Yellow
                 $error.Clear()
-                Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI tel:$UserDID -ErrorAction Stop}
+                Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
                 catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                 Write-Host "OK" -ForegroundColor Green
 

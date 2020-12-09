@@ -613,6 +613,12 @@ while ($finalConfirm -ne 'y' -and $finalConfirm -ne 'e') {
 
 #TODO need to check that none of these plans we're about to add aren't already in the platform
 
+
+
+$ErrorActionPreference = 'Stop'
+
+
+
 ################################################################
 ################################################################
 ################################################################
@@ -632,7 +638,7 @@ $NR += New-CsVoiceNormalizationRule -Name 'AU-Mobile' -Parent $DPParent -Pattern
 $NR += New-CsVoiceNormalizationRule -Name 'AU-National' -Parent $DPParent -Pattern '^0([23578]\d{8})\d*(\D+\d+)?$' -Translation '+61$1' -InMemory -Description "National number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-Service' -Parent $DPParent -Pattern '^(000|1[0125]\d{1,8})$' -Translation '$1' -InMemory -Description "Service number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-International' -Parent $DPParent -Pattern '^(?:\+|0011)(1|7|2[07]|3[0-46]|39\d|4[013-9]|5[1-8]|6[0-6]|8[1246]|9[0-58]|2[1235689]\d|24[013-9]|242\d|3[578]\d|42\d|5[09]\d|6[789]\d|8[035789]\d|9[679]\d)(?:0)?(\d{6,14})(\D+\d+)?$' -Translation '+$1$2' -InMemory -Description "International number normalization for Australia"
-New-CsTenantDialPlan $DPParent -Description "Normalization rules for Queensland, Australia" -NormalizationRules @{add = $NR }
+New-CsTenantDialPlan $DPParent -Description "Normalization rules for Queensland, Australia - QLD" -NormalizationRules @{add = $NR }
 
 ################################################################
 #Setup the Central and West (08) Dial Plans
@@ -649,7 +655,7 @@ $NR += New-CsVoiceNormalizationRule -Name 'AU-Mobile' -Parent $DPParent -Pattern
 $NR += New-CsVoiceNormalizationRule -Name 'AU-National' -Parent $DPParent -Pattern '^0([23578]\d{8})\d*(\D+\d+)?$' -Translation '+61$1' -InMemory -Description "National number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-Service' -Parent $DPParent -Pattern '^(000|1[0125]\d{1,8})$' -Translation '$1' -InMemory -Description "Service number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-International' -Parent $DPParent -Pattern '^(?:\+|0011)(1|7|2[07]|3[0-46]|39\d|4[013-9]|5[1-8]|6[0-6]|8[1246]|9[0-58]|2[1235689]\d|24[013-9]|242\d|3[578]\d|42\d|5[09]\d|6[789]\d|8[035789]\d|9[679]\d)(?:0)?(\d{6,14})(\D+\d+)?$' -Translation '+$1$2' -InMemory -Description "International number normalization for Australia"
-New-CsTenantDialPlan $DPParent -Description "Normalization rules for Central and West, Australia" -NormalizationRules @{add = $NR }
+New-CsTenantDialPlan $DPParent -Description "Normalization rules for Central and West - SA/NT/WA, Australia" -NormalizationRules @{add = $NR }
 
 ################################################################
 #Setup the Central East (02) Dial Plans
@@ -666,7 +672,7 @@ $NR += New-CsVoiceNormalizationRule -Name 'AU-Mobile' -Parent $DPParent -Pattern
 $NR += New-CsVoiceNormalizationRule -Name 'AU-National' -Parent $DPParent -Pattern '^0([23578]\d{8})\d*(\D+\d+)?$' -Translation '+61$1' -InMemory -Description "National number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-Service' -Parent $DPParent -Pattern '^(000|1[0125]\d{1,8})$' -Translation '$1' -InMemory -Description "Service number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-International' -Parent $DPParent -Pattern '^(?:\+|0011)(1|7|2[07]|3[0-46]|39\d|4[013-9]|5[1-8]|6[0-6]|8[1246]|9[0-58]|2[1235689]\d|24[013-9]|242\d|3[578]\d|42\d|5[09]\d|6[789]\d|8[035789]\d|9[679]\d)(?:0)?(\d{6,14})(\D+\d+)?$' -Translation '+$1$2' -InMemory -Description "International number normalization for Australia"
-New-CsTenantDialPlan $DPParent -Description "Normalization rules for Central East, Australia" -NormalizationRules @{add = $NR }
+New-CsTenantDialPlan $DPParent -Description "Normalization rules for Central East - NSW/ACT, Australia" -NormalizationRules @{add = $NR }
 
 ################################################################
 #Setup the South East (03) Dial Plans
@@ -683,7 +689,7 @@ $NR += New-CsVoiceNormalizationRule -Name 'AU-Mobile' -Parent $DPParent -Pattern
 $NR += New-CsVoiceNormalizationRule -Name 'AU-National' -Parent $DPParent -Pattern '^0([23578]\d{8})\d*(\D+\d+)?$' -Translation '+61$1' -InMemory -Description "National number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-Service' -Parent $DPParent -Pattern '^(000|1[0125]\d{1,8})$' -Translation '$1' -InMemory -Description "Service number normalization for Australia"
 $NR += New-CsVoiceNormalizationRule -Name 'AU-International' -Parent $DPParent -Pattern '^(?:\+|0011)(1|7|2[07]|3[0-46]|39\d|4[013-9]|5[1-8]|6[0-6]|8[1246]|9[0-58]|2[1235689]\d|24[013-9]|242\d|3[578]\d|42\d|5[09]\d|6[789]\d|8[035789]\d|9[679]\d)(?:0)?(\d{6,14})(\D+\d+)?$' -Translation '+$1$2' -InMemory -Description "International number normalization for Australia"
-New-CsTenantDialPlan $DPParent -Description "Normalization rules for SouthEast, Australia" -NormalizationRules @{add = $NR }
+New-CsTenantDialPlan $DPParent -Description "Normalization rules for SouthEast - VIC/TAS, Australia" -NormalizationRules @{add = $NR }
 
 
 ################################################################
@@ -693,12 +699,40 @@ New-CsTenantDialPlan $DPParent -Description "Normalization rules for SouthEast, 
 #Setup Online PSTN Usages
 Write-Host
 Write-Host "Creating Online PSTN Usages" -foregroundcolor Yellow
-Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-National" } -WarningAction:SilentlyContinue | Out-Null
-Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-Mobile" } -WarningAction:SilentlyContinue | Out-Null
-Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-Premium" } -WarningAction:SilentlyContinue | Out-Null
-Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-International" } -WarningAction:SilentlyContinue | Out-Null
-Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-1300" } -WarningAction:SilentlyContinue | Out-Null
-Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-Service" } -WarningAction:SilentlyContinue | Out-Null
+$pstnUsagesList = @("AU-National", "AU-Mobile", "AU-Premium", "AU-International", "AU-1300", "AU-Service")
+$pstnCurrentUsageList = get-CsOnlinePSTNUsage -Identity global | Select-Object -ExpandProperty Usage
+$pstnAdditionalDomains = $null
+#Check the current PSTN usages in the tenant and ask if to remove them first
+foreach ($u in $pstnCurrentUsageList) {
+    if ($pstnUsagesList -contains $u) {
+        #do nothing
+    } else {
+        $pstnAdditionalDomains += @($u)
+    }
+}
+
+if ($pstnAdditionalDomains) {
+    Write-Host
+    Write-Host "There are additional PSTN Usages in the tenanty that are't required by SBC Connect" -ForegroundColor Yellow
+    Write-Host 
+    foreach ($pu in $pstnAdditionalDomains) {
+        Write-Host "- $($pu)"
+    }
+    Write-Host
+    $pstnUsageConfirm = $null
+    $pstnUsageConfirm = Read-Host "Do you want to remove these PSTN Usages? [Y/N]"
+    if ($pstnUsageConfirm -eq 'y') {
+        Set-CsOnlinePSTNUsage -Identity global -Usage @{Remove = $pu } -WarningAction:SilentlyContinue | Out-Null
+    }
+}
+
+#Add new PSTN Usage's to the tenant
+foreach ($p in $pstnUsagesList) {
+    if ($pstnCurrentUsageList | Where-Object {$_.Usage -ne $p}) {
+        Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-National" } -WarningAction:SilentlyContinue | Out-Null
+    }
+}
+
 
 
 ################################################################
@@ -718,9 +752,17 @@ $AU_International_1300_PremiumList = "AU-National", "AU-Mobile", "AU-Premium", "
 Write-Host
 Write-Host
 Write-Host "********************" -ForegroundColor Yellow
-Write-Host "We just need to pause here for 3 mins to allow the first half of the configuration to sync" -ForegroundColor Yellow
+Write-Host "We just need to pause here for 5 mins to allow the first half of the configuration to sync" -ForegroundColor Yellow
 Write-Host "********************" -ForegroundColor Yellow
-Start-Sleep -s 300 #300 = 5 mins
+Start-Sleep -s 60 #60 = 1 mins
+Write-Host "Waiting 4 more minutes..."
+Start-Sleep -s 60 #60 = 1 mins
+Write-Host "Waiting 3 more minutes..."
+Start-Sleep -s 60 #60 = 1 mins
+Write-Host "Waiting 2 more minutes..."
+Start-Sleep -s 60 #60 = 1 mins
+Write-Host "Waiting 1 more minutes..."
+Start-Sleep -s 60 #60 = 1 mins
 Write-Host
 Write-Host "... OK - Let's keep going" -ForegroundColor Green
 Write-Host

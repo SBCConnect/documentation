@@ -8,7 +8,9 @@ Refer to 🌐 [License requriements for Microsoft Teams Direct Routing](License-
 ## Modifying an existing user?
 If you're looking to modify an existing user, you can re-run the same on-boarding script as below.
 
-> Information on **troubleshooting user provisioning errors** can be found [here](troubleshooting-user-provisioning-issues.md)
+
+## Troubleshooting
+⚠ Information on **troubleshooting user provisioning errors** can be found [here](troubleshooting-user-provisioning-issues.md)
 
 ## PowerShell
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**

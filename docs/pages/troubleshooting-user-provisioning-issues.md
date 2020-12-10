@@ -4,7 +4,7 @@
 This is often a fault found when using an on-prem server and syncing Active Directory to Azure Active Directory.\
 The fault is caused by either:
 - The users account hasn't correctly updated in the On-Prem AD when migrating from Skype for Business to Teams\
-  This can be verified by [Logging onto the Skype for Business Online Powershell Module](connecting-to-sfbo-ps-module.md) then running the following command, replacing the variable "USERNAME" with the users UPN.
+  This can be verified by [Logging onto the Skype for Business Online Powershell Module](connecting-to-sfbo-ps-module.md) then running the following command, replacing the variable "USERNAME" with the users UPN.\
   The output of the command will explain an issue with the setting **msRTCSIP-DeploymentLocator** property in your local Active Directory if this is the cause of the error
   ````PowerShell
   Get-CsOnlineUser -Identity "USERNAME" | Select-Object DisplayName, UserPrincipalName, MCOValidationError | Format-List
@@ -17,7 +17,7 @@ The fault is caused by either:
   - Update this to **sipfed.online.lync.com**
 - OR The user doesn't have a skype license. You may need to remove the license, wait 5 minutes then re-add the license
 
-When setting a number on a Resource Account and you get this error, then you'll need to:
+When setting a number on a **Resource Account** and you get this error, then you'll need to:
 - convert the account back to a user account
 - remove any meeting room licenses
 - assign a user Office/Microsoft 365 license with the Microsoft Phone System entitlement

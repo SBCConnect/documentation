@@ -132,18 +132,18 @@ function Display-ScriptExit {
 
 function Get-UserEXT {
     #Regex pattern for checking an email address
-    $EXTRegex = '^\+[1-9]\d{3,4}$'
+    $EXTRegex = '^[1-9]\d{2,3}$'
     $UserEXT = "TBA"
     $UserDetail = $Global:UserDetail
 
     #Get the users Extension Number
     while($UserEXT -notmatch $EXTRegex -and $UserEXT -ne 'e' -and $UserEXT -ne $null)
     {
-        $UserEXT = $null
+        if ($UserEXT = "TBA") {$UserEXT = $null}
         Clear
         Write-Host
         Display-UserDetails
-        if ($UserDID -ne $null) {
+        if (-not [string]::IsNullOrEmpty( $UserEXT )) {
             Write-Host
             Write-Host "------------------------------------"
             Write-Host
@@ -162,6 +162,7 @@ function Get-UserEXT {
         Write-Host
         $UserEXT = Read-Host "Please enter the extension number"
         $UserEXT = $UserEXT.trim()
+        if ([string]::IsNullOrEmpty( $UserEXT )) {$UserEXT = $null}
         Write-Host
     }
     return $UserEXT
@@ -346,6 +347,9 @@ while ($mainLoop -eq $true) {
                             ##############
                 #Get the users Extension number
                 $UserEXT = Get-UserEXT
+
+                if ($UserEXT -eq 'e') {$mainLoop = $false; break}
+
                 # List and select the dial plan to assign to the user
                 clear
                 Write-Host

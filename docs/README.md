@@ -54,6 +54,10 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 <hr width="100%" noshade color="grey">
 
 ## <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> Troubleshooting <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span>
+
+### Network Deployment, Testing and Troubleshooting
+- [Networking best practises](pages/networking-best-practises.md)
+
 ### User Provisioning Issues
 - [Issues and errors when provisioning users](pages/troubleshooting-user-provisioning-issues.md)
 
@@ -68,6 +72,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Desktop phone](pages/troubleshooting-user-device.md)
 
 ### Multi-User Troubleshooting and Call Quality Issues
+- [Teams Poor Call Quality Metric](pages/poor-call-quality.md)
 
 
 ### Platform Troubleshooting and Issues

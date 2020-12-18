@@ -57,6 +57,8 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 ### Network Deployment, Testing and Troubleshooting
 - [Networking best practises](pages/networking-best-practises.md)
+- [Testing the local Network Connection](pages/testing-local-network-connection.md)
+- [Understanding Poor Call Quality](pages/poor-call-quality.md)
 
 ### User Provisioning Issues
 - [Issues and errors when provisioning users](pages/troubleshooting-user-provisioning-issues.md)

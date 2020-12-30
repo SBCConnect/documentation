@@ -21,107 +21,176 @@ Import-PSSession $skypeConnection -AllowClobber -ErrorAction SilentlyContinue
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.1
+# Login script Version 0.2
+#
+# Changes
+# - Migrate to MicrosoftTeams PowerShell module instead of Skype for Business Online
+# - Check MicrosoftTeams PowerShell Version
+# - Check if Skype For Business Module is installed and prompt to uninstall it
 # 
 # Required Changes at a later date
 # - Check for ExecutionPolicy = Restricted
 # - Set ExecutionPolicy = RemoteSigned
-# - Maybe migrate to the Microsoft Teams powershell module instead of Skype one (?)
-# - Check Microsoft Teams powershell module installed version
+#
+# Any issues installing Powershell Module. Try to update PowerShell Get command
+# > Install-Module -Name PowerShellGet -Repository PSGallery -Force
+# Then close and re-open PowerShell
+#
 ####
 
-function Get-UserUPN {
-    #Regex pattern for checking an email address
-    $EmailRegex = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
-
-    #Get the users UPN
-    Write-Host ""
-    $UserUPN = Read-Host "Please enter in your username to log into the Microsoft 365 tenant"
-    while($UserUPN -notmatch $EmailRegex)
-    {
-     Write-Host "$UserUPN isn't a valid UPN" -BackgroundColor Red -ForegroundColor White
-     $UserUPN = Read-Host "Please enter in the users full UPN"
-    }
-
-    Clear-Variable OverrideAdminDomain -ErrorAction SilentlyContinue
-    
-    $msOnlineRegex = '^([\w-\.]+)@([a-zA-Z0-9]+)\.onmicrosoft\.com$'
-    If($UserUPN -notmatch $msOnlineRegex) 
-    {
-        Write-Host "It seems you've entered a UPN not ending in onmicrosoft.com. This is OK, however we need to get that domain to be able to login" -ForegroundColor Yellow
-        $OverrideAdminDomain = Read-Host "Please enter in your ______.onmicrosoft.com prefix"
-        $checkDomain = $true
-
-        while ($checkDomain)
-        {
-            If($OverrideAdminDomain -like '*.onmicrosoft.com')
-            {
-                $rootDomain = $OverrideAdminDomain.Substring(0, ($OverrideAdminDomain.Length - 16))
-                If($rootDomain -inotmatch '^[a-zA-Z0-9]+$')
-                {
-                    Write-Host "Prefix not valid" -ForegroundColor Yellow
-                } else {
-                    $checkDomain = $false
-                }
-            } else {
-                If($OverrideAdminDomain -notmatch '^[a-zA-Z0-9]+$')
-                {
-                    Write-Host "Prefix not valid" -ForegroundColor Yellow
-                } else {
-                    $checkDomain = $false
-                    $OverrideAdminDomain = "$OverrideAdminDomain.onmicrosoft.com"
-                }
-            }
-
-            If($checkDomain -ne $false) {$OverrideAdminDomain = Read-Host "Please enter in your ______.onmicrosoft.com prefix"}
-        }
-
-        while($OverrideAdminDomain -match $msOnlineRegex)
-        {
-         Write-Host "$UserUPN isn't a valid UPN" -BackgroundColor Red -ForegroundColor White
-         $UserUPN = Read-Host "Please enter in the users full UPN"
-        }
-    }
-    
-    $returnstring = @{}
-
-    $returnString.username = $UserUPN
-    $returnString.overrideAdminDomain = $OverrideAdminDomain
-
-    return $returnString
-}
-
-#Check the Skype for Business Online PowerShell Module is installed
-
+#Check the Skype for Business Online PowerShell Module is NOT installed
 if(Get-Module SkypeOnlineConnector -ListAvailable)
     {
-        Import-Module SkypeOnlineConnector
-    } else {
-        Write-host "The Skype for Business Online Powershell Module isn't installed!" -ForegroundColor Yellow -BackgroundColor Red
-        Write-Host "We're opening the download page now for you!" -ForegroundColor Yellow -BackgroundColor Red
-        write-host "URL: https://www.microsoft.com/en-us/download/details.aspx?id=39366" -ForegroundColor Yellow -BackgroundColor Red
-        write-host "After installing, you'll need to close and re-open the PowerShell window, then re-run the PowerShell script" -ForegroundColor Yellow -BackgroundColor Red
+        Write-Host
+        Write-host "The Skype for Business Online Powershell Module has been depreciated and must be uninstalled!" -ForegroundColor Yellow -BackgroundColor Red
+        Write-Host
+        Write-Host "Please go to Add/Remove programs and remove the Skype for Business Online Powershell Module" -ForegroundColor Yellow
+        write-host "Then restart PowerShell and re-run this script" -ForegroundColor Yellow
+        write-host "Any new required modules will be installed after re-running the scripts" -ForegroundColor Yellow
         Pause
-        Start-Process "https://www.microsoft.com/en-us/download/details.aspx?id=39366"
         Break
     }
+
+#Check the Microsoft Teams Powershell Module is installed
+if(-not (Get-Module MicrosoftTeams -ListAvailable)) {
+    Write-host "The MicrosoftTeams PowerShell module is not installed and must be installed before continuing!" -ForegroundColor Yellow -BackgroundColor Red
+    Write-Host
+    Write-Host "We'll attempt to install the module now..." -ForegroundColor Yellow
+    Pause
+    Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+    Install-Module MicrosoftTeams -Confirm:$false -Force
+    Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
+    Write-Host
+    Write-Host
+    if(-not (Get-Module MicrosoftTeams -ListAvailable)) {
+        Write-host "The MicrosoftTeams PowerShell module seems to not be installing correctly" -ForegroundColor Yellow -BackgroundColor Red
+        Write-host "Please try to install the module manually by running the following command in an elevated PowerShell screen" -ForegroundColor Yellow
+        Write-host "" -ForegroundColor Yellow -BackgroundColor Red
+    }
+}
+
+#Check for multiple MicrosoftTeams module versions
+Clear
+Write-Host "Checking for the newest version of the Microsoft Teams PowerShell module... Please hold"
+$currentMSPVersion = (Find-Module MicrosoftTeams).version
+Clear-Variable MTPVersionRemoveID -ErrorAction SilentlyContinue
+$MPTVersionList = Find-Module MicrosoftTeams -AllowPrerelease -Allversions
+while ((Get-Module MicrosoftTeams -ListAvailable).count -gt 1) {
+    clear
+    $installedMTP = Get-Module MicrosoftTeams -ListAvailable
+    Write-Host
+    Write-Host "There are $($installedMTP.count) MicrosoftTeams PowerShell module versions installed" -ForegroundColor Yellow
+    Write-Host "You'll need to remove older versions to continue" -ForegroundColor Yellow
+    Write-Host 
+    #Write-Host "Installed versions"
+    Write-Host "ID    VERSION"
+    Write-Host "--    -------"
+    
+    for ($i = 0; $i -lt $installedMTP.count; $i++) {
+        $lineMTPVersion = ($MPTVersionList | Where-Object ({$_.Version -like "$(($installedMTP[$i].Version))*"})).Version
+        if ((Get-Module MicrosoftTeams -ListAvailable)[$i].version -eq $currentMSPVersion) {
+            Write-Host "$($i)     $($lineMTPVersion) (Recommended Version to keep - Current stable version)"
+        } else {
+            Write-Host "$($i)     $($lineMTPVersion)"
+        }
+    }
+    Write-Host
+    Write-Host
+    if ($MTPVersionRemoveID) {
+        Write-Host "$($MTPVersionRemoveID) isn't a valid entry" -ForegroundColor Yellow
+        Write-Host
+    }
+    Clear-Variable MTPVersionRemoveID -ErrorAction SilentlyContinue
+    $MTPVersionRemoveID = Read-Host "Please enter the ID of the module version to remove [0-$($installedMTP.count-1)]"
+    if ($MTPVersionRemoveID -ge 0 -and $MTPVersionRemoveID -le $installedMTP.count) {
+        $MTPRealVersion = ($MPTVersionList | Where-Object ({$_.Version -like "$(($installedMTP[$MTPVersionRemoveID].Version))*"})).Version
+        Write-Host
+        Write-Host "Removing version $($MTPRealVersion)..."
+        #Check the version and if it's a preview or not
+        
+        Uninstall-Module MicrosoftTeams -Confirm:$false -Force -RequiredVersion $MTPRealVersion -AllowPrerelease
+        Write-Host
+        Write-Host "Complete" -ForegroundColor Green
+        Pause
+        $MTPVersionRemoveID = $null
+    }
+}
+
+#Check Teams module version
 clear
-$userLogin = Get-UserUPN
+Write-Host
+Write-Host "Checking your installed version of the MicrosoftTeams PowerShell module is up-to-date"
+if ((Get-Module MicrosoftTeams -ListAvailable).version -lt $currentMSPVersion) {
+    Write-Host
+    Write-Host "Your MicrosoftTeams PowerShell module is not up-to-date" -ForegroundColor Yellow -BackgroundColor Red
+    Write-Host
+    Write-Host "We'll attempt to update the module version now"
+    pause
+    Write-Host
+    Write-Host
+    Write-Host
+    Write-Host
+    Write-Host "**************************************" -ForegroundColor Yellow
+    Write-Host "Updating module to version $($currentMSPVersion)" -ForegroundColor Yellow
+    Write-Host "This may take 2-3 minutes" -ForegroundColor Yellow
+    Write-Host "**************************************" -ForegroundColor Yellow
+    Write-Host
+    Write-Host "Removing old module version $((Get-Module MicrosoftTeams -ListAvailable).version)..."
+    Uninstall-Module MicrosoftTeams -AllVersions -Confirm:$false -Force -AllowPrerelease
+    Write-Host "Complete" -ForegroundColor Green
+    Write-Host "Installing module version $($currentMSPVersion)..."
+    Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+    Install-Module MicrosoftTeams -Confirm:$false -Force
+    Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
+    Write-Host "Complete" -ForegroundColor Green
+}
+
+
+clear
+#$userLogin = Get-UserUPN
 
 #Check first, then connect to the Skype for Business PowerShell module 
-Write-Host "Logging onto Skype for Business Online Powershell Module" -BackgroundColor Yellow -ForegroundColor Black
-If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened') {
+Write-Host
+Write-Host "Logging onto the Microsoft Teams - Skype For Business Powershell Module"
+
+$activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
+
+if ($activeTeamsSessions.count -gt 1) {
+    Write-Host 
+    Write-Host "We've found $($activeTeamsSessions.count) sessions logged in already. Closing all sessions before continuing" -ForegroundColor Yellow
+    $activeTeamsSessions | Remove-PSSession
+    Write-Host "Sessions closed" -for Green
+    Write-Host
+}
+
+If ((Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}).State -eq 'Opened') {
 	Write-Host 'Using existing session credentials'}
 Else {
-	if($OverrideAdminDomain) {
-        	$skypeConnection = New-CsOnlineSession -Username $userLogin.username -OverrideAdminDomain $userLogin.overrideAdminDomain
-    	} else {
-        	$skypeConnection = New-CsOnlineSession -Username $userLogin.username
-    	}
-	Import-PSSession $skypeConnection -AllowClobber
+    Try
+    {
+        Write-Host
+        Write-Host "Please complete the login using the pop-up login dialog box"
+        $skypeConnection = New-CsOnlineSession
+        Write-Host "Importing your session..."
+	    Import-PSSession $skypeConnection -OutVariable null -AllowClobber
+    }
+    Catch
+    {
+        Write-Host ""
+        Write-Host "Login failed" -BackgroundColor Red -ForegroundColor Yellow
+        Write-Host
+        Write-Host "Please try and re-run the script" -ForegroundColor Yellow
+        Write-Host
+        Pause
+        break
+    }
 }
 
 $tenant = Get-CsTenant | Select DisplayName
-Write-Host ""
+Write-Host
+Write-Host
 Write-Host "The tenant you've connected to is: $($tenant.DisplayName)" -BackgroundColor Yellow -ForegroundColor Black
+Write-Host
+Write-Host "You're ready to run any further scripts from the SBC Connect website now"
+Write-Host
 ````

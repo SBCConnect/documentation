@@ -26,3 +26,8 @@ The platform will accept calls to this service in the following formats:
 ## Authentication
 The SBC Connect platform uses IP based authentication.\
 All customers should provide the IP address (or range) that will connect to the platform to our platform team
+
+## Codecs
+The platform presents codecs in the following format and order
+- G711-DEFAULT 
+- SILK8_20ms

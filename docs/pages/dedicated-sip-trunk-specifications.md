@@ -8,8 +8,8 @@ The SIP trunk has been tested with the following platforms:
 The platform accepts inbound numbers in the following formats
 - +E.164 (IE: +61258585858)
 - E.164 / CC-NDC-SN (IE: 61258585858)
-- FNN / 0-NDC-S (IE: 0258585858)
-- 0NSN (IE: 001161258585858)
+- 0NSN / 0-NDC-S (IE: 0258585858)
+- 001161258585858
 
 ## Number Formats - Outbound
 The platform will provide calls to subscribers in full +E.164 format

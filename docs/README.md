@@ -51,6 +51,9 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 ### Cloud Voicemail
 - [Cloud Voicemail Information](pages/cloud-voicemail.md)
 
+### Dedicated SIP Trunks
+- [Dedicated SIP Trunk Specifications](pages/dedicated-sip-trunk-specifications.md)
+
 <hr width="100%" noshade color="grey">
 
 ## <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span> Troubleshooting <span style="color: DarkRed;"><i class="fas fa-exclamation"></i></span>

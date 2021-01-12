@@ -179,14 +179,26 @@ while ($mainLoop -eq $true) {
     Write-Host
 
     #Check we're logged into the Skype for Business Online PowerShell Module
-    If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened') {
-	    Write-Host 'SFB Logged in - Using existing session credentials'
-        Write-Host 'Loading tenant details...'
-        #Get the currently connected tenant
-        $tenant = Get-CsTenant | Select DisplayName
-        $tenantName = $tenant.DisplayName
-    } Else {
-	    Write-Host 'Skype for Business NOT Logged in - Please connect and try run the script again' -ForegroundColor Yellow; pause; break
+    try {
+        $tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
+        Write-Host "The tenant you're connected to is $($tenantDisplayName)" -ForegroundColor Green
+    } catch {
+        $activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
+        Write-Host
+        Write-Host "You're not logged into any Microsoft Teams - Skype for Business Online powershell modules" -ForegroundColor Yellow
+        Write-Host
+        if ($activeTeamsSessions.Count -gt 0) {
+            Write-Host "We're logging you out of the following sessions:"
+            $activeTeamsSessions
+            $activeTeamsSessions | Remove-PSSession
+            Write-Host 
+        }
+        Write-Host "Please back into the Microsoft Teams - Skype for Business Online powershell module using the full script on the SBC Connect website"
+        Write-Host "https://sbcconnect.com.au/pages/connecting-to-sfbo-ps-module.html"
+        Write-Host
+        Pause
+        Break
+        $mainLoop = $false
     }
 
 

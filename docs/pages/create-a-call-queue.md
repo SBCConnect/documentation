@@ -77,19 +77,33 @@ function Get-UserDID {
     return $UserDID
 }
 
+clear-host
+Write-Host
+Write-Host "Checking for a valid login..."
+Write-Host
+
 # Check there is a valid login first
-Write-Host "Checking for a connection to the Skype for Business Online Powershell Module" -ForegroundColor Green
-If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened')
-{
-	$tenant = Get-CsTenant | Select DisplayName
-  Write-Host "Using existing session credentials for $($tenant.DisplayName)" -ForegroundColor Green
-} Else {
-	Write-Host
-	Write-Host "You're not connected to any tenant." -ForegroundColor Yellow
-	Write-Host "Please run the connect script before running this script" -ForegroundColor Yellow
-	pause
-	Break #Exit script but don't close PowerShell
-}
+try {
+        $GLOBAL:tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
+        Write-Host "The tenant you're connected to is $($tenantDisplayName)" -ForegroundColor Green
+    } catch {
+        $activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
+        Write-Host
+        Write-Host "You're not logged into any Microsoft Teams - Skype for Business Online powershell modules" -ForegroundColor Yellow
+        Write-Host
+        if ($activeTeamsSessions.Count -gt 0) {
+            Write-Host "We're logging you out of the following sessions:"
+            $activeTeamsSessions
+            $activeTeamsSessions | Remove-PSSession
+            Write-Host 
+        }
+        Write-Host "Please back into the Microsoft Teams - Skype for Business Online powershell module using the full script on the SBC Connect website"
+        Write-Host "https://sbcconnect.com.au/pages/connecting-to-sfbo-ps-module.html"
+        Write-Host
+        Pause
+        Break
+        $mainLoop = $false
+    }
 
 # Get all the resource accounts
 Write-Host

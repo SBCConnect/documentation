@@ -21,22 +21,20 @@ Import-PSSession $skypeConnection -AllowClobber
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.2
+# Login script Version 0.3
 #
 # Changes
-# - Migrate to MicrosoftTeams PowerShell module instead of Skype for Business Online
-# - Check MicrosoftTeams PowerShell Version
-# - Check if Skype For Business Module is installed and prompt to uninstall it
+# - Check and update the PowerShell module PowerShellGet as required. Minimum version 1.6.0
 # 
 # Required Changes at a later date
 # - Check for ExecutionPolicy = Restricted
 # - Set ExecutionPolicy = RemoteSigned
 #
-# Any issues installing Powershell Module. Try to update PowerShell Get command
-# > Install-Module -Name PowerShellGet -Repository PSGallery -Force
-# Then close and re-open PowerShell
+# Any issues running script, try run the script on Windows 10 V1909 or higher
 #
 ####
+
+Clear
 
 #Check the Skype for Business Online PowerShell Module is NOT installed
 if(Get-Module SkypeOnlineConnector -ListAvailable)
@@ -51,12 +49,19 @@ if(Get-Module SkypeOnlineConnector -ListAvailable)
         Break
     }
 
+
 #Check the Microsoft Teams Powershell Module is installed
 if(-not (Get-Module MicrosoftTeams -ListAvailable)) {
     Write-host "The MicrosoftTeams PowerShell module is not installed and must be installed before continuing!" -ForegroundColor Yellow -BackgroundColor Red
     Write-Host
     Write-Host "We'll attempt to install the module now..." -ForegroundColor Yellow
     Pause
+    Write-Host
+    Write-Host
+    Write-Host
+    Write-Host
+    Write-Host
+    Write-Host "Installing - Please hold..." -ForegroundColor Yellow
     Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
     Install-Module MicrosoftTeams -Confirm:$false -Force
     Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
@@ -67,14 +72,78 @@ if(-not (Get-Module MicrosoftTeams -ListAvailable)) {
         Write-host "Please try to install the module manually by running the following command in an elevated PowerShell screen" -ForegroundColor Yellow
         Write-host "" -ForegroundColor Yellow -BackgroundColor Red
     }
+    Write-Host "Complete" -foregroundcolor Green
 }
+
+#Enclose in TRY loop to detect if the machine has an older version of the PowerShellget command that doesn't include the -AllowPrerelase parameter, This is generally Windows 10 V1903 or older
+Clear
+Write-Host
+Write-Host "Checking the current and installed versions of PowerShellGet Module..."
+Write-Host
+Try {$MPTVersionList = Find-Module MicrosoftTeams -AllowPrerelease -Allversions}
+Catch [System.Management.Automation.ParameterBindingException]{
+    if ((Get-Module PowerShellGet).Version -lt "1.6.0") {
+        $currentMPSGVersion = (Find-Module PowerShellGet).Version
+        Clear
+        Write-Host
+        Write-Host "-------------------------------------------------------------------------------------------------------------" -ForegroundColor Yellow
+        Write-Host "An old version of PowerShellGet has been detected - Installed version is $($(Get-Module PowerShellGet).Version) - Minimum required is 1.6.0" -ForegroundColor Yellow
+        Write-Host "We're going to attempt to install a new version of the PowerShellGet module" -ForegroundColor Yellow
+        Write-Host "If there are any issues, please upgrade your computer to Windows 10 v1909 or higher, then re-run this script" -ForegroundColor Yellow
+        Write-Host "-------------------------------------------------------------------------------------------------------------" -ForegroundColor Yellow
+        Write-Host
+        Pause
+        Write-Host
+        Write-Host "**************************************" -ForegroundColor Yellow
+        Write-Host "Updating module to version $($currentMPSGVersion)" -ForegroundColor Yellow
+        Write-Host "This may take 2-3 minutes" -ForegroundColor Yellow
+        Write-Host "**************************************" -ForegroundColor Yellow
+        Write-Host
+        Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
+        Install-Module PowerShellGet -Force
+        Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
+        $installedMPSGVersion = Get-Module PowerShellGet -ListAvailable | Sort-Object -Property Version -Descending
+        if ($installedMPSGVersion[0].Version -ne $currentMPSGVersion) {
+            Write-Host
+            Write-Host
+            Write-Host "An unknown error has occured trying update the Microsoft PowerShellGet Powershell Module. The script cannot continue." -ForegroundColor Red
+            Write-Host
+            Pause
+            Break
+        } else {
+            #Module installed
+            Clear
+            Write-Host
+            Write-Host
+            Write-Host
+            Write-Host
+            Write-Host
+            Write-Host
+            Write-Host
+            Write-Host "The PowerShell module PowerShellGet has been updated, however this requires a restart of PowerShell" -ForegroundColor Yellow
+            Write-Host "Please close and re-open PowerShell, then re-run the script" -ForegroundColor Yellow
+            Write-Host
+            pause
+            Clear
+            Write-Host
+            Write-Host "Please restart PowerShell"
+            break
+        }
+    } else {
+        Write-Host "An unknown error has occured trying to get the current Microsft PowerShellGet module version. The script cannot continue." -ForegroundColor Red
+        Write-Host
+        Pause
+        Break
+    }
+}
+Catch {Write-Host "An unknown error has occured trying to get the current Microsft PowerShellGet module version. The script cannot continue." -ForegroundColor Red; Write-Host; Pause; Break}
 
 #Check for multiple MicrosoftTeams module versions
 Clear
+Write-Host
 Write-Host "Checking for the newest version of the Microsoft Teams PowerShell module... Please hold"
-$currentMSPVersion = (Find-Module MicrosoftTeams).version
+$currentMSVersion = (Find-Module MicrosoftTeams).version;
 Clear-Variable MTPVersionRemoveID -ErrorAction SilentlyContinue
-$MPTVersionList = Find-Module MicrosoftTeams -AllowPrerelease -Allversions
 while ((Get-Module MicrosoftTeams -ListAvailable).count -gt 1) {
     clear
     $installedMTP = Get-Module MicrosoftTeams -ListAvailable
@@ -170,13 +239,13 @@ Else {
     {
         Write-Host
         Write-Host "Please complete the login using the pop-up login dialog box"
-        $skypeConnection = New-CsOnlineSession
+        $skypeConnection = New-CsOnlineSession -ErrorAction SilentlyContinue
         Write-Host "Importing your session..."
 	    Import-PSSession $skypeConnection -OutVariable null -AllowClobber
     }
     Catch
     {
-        Write-Host ""
+        Write-Host 
         Write-Host "Login failed" -BackgroundColor Red -ForegroundColor Yellow
         Write-Host
         Write-Host "Please try and re-run the script" -ForegroundColor Yellow

@@ -28,32 +28,35 @@ function Get-UserUPN {
 
     return $UserUPN
 }
-
-#Check first, then connect to the Skype for Business PowerShell module 
-Write-Host "Logging onto Skype for Business Online Powershell Module" -BackgroundColor Yellow -ForegroundColor Black
-If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened') {
-	Write-Host 'Using existing session credentials'}
-Else {
-	if($OverrideAdminDomain) {
-        	$skypeConnection = New-CsOnlineSession -OverrideAdminDomain $OverrideAdminDomain
-    	} else {
-        	$skypeConnection = New-CsOnlineSession
-    	}
-	Import-PSSession $skypeConnection -AllowClobber
-}
-
-#Check we're connected - exit if not
-If ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -eq 'Opened') {
-	Write-Host 'SFB Logged in - Using existing session credentials'}
-Else {
-	Write-Host 'Skype for Business NOT Logged in - Please connect and try run the script again' -ForegroundColor Yellow; pause; break
-}
+clear
+Write-Host
+Write-Host "Checking for a connection to Microsoft Teams..."
+#Check we're logged into the Skype for Business Online PowerShell Module
+    try {
+        $tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
+        Write-Host "The tenant you're connected to is $($tenantDisplayName)" -ForegroundColor Green
+    } catch {
+        $activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
+        Write-Host
+        Write-Host "You're not logged into any Microsoft Teams - Skype for Business Online powershell modules" -ForegroundColor Yellow
+        Write-Host
+        if ($activeTeamsSessions.Count -gt 0) {
+            Write-Host "We're logging you out of the following sessions:"
+            $activeTeamsSessions
+            $activeTeamsSessions | Remove-PSSession
+            Write-Host 
+        }
+        Write-Host "Please back into the Microsoft Teams - Skype for Business Online powershell module using the full script on the SBC Connect website"
+        Write-Host "https://sbcconnect.com.au/pages/connecting-to-sfbo-ps-module.html"
+        Write-Host
+        Pause
+        Break
+    }
 
 #Confirm you’re logged into the correct tenant - Is it the correct name?
-$tenant = Get-CsTenant | Select DisplayName
-$tenantName = $tenant.DisplayName
+clear
 Write-Host ""
-Write-Host "The tenant you've connected to is: $tenantName" -BackgroundColor Yellow -ForegroundColor Black
+Write-Host "The tenant you've connected to is: $($tenantDisplayName)" -BackgroundColor Yellow -ForegroundColor Black
 $tenantCorrect = Read-Host "Is this the correct tenant? (y/n)"
 while("y","n" -notcontains $tenantCorrect )
 {
@@ -97,5 +100,15 @@ switch ($UserDetail.HostedVoicemail){
 
 Write-Host "-----------------"
 
-pause
+
+    write-host
+    write-host
+    write-host
+    Write-Host "Thanks for using this script" -ForegroundColor Yellow
+    Write-Host
+    Write-Host "For bug, feedback and comments, please see the SBC Connect GitHub"
+    Write-Host "https://github.com/sbcconnect"
+    Write-Host
+    pause
+    clear
 ````

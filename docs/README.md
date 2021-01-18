@@ -34,6 +34,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Configure anonymous user calling policies](pages/configure-anonymous-outbound-calling.md)
 
 ### Teams Device Management
+- [Known Issues](pages/physical-phone-known-issues.md)
 - [Physical Microsoft Teams device management](pages/physical-device-management.md)
 - [Assign a device configuration policy](pages/assign-deivce-configuration-profile.md)
 - [Create a new device configuration policy](pages/new-deivce-configuration-profile.md)

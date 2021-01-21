@@ -100,7 +100,7 @@ Catch [System.Management.Automation.ParameterBindingException]{
         Write-Host "**************************************" -ForegroundColor Yellow
         Write-Host
         Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
-        Install-Module PowerShellGet -Force
+        Install-Module PowerShellGet -Force -AllowClobber
         Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
         $installedMPSGVersion = Get-Module PowerShellGet -ListAvailable | Sort-Object -Property Version -Descending
         if ($installedMPSGVersion[0].Version -ne $currentMPSGVersion) {

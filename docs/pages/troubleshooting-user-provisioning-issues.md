@@ -5,7 +5,11 @@ This is often a fault found when using an on-prem server and syncing Active Dire
 The fault is caused by either:
 - The users account hasn't correctly updated in the On-Prem AD when migrating from Skype for Business to Teams\
   This can be verified by [Logging onto the Skype for Business Online Powershell Module](connecting-to-sfbo-ps-module.md) then running the following command, replacing the variable "USERNAME" with the users UPN.\
-  The output of the command will explain an issue with the setting **msRTCSIP-DeploymentLocator** property in your local Active Directory if this is the cause of the error
+  The output of the command will explain an issue with the setting **msRTCSIP-DeploymentLocator** property in your local Active Directory if this is the cause of the error.\
+  An example of the error is
+  > <ErrorDescription>Cannot generate SIP address. Reason=[The value of the msRTCSIP-DeploymentLocator property in your local Active Directory is set to [SRV:] but the value of the msRTCSIP-PrimaryUserAddress property is NULL. Correct the value of the msRTCSIP-PrimaryUserAddress property in your local Active Directory for this user and ensure the property is being synced via Azure Active Directory Connect]</ErrorDescription>
+  
+  PowerShell script to run
   ````PowerShell
   Get-CsOnlineUser -Identity "USERNAME" | Select-Object DisplayName, UserPrincipalName, MCOValidationError | Format-List
   ````
@@ -13,8 +17,10 @@ The fault is caused by either:
   - Ensure that **View** > **Advanced Features** is selected
   - Locate and open the user account
   - Select the **Attribute Editor** tab
-  - Locate the line item **msRTCSIP-DeploymentLocator**. This is possibly set to **SRV:**
+  - Locate the line item **msRTCSIP-DeploymentLocator**
+    - This property is possibly set to **SRV:** already and you'll need to remove this
   - Update this to **sipfed.online.lync.com**
+  - After updateing this, you may have to wait 6-24 hours for changes to sync from on-prem to the cloud and update in the Teams Online services
 - OR The user doesn't have a skype license. You may need to remove the license, wait 5 minutes then re-add the license
 
 When setting a number on a **Resource Account** and you get this error, then you'll need to:

@@ -5,12 +5,12 @@
 > 🌐 [Microsoft: Direct Routing Licensing](https://docs.microsoft.com/en-us/microsoftteams/direct-routing-plan#licensing-and-other-requirements)\
 > 🌐 [Microsoft Business Voice License Requreiements](https://docs.microsoft.com/en-us/MicrosoftTeams/business-voice/whats-business-voice)
 
-> Microsoft Business Voice is the same platform and was released into the Australian market in JULY 2020.
+> **Microsoft 365 Business Voice (without calling plan)** provides the same features as the **Microsoft Phone System** add-on, however it includes a provisioning wizard for the 365 portal and was released into the Australian market in JULY 2020. The price of the **Business Voice** add-on is higher than the **Phone System** add-on.
 
 Users require a valid license which is available as an add-on or included in:
-- Microsoft 365 Business Basic + Microsoft Phone System add-on; OR
-- Microsoft 365 Business Standard + Microsoft Phone System add-on; OR
-- Microsoft 365 Business Premium + Microsoft Phone System add-on; OR
+- Microsoft 365 Business Basic + Microsoft 365 Business Voice (without calling plan) add-on; OR
+- Microsoft 365 Business Standard + Microsoft 365 Business Voice (without calling plan) add-on; OR
+- Microsoft 365 Business Premium + Microsoft 365 Business Voice (without calling plan) add-on; OR
 - Microsoft 365 F1 + Microsoft Phone System add-on; OR
 - Microsoft 365 F3 + Microsoft Phone System add-on; OR
 - Office 365 F3 + Microsoft Phone System add-on; OR
@@ -20,8 +20,8 @@ Users require a valid license which is available as an add-on or included in:
 - Microsoft 365 and Office 365 Education A5; OR
 - Microsoft 365 and Office 365 Government G1, G3 (GCC only) + Microsoft Phone System add-on; OR
 - Microsoft 365 and Office 365 Government G5 (GCC only); OR
-- Microsoft 365 Nonprofit Business Basic + Microsoft Phone System add-on; OR
-- Microsoft 365 Nonprofit Business Standard + Microsoft Phone System add-on; OR
+- Microsoft 365 Nonprofit Business Basic + Microsoft 365 Business Voice (without calling plan) add-on; OR
+- Microsoft 365 Nonprofit Business Standard + Microsoft 365 Business Voice (without calling plan) add-on; OR
 - Microsoft 365 and Office 365 Nonprofit E1, E3 + Microsoft Phone System add-on; OR
 - Microsoft 365 and Office 365 Nonprofit E5.
 
@@ -32,12 +32,12 @@ Other Considerations
 
 ## Common Voice mailboxes
 > 🌐 [Voicemail Setup Reference](cloud-voicemail.md#microsoft-teams-cloud-voicemail)
-
 Voicemails received to a Common Voice Mailboxe are delivered to an Office 365 Group and therefore don't require a Microsoft Teams license for Voice.
 
 ### Delivering common voicemails to user or shared mailboxes
 However if you forward these emails to a User or Shared Mailbox, then this needs to be done using Microsoft Power Automate and therefore requires a user account with an included Microsoft Power Automate Standard license. These are included in most Office 365 and Microsoft 365 subscriptions. Separate Microsoft Power Automate Per-User or Per-Flow license is not required. \
-It's recommended to use a service type account for this instead of an employee incase the use leaves or the account is changed in any way.
+It's recommended to use a service type account for this instead of an employee incase the use leaves or the account is changed in any way.\
+The minimum required license for this account is **Microsoft 365 Business Basic**. No **Microsoft 365 Business Voice (without calling plan)** is required for this account
 
 ## Auto Attendants and Call Queues
 > 🌐 [Microsoft: Virtual User License](https://docs.microsoft.com/en-us/microsoftteams/teams-add-on-licensing/virtual-user)

@@ -22,22 +22,22 @@ See troubleshooting on this page for further information
 # <ALIAS> - A name, without spaces and special charactures, to be used as an alias for the room. (IE: start of the username before the @ symbol)
 # <PASSWORD> - A password for the account
 # <PHONE_NUMBER> - A DID number to use for the account in E.164 format (IE: +61399995555)
-# <DIST_SMTP> - A valid, unused SMTP address to assign to the 
+# <OFFICE> - Office Location. This is just a value in Azure AD and not linked to anything else
+# <DIST_SMTP> - A valid, unused SMTP address to assign to the Distribution List
 # <DIST_NAME> - The name of the room group (IE: HOBART - 31 JONES ST)
 ####################################################
 
 ## Connect to Exchange Online
-Connect-EXOPSSession
+Connect-ExchangeOnline
 New-Mailbox -Name "<Name>" -Alias <ALIAS> -Room -EnableRoomMailboxAccount $true -MicrosoftOnlineServicesID <UPN> -RoomMailboxPassword (ConvertTo-SecureString -String '<PASSWORD>' -AsPlainText -Force)
-Set-Mailbox -Identity <UPN> -Office Hobart
+Set-Mailbox -Identity <UPN> -Office <OFFICE>
 Set-CalendarProcessing -Identity <UPN> -AutomateProcessing AutoAccept -AddOrganizerToSubject $false -DeleteComments $false -DeleteSubject $false -RemovePrivateProperty $false -AddAdditionalResponse $true -AdditionalResponse "<Name>"
 New-DistributionGroup -Name "<DIST_NAME>" –PrimarySmtpAddress <DIST_SMTP> –RoomList
 Add-DistributionGroupMember -Identity <DIST_SMTP> -Member <UPN>
 
 ## Connect Azure AD
-Connect-MsolService
-Set-MsolUser -UserPrincipalName <UPN> -PasswordNeverExpires $true
-Set-MsolUser -UserPrincipalName <UPN> -PhoneNumber <PHONE_NUMBER>
+Connect-AzureAD
+Set-AzureADUser -ObjectID <UPN> -PasswordPolicies DisablePasswordExpiration -TelephoneNumber <PHONE_NUMBER>
 
 ## Connect to Skype 
 Import-Module SkypeOnlineConnector  

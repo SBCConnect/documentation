@@ -82,9 +82,9 @@ Write-Host
 Write-Host "Checking for a valid login..."
 Write-Host
 
-# Check there is a valid login first
-try {
-        $GLOBAL:tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
+#Check we're logged into the Skype for Business Online PowerShell Module
+    try {
+        $tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
         Write-Host "The tenant you're connected to is $($tenantDisplayName)" -ForegroundColor Green
     } catch {
         $activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}

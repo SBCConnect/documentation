@@ -88,7 +88,7 @@ Customers may choose to have these voicemails forwarded from the group to a shar
 - Create a new Flow
 - Add a trigger called **
 
-> Placeholder - Need to finish STEPS
+> Placeholder - Need to finish STEPS - Josh working on
 
 ### Licensing for Common Voicemails
 License requirements are listed under **Common Voice Mailboxes** in 🌐 [License Requirements](pages/License-Requirements.md#common-voice-mailboxes)

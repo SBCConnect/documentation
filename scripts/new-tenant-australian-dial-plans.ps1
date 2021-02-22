@@ -259,24 +259,6 @@ function Get-UserUPN {
 #Check if we're already signed in to Skype for Business Online
 
 
-If ((Get-PSSession | Where-Object -FilterScript { $_.ComputerName -like '*.online.lync.com' }).State -eq 'Opened') {
-    Write-Host 'Using existing session credentials'
-}
-Else {
-    $UserLoginUPN = Get-UserUPN
-    if ($OverrideAdminDomain) {
-        $skypeConnection = New-CsOnlineSession -UserName $UserLoginUPN -OverrideAdminDomain $OverrideAdminDomain
-    }
-    else {
-        $skypeConnection = New-CsOnlineSession -UserName $UserLoginUPN
-    }
-    Import-PSSession $skypeConnection -AllowClobber
-}
-
-#Check we're connected - exit if not
-if ($skypeConnection.Availability -ne 'Available') { write-host "Unable to connect to online services. Please try the script again." -BackgroundColor Red -ForegroundColor White; pause; break }
-
-
 
 
 ################################################################
@@ -727,9 +709,11 @@ if ($pstnAdditionalDomains) {
 }
 
 #Add new PSTN Usage's to the tenant
+write-host "Adding PSTN Usage:"
 foreach ($p in $pstnUsagesList) {
-    if ($pstnCurrentUsageList | Where-Object {$_.Usage -ne $p}) {
-        Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = "AU-National" } -WarningAction:SilentlyContinue | Out-Null
+    if (($pstnCurrentUsageList | Where-Object {$_.Usage -ne $p}) -or ([string]::IsNullOrEmpty($pstnCurrentUsageList))) {
+        write-host "- $($p)"
+        Set-CsOnlinePSTNUsage -Identity global -Usage @{Add = $p } -WarningAction:SilentlyContinue | Out-Null
     }
 }
 
@@ -761,11 +745,12 @@ Write-Host "Waiting 3 more minutes..."
 Start-Sleep -s 60 #60 = 1 mins
 Write-Host "Waiting 2 more minutes..."
 Start-Sleep -s 60 #60 = 1 mins
-Write-Host "Waiting 1 more minutes..."
+Write-Host "Waiting 1 more minute..."
 Start-Sleep -s 60 #60 = 1 mins
 Write-Host
 Write-Host "... OK - Let's keep going" -ForegroundColor Green
 Write-Host
+
 
 ################################################################
 ################################################################

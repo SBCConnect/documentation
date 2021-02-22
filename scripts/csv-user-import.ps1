@@ -1,37 +1,29 @@
 <# 
-
 This script is an ever evolving script to deploy users into a Microsoft 365 tenancy.
 The script will
 - prompt for a CSV file to import from
 - If the CSV user doesn't have a Voice Routing Policy tagged, then it will look at and prompt for the Voice Routing Policy to use
 - If the CSV user doesn't have a Dial Plan tagged, then it will look at and prompt for the Dial Plan to use
 - Will check if there is an ext extention in the CSV and use that if required 
-
 ** NOTES **
 - If there are users without a Voice Routing Policy, then the prompted VRP will be applied to all users with an invalid or blank VRP in the CSV
 - The script can be run as many times as you like for the same users, it will just over write the current information
-
 The Imported CSV should have the following named columns
 - UserPrincipalName
 - DID
 - EXT
 - VoiceRoutingPolicy
 - DialPlan
-
 The CSV file should be formatted so
 - The DID is in E.164 format (IE: +61255556666)
 - The EXT is between 3-5 digits long
 - The EXT is not 000, 112, or 911
-
 Script written by Jay Antoney - 5G Networks
 https://5gn.com.au
 jaya@5gn.com.au
-
 Script version v1.2 - 2020/09/22
-
 TO DO / BROKEN
 - Nill outstanding
-
 #>
 
 #$DebugPreference = "Continue" #< Show all the debug messages
@@ -176,42 +168,29 @@ Function Check-SkypeLogin()
     
     [int]$loginCounterSFB = 0
 
-    while ((Get-PSSession | Where-Object -FilterScript {$_.ComputerName -like '*.online.lync.com'}).State -ne 'Opened') {
-        #No current SFB Session is open
-        Write-Host "OK, you're not logged into Skype Online - Let's try get you connected!"
-        
-        Write-Debug "SFB: Hand off to Get-UserCreds"
-        Get-UserCreds | Out-Null
-        Write-Debug "SFB: Return from Get-UserCreds"
-
-        try {$global:skypeConnection = New-CsOnlineSession -OverrideAdminDomain $global:userOverAdmin -ErrorAction Stop}
-        catch 
-        {
-            Write-Debug "Skype Login Failed."
-            #Check we're working on the correct AzureAD Tennant
-            $Title3 = "Skype Login Failed?"
-            $Info3 = "Something went wrong during login. Did you want to try again?"
-            $options3 = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&No")
-            [int]$defaultchoice3 = 0
-            $opt3 = $host.UI.PromptForChoice($Title3 , $Info3 , $Options3,$defaultchoice3)
-
-            #If no, then logout and re-prompt
-            if($opt3 -eq 1)
-            {
-                Disconnect-AllSessions
-                #Exit
-                Write-Debug "Break Check-SkypeLogin"   
-                Break fullScript
-            } Else {
-                Write-Host "As you wish, trying to login again..."
-                Disconnect-AllSessions
-                Write-Debug "Entering nested Check-SkypeLogin"
-            }
+    #Check we're logged into the Skype for Business Online PowerShell Module
+    try {
+        $tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
+        Write-Host "The tenant you're connected to is $($tenantDisplayName)" -ForegroundColor Green
+    } catch {
+        $activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
+        Write-Host
+        Write-Host "You're not logged into any Microsoft Teams - Skype for Business Online powershell modules" -ForegroundColor Yellow
+        Write-Host
+        if ($activeTeamsSessions.Count -gt 0) {
+            Write-Host "We're logging you out of the following sessions:"
+            $activeTeamsSessions
+            $activeTeamsSessions | Remove-PSSession
+            Write-Host 
         }
+        Write-Host "Please log back into the Microsoft Teams - Skype for Business Online powershell module using the full script on the SBC Connect website"
+        Write-Host "https://sbcconnect.com.au/pages/connecting-to-sfbo-ps-module.html"
+        Write-Host
+        Pause
+        Break fullscript
     }
 
     #logged in
-    Import-PSSession $global:skypeConnection -AllowClobber | out-null
     #Check this is the same tenant as AzureAD
     $skypeTenantName = Get-CsTenant | Select DisplayName
     
@@ -260,18 +239,6 @@ Function Get-UsersFromCsv()
 
 Function Check-InstalledModules()
 {
-    if(Get-Module SkypeOnlineConnector -ListAvailable)
-    {
-        Import-Module SkypeOnlineConnector
-    } else {
-        Write-host "The Skype for Business Online Powershell Module isn't installed!" -ForegroundColor Yellow -BackgroundColor Red
-        Write-Host "We're opening the download page now for you!" -ForegroundColor Yellow -BackgroundColor Red
-        write-host "URL: https://www.microsoft.com/en-us/download/details.aspx?id=39366" -ForegroundColor Yellow -BackgroundColor Red
-        write-host "After installing, you'll need to re-run the PowerShell script after first closing the PowerShell Window" -ForegroundColor Yellow -BackgroundColor Red
-        Pause
-        Start-Process "https://www.microsoft.com/en-us/download/details.aspx?id=39366"
-        Break
-    }
 
     if(-Not (Get-Module AzureAD -ListAvailable))
     {
@@ -417,15 +384,12 @@ Check-InstalledModules
 
 <###########################
 # -- BYPASSING this message now because the script doesn't set the country anymore
-
 #Initial Warning Message
 $Title1 = "User Location Warning"
 $Info1 = "This script is for users located in AUSTRALIA only and will set all users usage locations to AUSTRALIA. Are you sure you want to continue?"
 $options1 = [System.Management.Automation.Host.ChoiceDescription[]] @("&Yes", "&Quit")
 [int]$defaultchoice1 = 1
 $opt1 = $host.UI.PromptForChoice($Title1 , $Info1 , $Options1,$defaultchoice1)
-
-
 #If the user selected to quit
 if($opt1 -eq 1) {
     #Exit
@@ -724,7 +688,7 @@ Write-Host
                 $missingLicense++
                 Write-Host "User doesn't have a license. Please assign a license and re-run script" -ForegroundColor Red
                 pause
-                exit
+                break fullscript
             }
 
             # Finish assigning licenses and setting up the user

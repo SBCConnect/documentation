@@ -73,6 +73,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Single User Call Quality Issues](pages/single-user-call-quality-issues.md)
 - [Voicemail Configuration](pages/cloud-voicemail.md#user-voice-mailboxes)
 - [General Microsoft Teams client issues](pages/teams-client-issues.md)
+- [Call Transfer Issues](pages/troubleshooting_transfering_a_call.md)
 
 ### Device Troubleshooting and Call Quality Issues
 - [Desktop phone](pages/troubleshooting-user-device.md)

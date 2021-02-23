@@ -8,4 +8,4 @@
      If you change this setting you'll need to restart Microsoft Teams, however it's often best to restart the entire device if you're troubleshooting a problem
 1. No transfer option will be displayed for calls delivered via a transfer from another user using the **transfer to number** option\
    Please select the transfer option using the **Teams audio call** menu option as per the screen shot.\
-   <img src="/img/ConsultWithTransfer_TeamsAudioCall.png" width="300">
+   <img src="img/ConsultWithTransfer_TeamsAudioCall.png" width="300">

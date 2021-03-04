@@ -6,7 +6,7 @@ This document outlines the process for deploying a new customer to the SBC Conne
 The high level steps are:
 - Obtain the following settings from the SBC Connect platform team
   - Customer Domain Name (DNS)
-  - Any new PSTN number ranges
+  - Assigned PSTN number ranges
   - Trunk type
     - Derived Trunk; OR
     - Non-Derived Trunk
@@ -14,16 +14,23 @@ The high level steps are:
   - Trunk capacity (non-Derived trunk only)
 - Add and Verify the DNS name in the Microsoft 365 tenant
   - [Add Domain Name to Tenant](add-domain-name-to-tenant.md)
+  - Use TXT record verification
   - Verification codes need to get entered by the SBC Connect platform team to the DNS
-  - Use TXT record
-  - Add your own DNS records
+  - Select add your own DNS records
   - Untick Exchange and Exchange Online Protection
-- Add a new user with a license for teams to the tenant with the primary UPN domain being the new domain.
-  - One user for each domain
-  - Name the user Delete1 and Delete2, these only need to be active for 30 mins then can be removed after the SBC's are added
-- Make sure the users are licensed for Teams
-- Make sure that the M365 tenant had Skype for Business Online DNS records active
-- Setup Holidays
+- Activate the domain name for the tenant
+  - Add a new user to the tenant with the primary UPN domain being the new domain
+  - Assign the user a license that includes Microsoft Teams (Basically any license)
+  - Repeat the process and create one user for each domain
+  - Name the user Delete1 and Delete2, these only need to be active for 10 mins then can be deleted after the SBC's are added
+- Obtain any required additional licenses for the end users
+  - Including
+    - **Microsoft Phone System**; or
+    - **Microsoft 365 Business Voice (without calling plan)**
+- Obtain required **Microsoft 365 Phone System - Virtual User** licenses\
+  These are free and you can request a minimum of 25 per tenancy
+- Make sure the general users are licensed for Teams
+- Setup Holidays (if requested)
 - Run the required base PowerShell configuration based on the type of trunk deployed
   - Derived Trunk; OR
   - [Non-Derived Trunk - New SBC](new-sbc-deployment-to-tenant.md)

@@ -18,6 +18,4 @@ New-CsOnlinePSTNGateway -Fqdn <customer.pstnconnect.com> -SipSignalingPort <TLS 
 > ⚠ This script assumes that you've already connected to the **Skype for Business Online PowerShell Module**.\
 Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)
 
-````PowerShell
-#PLACEHOLDER
-````
+The PowerShell script is listed on another page. [Click here to go there now](https://github.com/SBCConnect/documentation/blob/master/scripts/new-tenant-australian-dial-plans.ps1)

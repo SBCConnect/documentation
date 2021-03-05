@@ -105,92 +105,106 @@ Write-Host
         $mainLoop = $false
     }
 
-# Get all the resource accounts
-Write-Host
-Write-Host "Getting a list of all Resource Accounts..." -ForegroundColor Green
-$ResourceAcc = Get-CsOnlineApplicationInstance
-    If (($ResourceAcc.UserPrincipalName -eq $NULL) -and ($ResourceAcc.Count -eq 0)) {
-        $tenant = Get-CsTenant | Select DisplayName
-        Write-Host
-        Write-Host "No resource accounts were found. Please login to a tenant that has resource accounts before running this script." -ForegroundColor Yellow
-        Write-Host "The tenant you're connected to is: $($tenant.DisplayName)" -ForegroundColor Yellow
-        pause
-        Break #Exit script but don't close PowerShell to keep the logged in session
-    }
-
-# List all the Resource accounts and prompt the user to select them
-    If ($ResourceAcc.Count -gt 1) {
-        $ResourceAccList = @()
-        Write-Host
-        If ($ResourceAcc.Count -gt 10) {
-          Write-Host "ID     Phone Number        Type               Resource Account"
-          Write-Host "==     ============        ====               ============"
-        } else {
-          Write-Host "ID    Phone Number        Type               Resource Account"
-          Write-Host "==    ============        ====               ============"
+$mainloop = $true
+while ($mainloop -eq $true ) {
+    # Get all the resource accounts
+    Clear-host
+    Write-Host
+    Write-Host "Getting a list of all Resource Accounts..." -ForegroundColor Green
+    $ResourceAcc = Get-CsOnlineApplicationInstance
+        If (($ResourceAcc.UserPrincipalName -eq $NULL) -and ($ResourceAcc.Count -eq 0)) {
+            $tenant = Get-CsTenant | Select DisplayName
+            Write-Host
+            Write-Host "No resource accounts were found. Please login to a tenant that has resource accounts before running this script." -ForegroundColor Yellow
+            Write-Host "The tenant you're connected to is: $($tenant.DisplayName)" -ForegroundColor Yellow
+            pause
+            Break #Exit script but don't close PowerShell to keep the logged in session
         }
-        For ($i=0; $i -lt $ResourceAcc.Count; $i++) {
-            $a = $i + 1
-            
-            #Check what the account type is
-            Switch ($ResourceAcc[$i].ApplicationId)
-            {
-                ce933385-9390-45d1-9512-c8d228074e07 {$type = "Auto Attendant"}
-                11cd3e2e-fccb-42ad-ad00-878b93575e07 {$type = "Call Queue    "}
-                default {$type = "              "}
-            }
-            
-            #Check if there is already a phone number on the account
-            if ($ResourceAcc[$i].PhoneNumber)
-            {
-              $phoneNumber = ($ResourceAcc[$i].PhoneNumber).SubString(4)
-              #Pad the phone number to 15 characters
-              while ($phoneNumber.length -lt 15) {$phoneNumber = "$phoneNumber "}
+
+    # List all the Resource accounts and prompt the user to select them
+        If ($ResourceAcc.Count -gt 1) {
+            $ResourceAccList = @()
+            Write-Host
+            If ($ResourceAcc.Count -gt 10) {
+              Write-Host "ID     Phone Number        Type               Resource Account"
+              Write-Host "==     ============        ====               ============"
             } else {
-              $phoneNumber = "               "
+              Write-Host "ID    Phone Number        Type               Resource Account"
+              Write-Host "==    ============        ====               ============"
             }
-            #add a space infront of the phone number if it's below 10
-            If ($i -lt 9) {$phoneNumber = " $phoneNumber";}
+            For ($i=0; $i -lt $ResourceAcc.Count; $i++) {
+                $a = $i + 1
             
-            Write-Host ($a, $phoneNumber, $type, $ResourceAcc[$i].UserPrincipalName) -Separator "     "
+                #Check what the account type is
+                Switch ($ResourceAcc[$i].ApplicationId)
+                {
+                    ce933385-9390-45d1-9512-c8d228074e07 {$type = "Auto Attendant"}
+                    11cd3e2e-fccb-42ad-ad00-878b93575e07 {$type = "Call Queue    "}
+                    default {$type = "              "}
+                }
+            
+                #Check if there is already a phone number on the account
+                if ($ResourceAcc[$i].PhoneNumber)
+                {
+                  $phoneNumber = ($ResourceAcc[$i].PhoneNumber).SubString(4)
+                  #Pad the phone number to 15 characters
+                  while ($phoneNumber.length -lt 15) {$phoneNumber = "$phoneNumber "}
+                } else {
+                  $phoneNumber = "               "
+                }
+                #add a space infront of the phone number if it's below 10
+                If ($i -lt 9) {$phoneNumber = " $phoneNumber";}
+            
+                Write-Host ($a, $phoneNumber, $type, $ResourceAcc[$i].UserPrincipalName) -Separator "     "
+            }
+            $Range = '(1-' + $ResourceAcc.Count + ')'
+            Write-Host
+            $Select = Read-Host "Select a Resource Account to Assign number to" $Range
+            $ResourceAccList += $ResourceAcc[$Select-1]
         }
-        $Range = '(1-' + $ResourceAcc.Count + ')'
-        Write-Host
-        $Select = Read-Host "Select a Resource Account to Assign number to" $Range
-        $ResourceAccList += $ResourceAcc[$Select-1]
-    }
-    Else { # There is only one Resource Account
-        $ResourceAccList = Get-CsOnlineApplicationInstance
-    }
+        Else { # There is only one Resource Account
+            $ResourceAccList = Get-CsOnlineApplicationInstance
+        }
 
-# Prompt for Direct Routing PSTN Number
-Write-host "Editing resource account: $($ResourceAccList.UserPrincipalName)"
-$ResourceAccNumber = Get-UserDID
+    # Prompt for Direct Routing PSTN Number
+    Write-host "Editing resource account: $($ResourceAccList.UserPrincipalName)"
+    $ResourceAccNumber = Get-UserDID
 
-#Assign number to Resouce Account
-$error.clear()
-Write-host "Setting number for resource account: $($ResourceAccList.UserPrincipalName)"
-Write-Host
-Write-Host
-Set-CsOnlineApplicationInstance -Identity $ResourceAccList.UserPrincipalName -OnpremPhoneNumber $ResourceAccNumber | Out-Null
-if($error -ne $null)
-{
-  Write-Host "Opps. Looks like there was an error!" -ForegroundColor Yellow
-  Write-Host "Any errors may indicate that the resource account doesn't have a license OR the number is already in use."
-  Write-Host "Refer to the following site for information on licensing resource accounts" -ForegroundColor Yellow
-  Write-Host "https://sbcconnect.com.au/pages/license-a-phone-system-resource-account.html" -ForegroundColor Yellow
-  Pause
-  Break #Exit script but don't close PowerShell to keep the logged in session
-} else {
-  # Wait for 2 seconds for changes to sync
-  Start-Sleep -s 2
-  # Lets get the new number now it's updated
-  $ResourceAccUpdated = Get-CsOnlineApplicationInstance -Identity $ResourceAccList.UserPrincipalName
-  Write-Host "Yep - That looks good! Here are the changes" -ForegroundColor Green
-  Write-Host "Resource Account: $($ResourceAccList.UserPrincipalName)"
-  Write-Host "NEW number is:    $($ResourceAccUpdated.PhoneNumber)"
-  Write-Host "OLD number was:   $($ResourceAccList.PhoneNumber)" -ForegroundColor Gray
-  pause
-  Break #Exit script but don't close PowerShell to keep the logged in session
+    #Assign number to Resouce Account
+    $error.clear()
+    Write-host "Setting number for resource account: $($ResourceAccList.UserPrincipalName)"
+    Write-Host
+    Write-Host
+    Set-CsOnlineApplicationInstance -Identity $ResourceAccList.UserPrincipalName -OnpremPhoneNumber $ResourceAccNumber | Out-Null
+    if($error -ne $null)
+    {
+      Write-Host "Opps. Looks like there was an error!" -ForegroundColor Yellow
+      Write-Host "Any errors may indicate that the resource account doesn't have a license OR the number is already in use."
+      Write-Host "Refer to the following site for information on licensing resource accounts" -ForegroundColor Yellow
+      Write-Host "https://sbcconnect.com.au/pages/license-a-phone-system-resource-account.html" -ForegroundColor Yellow
+      Pause
+      Break #Exit script but don't close PowerShell to keep the logged in session
+    } else {
+      # Wait for 2 seconds for changes to sync
+      Start-Sleep -s 2
+      # Lets get the new number now it's updated
+      $ResourceAccUpdated = Get-CsOnlineApplicationInstance -Identity $ResourceAccList.UserPrincipalName
+      Write-Host "Yep - That looks good! Here are the changes" -ForegroundColor Green
+      Write-Host "Resource Account: $($ResourceAccList.UserPrincipalName)"
+      Write-Host "NEW number is:    $($ResourceAccUpdated.PhoneNumber)"
+      Write-Host "OLD number was:   $($ResourceAccList.PhoneNumber)" -ForegroundColor Gray
+      Write-Host
+      Write-Host
+      Write-Host "Would you like to re-run the script?"
+      Write-Host
+      Write-Host "{ENTER} Yes"
+      Write-Host "e    exit"
+      Write-Host
+      $exitvar = $null
+      $exitvar = Read-Host "What would you like to do?"
+      if ($exitvar -eq "e") {$mainloop = $false}
+    }
 }
+
+Break #Exit script but don't close PowerShell to keep the logged in session
 ````

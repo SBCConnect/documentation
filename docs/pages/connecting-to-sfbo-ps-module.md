@@ -21,20 +21,61 @@ Import-PSSession $skypeConnection -AllowClobber
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.3
+# Login script Version 0.4
+# 2021/05/06 - Jay Antoney
 #
 # Changes
-# - Check and update the PowerShell module PowerShellGet as required. Minimum version 1.6.0
+# - Update to use the new Connect-MicrosoftTeams login action
+# - Now checks for an ExecutionPolicy = Bypass
 # 
 # Required Changes at a later date
-# - Check for ExecutionPolicy = Restricted
-# - Set ExecutionPolicy = RemoteSigned
+# - {nill}
 #
 # Any issues running script, try run the script on Windows 10 V1909 or higher
 #
 ####
 
+
+function Do-TeamsLogin {
+    $tenant = $null
+
+}
+
+
+#################################
+#
+#
+#       START SCRIPT HERE
+#
+#
+#################################
 Clear
+#Check the ExecutionPolicy is set to Bypass
+    write-host
+    Write-Host "Checking the computers Execution Policy..." -ForegroundColor Yellow
+    Write-Host
+    $currentExecutionPolicy = Get-ExecutionPolicy
+    $counter = 0
+    while ($currentExecutionPolicy -ne 'Bypass') {
+        if ($counter -gt 2) {
+            clear
+            write-host
+            Write-Host "We've tried several times to update the Execution Policy on this PowerShell instance but was unable to" -ForegroundColor Yellow
+            Write-Host "The script will now exit" -ForegroundColor Yellow
+            Write-Host
+            pause
+            $global:mainLoop = $false
+            break
+        }
+        Write-Host "The Execution Policy is currently set to '$($currentExecutionPolicy)' and should be set to 'Bypass'"
+        Write-Host "You may be prompted to accept a pop up prompt to change the policy"
+        Write-Host
+        Pause
+        Set-ExecutionPolicy -ExecutionPolicy Bypass
+        $counter++
+        $currentExecutionPolicy = Get-ExecutionPolicy
+    }
+
 
 #Check the Skype for Business Online PowerShell Module is NOT installed
 if(Get-Module SkypeOnlineConnector -ListAvailable)
@@ -80,7 +121,7 @@ Clear
 Write-Host
 Write-Host "Checking the current and installed versions of PowerShellGet Module..."
 Write-Host
-Try {$MPTVersionList = Find-Module MicrosoftTeams -AllowPrerelease -Allversions}
+Try {$MPTVersionList = Find-Module PowerShellGet -AllowPrerelease -Allversions}
 Catch [System.Management.Automation.ParameterBindingException]{
     if ((Get-Module PowerShellGet).Version -lt "1.6.0") {
         $currentMPSGVersion = (Find-Module PowerShellGet).Version
@@ -220,39 +261,54 @@ clear
 
 #Check first, then connect to the Skype for Business PowerShell module 
 Write-Host
-Write-Host "Logging onto the Microsoft Teams - Skype For Business Powershell Module"
+Write-Host "Checking for an active connection to Microsoft Teams PowerShell module..."
+Write-Host
 
-$activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
+#Reset Variable
+$tenant = $null
 
-if ($activeTeamsSessions.count -gt 1) {
+#Check if we're already connected, error if not
+try 
+{
+    $tenant = Get-CsTenant | Select DisplayName
+}
+Catch [System.Management.Automation.MethodInvocationException]
+{
+    Write-Host "Logging onto the Microsoft Teams Powershell Module"
+}
+Catch
+{
     Write-Host 
-    Write-Host "We've found $($activeTeamsSessions.count) sessions logged in already. Closing all sessions before continuing" -ForegroundColor Yellow
-    $activeTeamsSessions | Remove-PSSession
-    Write-Host "Sessions closed" -for Green
+    Write-Host "Login failed" -BackgroundColor Red -ForegroundColor Yellow
     Write-Host
+    Write-Host "An unknown error occured in the execution of the script"
+    Write-Host
+    Write-Host "Please try and re-run the script" -ForegroundColor Yellow
+    Write-Host
+    Pause
+    break
 }
 
-If ((Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}).State -eq 'Opened') {
-	Write-Host 'Using existing session credentials'}
-Else {
-    Try
-    {
-        Write-Host
-        Write-Host "Please complete the login using the pop-up login dialog box"
-        $skypeConnection = New-CsOnlineSession -ErrorAction SilentlyContinue
-        Write-Host "Importing your session..."
-	    Import-PSSession $skypeConnection -OutVariable null -AllowClobber
-    }
-    Catch
-    {
-        Write-Host 
-        Write-Host "Login failed" -BackgroundColor Red -ForegroundColor Yellow
-        Write-Host
-        Write-Host "Please try and re-run the script" -ForegroundColor Yellow
-        Write-Host
-        Pause
-        break
-    }
+
+
+Try
+{
+    Write-Host
+    Write-Host "Please complete the login using the pop-up login dialog box"
+    #$skypeConnection = New-CsOnlineSession -ErrorAction SilentlyContinue
+    #Write-Host "Importing your session..."
+    #Import-PSSession $skypeConnection -OutVariable null -AllowClobber
+    Connect-MicrosoftTeams
+}
+Catch
+{
+    Write-Host 
+    Write-Host "Login failed" -BackgroundColor Red -ForegroundColor Yellow
+    Write-Host
+    Write-Host "Please try and re-run the script" -ForegroundColor Yellow
+    Write-Host
+    Pause
+    break
 }
 
 $tenant = Get-CsTenant | Select DisplayName

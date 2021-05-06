@@ -21,7 +21,7 @@ Import-PSSession $skypeConnection -AllowClobber
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.4.3
+# Login script Version 0.4.4
 # 2021/05/06 - Jay Antoney
 #
 # Changes
@@ -30,6 +30,7 @@ Import-PSSession $skypeConnection -AllowClobber
 # - 0.4.1 - Update for MicrosoftTeams module version check
 # - 0.4.2 - Update to remove several checks blocking the login
 # - 0.4.3 - Force to use MicrosoftTeams PS module version 2.0.0
+# - 0.4.4 - Add in additional error message
 # 
 # Required Changes at a later date
 # - {nill}
@@ -198,7 +199,7 @@ Catch {Write-Host "An unknown error has occured trying to get the current Micros
 
 #Importing the current Microsoft Teams Version 
 Write-Host
-Write-Host "Importing the Microsoft Teams PowerShell module..."
+Write-Host "Importing the Microsoft Teams PowerShell module version $($requiredMSTeamsPSModuleVersion)..."
 Write-Host
 Import-Module -Name MicrosoftTeams -RequiredVersion $requiredMSTeamsPSModuleVersion
 

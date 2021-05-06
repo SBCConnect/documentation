@@ -21,14 +21,15 @@ Import-PSSession $skypeConnection -AllowClobber
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.4.2
+# Login script Version 0.4.3
 # 2021/05/06 - Jay Antoney
 #
 # Changes
 # - 0.4 - Update to use the new Connect-MicrosoftTeams login action
 # - 0.4 - Now checks for an ExecutionPolicy = Bypass
-# - 1.4.1 - Update for MicrosoftTeams module version check
-# - 1.4.1 - Update to remove several checks blocking the login
+# - 0.4.1 - Update for MicrosoftTeams module version check
+# - 0.4.2 - Update to remove several checks blocking the login
+# - 0.4.3 - Force to use MicrosoftTeams PS module version 2.0.0
 # 
 # Required Changes at a later date
 # - {nill}
@@ -37,12 +38,7 @@ Import-PSSession $skypeConnection -AllowClobber
 #
 ####
 
-
-function Do-TeamsLogin {
-    $tenant = $null
-
-}
-
+$requiredMSTeamsPSModuleVersion = "2.0.0"
 
 #################################
 #
@@ -93,9 +89,12 @@ if(Get-Module SkypeOnlineConnector -ListAvailable)
     }
 
 
+$installedMSTAllVersions = (Get-Module MicrosoftTeams -ListAvailable).version
 #Check the Microsoft Teams Powershell Module is installed
-if(-not (Get-Module MicrosoftTeams -ListAvailable)) {
-    Write-host "The MicrosoftTeams PowerShell module is not installed and must be installed before continuing!" -ForegroundColor Yellow -BackgroundColor Red
+#if(-not (Get-Module MicrosoftTeams -ListAvailable)) { #This line is for when we can stay current
+if($installedMSTAllVersions -notcontains $requiredMSTeamsPSModuleVersion) {
+    Write-host "The MicrosoftTeams PowerShell module is not installed or at the wrong version and must be installed before continuing!" -ForegroundColor Yellow -BackgroundColor Red
+    Write-Host "Required version: $($requiredMSTeamsPSModuleVersion)"
     Write-Host
     Write-Host "We'll attempt to install the module now..." -ForegroundColor Yellow
     Pause
@@ -106,7 +105,7 @@ if(-not (Get-Module MicrosoftTeams -ListAvailable)) {
     Write-Host
     Write-Host "Installing - Please hold..." -ForegroundColor Yellow
     Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
-    Install-Module MicrosoftTeams -Confirm:$false -Force
+    Install-Module MicrosoftTeams -Confirm:$false -Force -RequiredVersion $requiredMSTeamsPSModuleVersion
     Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
     Write-Host
     Write-Host
@@ -116,6 +115,15 @@ if(-not (Get-Module MicrosoftTeams -ListAvailable)) {
         Write-host "" -ForegroundColor Yellow -BackgroundColor Red
     }
     Write-Host "Complete" -foregroundcolor Green
+    Write-Host 
+    Write-Host 
+    Write-Host -----------------------------------------------------
+    Write-Host - YOU MUST RESTART POWERSHELL AND RE-RUN THE SCRIPT -
+    Write-Host -----------------------------------------------------
+    Write-Host
+    Write-Host
+    Pause
+    Exit
 }
 
 #Enclose in TRY loop to detect if the machine has an older version of the PowerShellget command that doesn't include the -AllowPrerelase parameter, This is generally Windows 10 V1903 or older
@@ -168,9 +176,15 @@ Catch [System.Management.Automation.ParameterBindingException]{
             Write-Host
             pause
             Clear
+            Write-Host 
+            Write-Host 
+            Write-Host -----------------------------------------------------
+            Write-Host - YOU MUST RESTART POWERSHELL AND RE-RUN THE SCRIPT -
+            Write-Host -----------------------------------------------------
             Write-Host
-            Write-Host "Please restart PowerShell"
-            break
+            Write-Host
+            Pause
+            Exit
         }
     } else {
         Write-Host "An unknown error has occured trying to get the current Microsft PowerShellGet module version. The script cannot continue." -ForegroundColor Red
@@ -182,50 +196,11 @@ Catch [System.Management.Automation.ParameterBindingException]{
 Catch {Write-Host "An unknown error has occured trying to get the current Microsft PowerShellGet module version. The script cannot continue." -ForegroundColor Red; Write-Host; Pause; Break}
 
 
-#Check Teams module version
-clear
-Write-Host
-Write-Host "Checking your installed version of the MicrosoftTeams PowerShell module is up-to-date"
-$installedMSTVersion = (Get-Module MicrosoftTeams -ListAvailable)[0].version
-if ($installedMSTVersion -lt $currentMSVersion) {
-    Write-Host
-    Write-Host "Your MicrosoftTeams PowerShell module is not up-to-date" -ForegroundColor Yellow -BackgroundColor Red
-    Write-Host
-    Write-Host "We'll attempt to update the module version now"
-    pause
-    Write-Host
-    Write-Host
-    Write-Host
-    Write-Host
-    Write-Host "**************************************" -ForegroundColor Yellow
-    Write-Host "Updating module to version $($currentMSPVersion)" -ForegroundColor Yellow
-    Write-Host "This may take 2-3 minutes" -ForegroundColor Yellow
-    Write-Host "**************************************" -ForegroundColor Yellow
-    Write-Host
-    Write-Host "Removing old module version $((Get-Module MicrosoftTeams -ListAvailable).version)..."
-    Uninstall-Module MicrosoftTeams -AllVersions -Confirm:$false -Force -AllowPrerelease
-    Write-Host "Complete" -ForegroundColor Green
-    Write-Host "Installing module version $($currentMSPVersion)..."
-    Set-PSRepository -Name 'PSGallery' -InstallationPolicy Trusted
-    Install-Module MicrosoftTeams -Confirm:$false -Force
-    Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
-    Write-Host "Complete" -ForegroundColor Green
-    Write-Host 
-    Write-Host 
-    Write-Host -----------------------------------------------------
-    Write-Host - YOU MUST RESTART POWERSHELL AND RE-RUN THE SCRIPT -
-    Write-Host -----------------------------------------------------
-    Write-Host
-    Write-Host
-    Pause
-    Exit
-}
-
 #Importing the current Microsoft Teams Version 
 Write-Host
 Write-Host "Importing the Microsoft Teams PowerShell module..."
 Write-Host
-Import-Module -Name MicrosoftTeams -RequiredVersion $installedMSTVersion
+Import-Module -Name MicrosoftTeams -RequiredVersion $requiredMSTeamsPSModuleVersion
 
 clear
 #$userLogin = Get-UserUPN

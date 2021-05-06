@@ -21,12 +21,13 @@ Import-PSSession $skypeConnection -AllowClobber
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.4
+# Login script Version 0.4.1
 # 2021/05/06 - Jay Antoney
 #
 # Changes
-# - Update to use the new Connect-MicrosoftTeams login action
-# - Now checks for an ExecutionPolicy = Bypass
+# - 0.4 - Update to use the new Connect-MicrosoftTeams login action
+# - 0.4 - Now checks for an ExecutionPolicy = Bypass
+# - 1.4.1 - Update for MicrosoftTeams module version check
 # 
 # Required Changes at a later date
 # - {nill}
@@ -230,7 +231,8 @@ while ((Get-Module MicrosoftTeams -ListAvailable).count -gt 1) {
 clear
 Write-Host
 Write-Host "Checking your installed version of the MicrosoftTeams PowerShell module is up-to-date"
-if ((Get-Module MicrosoftTeams -ListAvailable).version -lt $currentMSPVersion) {
+$installedMSTVersion = (Get-Module MicrosoftTeams -ListAvailable)[0].version
+if ($installedMSTVersion -lt $currentMSVersion) {
     Write-Host
     Write-Host "Your MicrosoftTeams PowerShell module is not up-to-date" -ForegroundColor Yellow -BackgroundColor Red
     Write-Host
@@ -255,6 +257,11 @@ if ((Get-Module MicrosoftTeams -ListAvailable).version -lt $currentMSPVersion) {
     Write-Host "Complete" -ForegroundColor Green
 }
 
+#Importing the current Microsoft Teams Version 
+Write-Host
+Write-Host "Importing the Microsoft Teams PowerShell module..."
+Write-Host
+Import-Module -Name MicrosoftTeams -RequiredVersion $installedMSTVersion
 
 clear
 #$userLogin = Get-UserUPN

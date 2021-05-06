@@ -21,13 +21,14 @@ Import-PSSession $skypeConnection -AllowClobber
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.4.1
+# Login script Version 0.4.2
 # 2021/05/06 - Jay Antoney
 #
 # Changes
 # - 0.4 - Update to use the new Connect-MicrosoftTeams login action
 # - 0.4 - Now checks for an ExecutionPolicy = Bypass
 # - 1.4.1 - Update for MicrosoftTeams module version check
+# - 1.4.1 - Update to remove several checks blocking the login
 # 
 # Required Changes at a later date
 # - {nill}
@@ -180,52 +181,6 @@ Catch [System.Management.Automation.ParameterBindingException]{
 }
 Catch {Write-Host "An unknown error has occured trying to get the current Microsft PowerShellGet module version. The script cannot continue." -ForegroundColor Red; Write-Host; Pause; Break}
 
-#Check for multiple MicrosoftTeams module versions
-Clear
-Write-Host
-Write-Host "Checking for the newest version of the Microsoft Teams PowerShell module... Please hold"
-$currentMSVersion = (Find-Module MicrosoftTeams).version;
-Clear-Variable MTPVersionRemoveID -ErrorAction SilentlyContinue
-while ((Get-Module MicrosoftTeams -ListAvailable).count -gt 1) {
-    clear
-    $installedMTP = Get-Module MicrosoftTeams -ListAvailable
-    Write-Host
-    Write-Host "There are $($installedMTP.count) MicrosoftTeams PowerShell module versions installed" -ForegroundColor Yellow
-    Write-Host "You'll need to remove older versions to continue" -ForegroundColor Yellow
-    Write-Host 
-    #Write-Host "Installed versions"
-    Write-Host "ID    VERSION"
-    Write-Host "--    -------"
-    
-    for ($i = 0; $i -lt $installedMTP.count; $i++) {
-        $lineMTPVersion = ($MPTVersionList | Where-Object ({$_.Version -like "$(($installedMTP[$i].Version))*"})).Version
-        if ((Get-Module MicrosoftTeams -ListAvailable)[$i].version -eq $currentMSPVersion) {
-            Write-Host "$($i)     $($lineMTPVersion) (Recommended Version to keep - Current stable version)"
-        } else {
-            Write-Host "$($i)     $($lineMTPVersion)"
-        }
-    }
-    Write-Host
-    Write-Host
-    if ($MTPVersionRemoveID) {
-        Write-Host "$($MTPVersionRemoveID) isn't a valid entry" -ForegroundColor Yellow
-        Write-Host
-    }
-    Clear-Variable MTPVersionRemoveID -ErrorAction SilentlyContinue
-    $MTPVersionRemoveID = Read-Host "Please enter the ID of the module version to remove [0-$($installedMTP.count-1)]"
-    if ($MTPVersionRemoveID -ge 0 -and $MTPVersionRemoveID -le $installedMTP.count) {
-        $MTPRealVersion = ($MPTVersionList | Where-Object ({$_.Version -like "$(($installedMTP[$MTPVersionRemoveID].Version))*"})).Version
-        Write-Host
-        Write-Host "Removing version $($MTPRealVersion)..."
-        #Check the version and if it's a preview or not
-        
-        Uninstall-Module MicrosoftTeams -Confirm:$false -Force -RequiredVersion $MTPRealVersion -AllowPrerelease
-        Write-Host
-        Write-Host "Complete" -ForegroundColor Green
-        Pause
-        $MTPVersionRemoveID = $null
-    }
-}
 
 #Check Teams module version
 clear
@@ -255,6 +210,15 @@ if ($installedMSTVersion -lt $currentMSVersion) {
     Install-Module MicrosoftTeams -Confirm:$false -Force
     Set-PSRepository -Name 'PSGallery' -InstallationPolicy Untrusted
     Write-Host "Complete" -ForegroundColor Green
+    Write-Host 
+    Write-Host 
+    Write-Host -----------------------------------------------------
+    Write-Host - YOU MUST RESTART POWERSHELL AND RE-RUN THE SCRIPT -
+    Write-Host -----------------------------------------------------
+    Write-Host
+    Write-Host
+    Pause
+    Exit
 }
 
 #Importing the current Microsoft Teams Version 
@@ -270,32 +234,6 @@ clear
 Write-Host
 Write-Host "Checking for an active connection to Microsoft Teams PowerShell module..."
 Write-Host
-
-#Reset Variable
-$tenant = $null
-
-#Check if we're already connected, error if not
-try 
-{
-    $tenant = Get-CsTenant | Select DisplayName
-}
-Catch [System.Management.Automation.MethodInvocationException]
-{
-    Write-Host "Logging onto the Microsoft Teams Powershell Module"
-}
-Catch
-{
-    Write-Host 
-    Write-Host "Login failed" -BackgroundColor Red -ForegroundColor Yellow
-    Write-Host
-    Write-Host "An unknown error occured in the execution of the script"
-    Write-Host
-    Write-Host "Please try and re-run the script" -ForegroundColor Yellow
-    Write-Host
-    Pause
-    break
-}
-
 
 
 Try

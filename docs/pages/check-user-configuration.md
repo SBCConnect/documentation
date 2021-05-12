@@ -9,9 +9,10 @@ This script can be used to:
 Copy and paste the script into a new PowerShell window. You will be prompted for the users UPN name.
 The Skype for Business Online PowerShell module is required. If not installed, you can obtain it from 🌐 [Here](https://www.microsoft.com/en-us/download/details.aspx?id=39366)
 
-## PowerShell script
-Copy and paste this script into PowerShell. The script will check for an exsiting Skype for Business Online login, before logging you in
-
+## PowerShell
+<i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
+> ⚠ These scripts assume that you've already connected to the **Skype for Business Online PowerShell Module**.\
+Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)
 ````PowerShell
 function Get-UserUPN {
     #Regex pattern for checking an email address
@@ -28,41 +29,6 @@ function Get-UserUPN {
 
     return $UserUPN
 }
-clear
-Write-Host
-Write-Host "Checking for a connection to Microsoft Teams..."
-#Check we're logged into the Skype for Business Online PowerShell Module
-    try {
-        $tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
-        Write-Host "The tenant you're connected to is $($tenantDisplayName)" -ForegroundColor Green
-    } catch {
-        $activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
-        Write-Host
-        Write-Host "You're not logged into any Microsoft Teams - Skype for Business Online powershell modules" -ForegroundColor Yellow
-        Write-Host
-        if ($activeTeamsSessions.Count -gt 0) {
-            Write-Host "We're logging you out of the following sessions:"
-            $activeTeamsSessions
-            $activeTeamsSessions | Remove-PSSession
-            Write-Host 
-        }
-        Write-Host "Please back into the Microsoft Teams - Skype for Business Online powershell module using the full script on the SBC Connect website"
-        Write-Host "https://sbcconnect.com.au/pages/connecting-to-sfbo-ps-module.html"
-        Write-Host
-        Pause
-        Break
-    }
-
-#Confirm you’re logged into the correct tenant - Is it the correct name?
-clear
-Write-Host ""
-Write-Host "The tenant you've connected to is: $($tenantDisplayName)" -BackgroundColor Yellow -ForegroundColor Black
-$tenantCorrect = Read-Host "Is this the correct tenant? (y/n)"
-while("y","n" -notcontains $tenantCorrect )
-{
- $tenantCorrect = Read-Host "Is this the correct tenant? (y/n)"
-}
-if ($tenantCorrect -eq 'n') {exit}
 
 $UserUPN = Get-UserUPN
 

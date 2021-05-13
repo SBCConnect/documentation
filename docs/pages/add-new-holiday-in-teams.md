@@ -2,7 +2,7 @@
 
 
 
-## Steps
+## Steps to Create a Holiday Schedule
 1. Log into the Microsoft Teams Admin Portal
    - https://admin.teams.microsoft.com/
 
@@ -24,4 +24,20 @@ If the holiday is for one full day (i.e., a 24 hour period), the End time should
 
 1. Optionally, add more dates for recurring holidays.
 
+1. Select Save.
+
+
+
+## Steps to Change a Holiday Schedule
+
+1. Log into the Microsoft Teams Admin Portal
+   - https://admin.teams.microsoft.com/
+
+1. Go to Org-wide settings > Holidays
+
+1. Select the holiday from the list.
+1. Under Start time, select the calendar icon and choose the date when you'd like the holiday to begin.
+1. Use the drop-down list to select a start time for the holiday.
+1. Under End time, select the calendar icon and choose the date when you'd like the holiday to end.
+1. Use the drop-down list to select an end time for the holiday. The End time must be after the Start time.
 1. Select Save.

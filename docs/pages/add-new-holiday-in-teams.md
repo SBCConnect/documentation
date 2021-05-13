@@ -3,10 +3,10 @@
 
 
 ## Steps to Create a Holiday Schedule
-1. Log into the **Microsoft Teams Admin Portal**
+1. Log into the **Microsoft Teams Admin Portal**.
    - https://admin.teams.microsoft.com/
 
-1. Go to **Org-wide settings** > **Holidays**
+1. Go to **Org-wide settings** > **Holidays**.
 
 1. Click on **Add** to setup a new holiday.
 
@@ -25,9 +25,21 @@
 
 1. Optionally, add more dates for recurring holidays.
 
-1. Select Save.
+1. Select **Save**.
 
+1. Go to **Voice** > **Auto attendants**.
 
+1. Select the required Auto Attendant.
+
+1.Go to **Call flows during holidays**.
+
+1. Click on **Add** to create a new holiday route
+
+1. Select the holiday created above.
+
+1. Select your call routing options.
+
+1. Select **Save**.
 
 ## Steps to Change a Holiday Schedule
 

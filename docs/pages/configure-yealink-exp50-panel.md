@@ -1,6 +1,6 @@
-#Configuration of Yealink EXP50 Panel
+# Configuration of Yealink EXP50 Panel
 
-##Updating Firmware
+## Updating Firmware
 *To use the EXP50 panel, the phone needs the latest firmware.*
 
 1. Log into the **Microsoft Teams Admin Portal**.
@@ -18,7 +18,7 @@
 
 
 
-##Configuring the panel contacts
+## Configuring the panel contacts
 
 1. Open the Teams **Windows** app.
 

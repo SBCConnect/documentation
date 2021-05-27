@@ -515,14 +515,30 @@ while ($mainLoop -eq $true) {
                 Write-Host
                 Write-Host "[2/3] | Assigning the Voice Routing Policy" -ForegroundColor Yellow
                 $error.Clear()
-                try {Grant-CsOnlineVoiceRoutingPolicy -Identity "$UserUPN" -PolicyName $selectedVrp.Identity -ErrorAction Stop}
+                try {
+                    if ($selectedDialPlan.Identity -eq 'Global')
+                    {
+                        Write-Host "Global policy selected"
+                        Grant-CsOnlineVoiceRoutingPolicy -Identity "$UserUPN" -PolicyName $null -ErrorAction Stop
+                    } else {
+                        Grant-CsOnlineVoiceRoutingPolicy -Identity "$UserUPN" -PolicyName $selectedVrp.Identity -ErrorAction Stop
+                    }
+                }
                 catch {write-host "Unable to assign the Voice Routing Policy to the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                 Write-Host "OK" -ForegroundColor Green
 
                 Write-Host
                 Write-Host "[3/3] | Assigning the Dial Plan" -ForegroundColor Yellow
                 $error.Clear()
-                try {Grant-CsTenantDialPlan -Identity "$UserUPN" -PolicyName $selectedDialPlan.Identity -ErrorAction Stop}
+                try {
+                    if ($selectedDialPlan.Identity -eq 'Global')
+                    {
+                        Write-Host "Global policy selected"
+                        Grant-CsTenantDialPlan -Identity "$UserUPN" -PolicyName $null -ErrorAction Stop
+                    } else {
+                        Grant-CsTenantDialPlan -Identity "$UserUPN" -PolicyName $selectedDialPlan.Identity -ErrorAction Stop
+                    }
+                }
                 catch {write-host "Unable to assign the Dial Plan to the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                 Write-Host "OK" -ForegroundColor Green
 

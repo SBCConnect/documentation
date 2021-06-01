@@ -4,4 +4,4 @@ When a Teams enabled user leaves the business, you need to remove the phone numb
 ## Steps
 Run the **Enable a User Account** script and follow the prompts using the REM option during the wizard.
 
-LINK: [Voice enable a user account](pages/voice-enable-a-new-user.md)
+LINK: [Voice enable a user account](voice-enable-a-new-user.md)

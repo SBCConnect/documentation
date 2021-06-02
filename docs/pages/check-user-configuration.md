@@ -13,6 +13,7 @@ The Skype for Business Online PowerShell module is required. If not installed, y
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 > ⚠ These scripts assume that you've already connected to the **Skype for Business Online PowerShell Module**.\
 Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)
+
 ````PowerShell
 function Get-UserUPN {
     #Regex pattern for checking an email address
@@ -29,6 +30,8 @@ function Get-UserUPN {
 
     return $UserUPN
 }
+
+Clear
 
 $UserUPN = Get-UserUPN
 

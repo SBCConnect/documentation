@@ -32,6 +32,8 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Create a Call Park policy](pages/create-a-call-park-policy.md)
 - [Create a Call Queue](pages/create-a-call-queue.md)
 - [Configure anonymous user calling policies](pages/configure-anonymous-outbound-calling.md)
+- [Configure a Calling Policy](pages/setting-unanswered-call-policies.md)
+- [Adding a Holiday Schedule](pages/add-new-holiday-in-teams.md)
 
 ### Teams Device Management
 - [Known Issues](pages/physical-phone-known-issues.md)
@@ -39,7 +41,9 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Assign a device configuration policy](pages/assign-deivce-configuration-profile.md)
 - [Create a new device configuration policy](pages/new-deivce-configuration-profile.md)
 - [Edit a device configuration policy](pages/edit-deivce-configuration-profile.md)
-- [Remove a device confiugration policy](pages/remove-deivce-configuration-profile.md)
+- [Remove a device configuration policy](pages/remove-deivce-configuration-profile.md)
+- [Updating a device firmware](pages/handset-firmware-update.md)
+- [Configuring Yealink EXP50 Expander Panels](pages/configure-yealink-exp50-panel.md)
 
 ### Call Restrictions and Call Types
 - [Explanation of Voice Routing Policies and call types](pages/explanation-of-voice-routing-policies.md)

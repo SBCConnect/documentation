@@ -1,4 +1,4 @@
-# Updateing the Handset Firmware
+# Updating the Handset Firmware
 
 ## Updating the Handset Firmware Manually
 

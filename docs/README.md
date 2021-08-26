@@ -35,6 +35,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 - [Configure anonymous user calling policies](pages/configure-anonymous-outbound-calling.md)
 - [Configure a Calling Policy](pages/setting-unanswered-call-policies.md)
 - [Adding a Holiday Schedule](pages/add-new-holiday-in-teams.md)
+- [Enabled or Disable Call Waiting or Busy on Busy](pages/set-call-on-hold.md)
 
 ### Teams Device Management
 - [Known Issues](pages/physical-phone-known-issues.md)
@@ -85,6 +86,7 @@ SBCConnect.com.au is a website designed to document the platforms connection req
 
 ### Multi-User Troubleshooting and Call Quality Issues
 - [Teams Poor Call Quality Metric](pages/poor-call-quality.md)
+- [Enabled or Disable Call Waiting or Busy on Busy](pages/set-call-on-hold.md)
 
 
 ### Platform Troubleshooting and Issues

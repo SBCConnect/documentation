@@ -24,6 +24,10 @@ In this case you would
   - Create a new policy with the setting **Enabled** or **Unanswered** and assign that new policy to the receptionist users.
 
 
+## Microsoft Teams Admin Centre (GUI)
+These settings are able to be updated through the [Microsoft Teams Admin Centre]{https://admin.teams.microsoft.com) under **Voice** > **Calling policies**.\
+Changes may take up to 60 minutes to push out to users
+
 
 ## PowerShell
 > ⚠ These scripts assume that you've already connected to the **Skype for Business Online PowerShell Module**.\

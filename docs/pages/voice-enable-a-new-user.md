@@ -10,7 +10,7 @@ Refer to 🌐 [License requriements for Microsoft Teams Direct Routing](License-
   Any Premium plans shouldn't be selected unless the customer expressly states that they accept, in writing, that users would be able to call expensive numbers like the time service without any cost caps.
 - Dial Plan\
   Dial Planss should be assigned to users based on their DID number. For example, where the number starts with 07, allocate the Queensland policy.\
-  **AU-CentralEast** = **02** - Sydney & Camberra\
+  **AU-CentralEast** = **02** - Sydney & Canberra\
   **AU-SouthEast** = **03** - Melbourne & Tasmania\
   **AU-Queensland** = **07** - Queensland\
   **AU-CentralandWest** = **08** - South Australia & Northern Territory & Western Australia\

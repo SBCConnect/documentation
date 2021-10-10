@@ -4,6 +4,16 @@ Users in Microsoft 365 require several licenses and setting changes before they 
 ## Requirements
 - Users require a **Microsoft 365 Phone System** license.\
 Refer to 🌐 [License requriements for Microsoft Teams Direct Routing](License-Requirements.md#license-requirements-for-microsoft-teams-direct-routing) for more information.
+- Voice Routing Policy\
+  By default, the plan **AU-National-1300** should be used when provisioning a user.\
+  The other common plan is **AU-International-1300** where the user has expressed that they require international calling.\
+  Any Premium plans shouldn't be selected unless the customer expressly states that they accept, in writing, that users would be able to call expensive numbers like the time service without any cost caps.
+- Dial Plan\
+  Dial Planss should be assigned to users based on their DID number. For example, where the number starts with 07, allocate the Queensland policy.\
+  **AU-CentralEast** = **02** - Sydney & Camberra\
+  **AU-SouthEast** = **03** - Melbourne & Tasmania\
+  **AU-Queensland** = **07** - Queensland\
+  **AU-CentralandWest** = **08** - South Australia & Northern Territory & Western Australia\
 
 ## Modifying an existing user?
 If you're looking to modify an existing user, you can re-run the same on-boarding script as below.

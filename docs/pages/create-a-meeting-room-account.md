@@ -39,10 +39,20 @@ Add-DistributionGroupMember -Identity <DIST_SMTP> -Member <UPN>
 Connect-AzureAD
 Set-AzureADUser -ObjectID <UPN> -PasswordPolicies DisablePasswordExpiration -TelephoneNumber <PHONE_NUMBER>
 
-## Connect to Skype 
-Import-Module SkypeOnlineConnector  
-$cssess=New-CsOnlineSession 
-Import-PSSession $cssess -AllowClobber
+
+## Connect to Microsoft Teams Powershell Module version 2.0.0
+## THIS MUST BE VERSION 2.0.0 and no higher!
+Import-Module -Name MicrosoftTeams -RequiredVersion 2.0.0
+Write-Host
+Write-Host "Did that Import-Module command work?" -ForegroundColor Yellow
+Write-Host "If no, then you might need to install the required version of the Microsoft Teams module by running"
+Write-Host "Install-Module MicrosoftTeams -Confirm:$false -Force -RequiredVersion 2.0.0"
+Write-Host
+Write-Host "Exit here if you need to install first, else..." -ForegroundColor Red
+Pause
+Write-Host
+Write-Host
+Connect-MicrosoftTeams
 Write-host
 Write-host "You must assign a Meeting Room license to the account and a phone number before continuing" -foregroundcolor yellow
 Write-host

@@ -661,13 +661,13 @@ while ($mainLoop -eq $true) {
                     Write-Host "OK" -ForegroundColor Green
                 } else {
                     $numOfSteps = 3
-                    #$UserNumberToAssign = $UserDID #This line is here because there is a bug in MS Teams PS Module V2.3.0 where it wont accept the TEL:+000000000 format
+                    $UserNumberToAssign = $UserDID #This line is here because there is a bug in MS Teams PS Module V2.3.0 where it wont accept the TEL:+000000000 format
                     Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the Resource Account" -ForegroundColor Yellow
                     $error.Clear()
                     Try {Set-CsOnlineApplicationInstance -Identity "$UserUPN" -OnpremPhoneNumber $UserNumberToAssign | Out-Null}
                     catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                     Write-Host "OK" -ForegroundColor Green
-                    pause
+                    #pause
                 }
                 $currentStep++
 

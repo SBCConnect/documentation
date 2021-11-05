@@ -15,6 +15,7 @@ The Skype for Business Online PowerShell module is required. If not installed, y
 Need to connect? See [Connecting to Skype for Business Online PowerShell Module](connecting-to-sfbo-ps-module.md)
 
 ````PowerShell
+
 function Get-UserUPN {
     #Regex pattern for checking an email address
     $EmailRegex = '^([\w-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
@@ -31,41 +32,54 @@ function Get-UserUPN {
     return $UserUPN
 }
 
-Clear
-
+Clear-Host
+Write-Host "Check a single user account for provisioning issues" -ForegroundColor Yellow
+Write-Host
 $UserUPN = Get-UserUPN
 
 $UserDetail = $null
-$UserDetail = Get-CSOnlineUser -Identity "$UserUPN" | Select UserPrincipalName, EnterpriseVoiceEnabled, HostedVoiceMail, OnPremLineURI, OnPremEnterpriseVoiceEnabled, DisplayName, TeamsUpgradeEffectiveMode, HostedVoicemailPolicy, OnlineVoiceRoutingPolicy 
+write-host "Checking for a user account with UPN: $($UserUPN)" -ForegroundColor Yellow
+$UserDetail = Get-CSOnlineUser -Identity "$UserUPN" | Select UserPrincipalName, EnterpriseVoiceEnabled, HostedVoiceMail, OnPremLineURI, OnPremEnterpriseVoiceEnabled, DisplayName, TeamsUpgradeEffectiveMode, HostedVoicemailPolicy, OnlineVoiceRoutingPolicy, TenantDialPlan
 
 While ($UserDetail -eq $null)
 {
     write-host "Unable to find user. Please try again." -BackgroundColor Red -ForegroundColor White
+    write-host
     $UserUPN = Get-UserUPN
     $UserDetail = $null
-    $UserDetail = Get-CSOnlineUser -Identity "$UserUPN" | Select UserPrincipalName, EnterpriseVoiceEnabled, HostedVoiceMail, OnPremLineURI, OnPremEnterpriseVoiceEnabled, DisplayName, TeamsUpgradeEffectiveMode, HostedVoicemailPolicy, OnlineVoiceRoutingPolicy 
+    write-host "Checking for a user account with UPN: $($UserUPN)" -ForegroundColor Yellow
+    $UserDetail = Get-CSOnlineUser -Identity "$UserUPN" | Select UserPrincipalName, EnterpriseVoiceEnabled, HostedVoiceMail, OnPremLineURI, OnPremEnterpriseVoiceEnabled, DisplayName, TeamsUpgradeEffectiveMode, HostedVoicemailPolicy, OnlineVoiceRoutingPolicy, TenantDialPlan
 }
 
-Write-Host ""
+Clear-Host
+
+Write-Host "User troubleshooting result" -ForegroundColor Magenta
+Write-Host
 Write-Host "-----------------"
 Write-Host "DisplayName: $($UserDetail.DisplayName)"
 Write-Host "Username: $($UserDetail.UserPrincipalName)"
 Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
 Write-Host "DID Number: $($UserDetail.OnPremLineURI)"
-Write-Host "Online Voice Routing Policy: $($UserDetail.OnlineVoiceRoutingPolicy)"
 
-if ($UserDetail.OnPremEnterpriseVoiceEnabled -eq $true) {Write-Host "ERROR: OnPremEnterpriseVoiceEnabled = TRUE - User must be migrated to an Online only User to use Teams" -BackgroundColor Red -ForegroundColor White} else {Write-Host "PASS: OnPremEnterpriseVoiceEnabled = FALSE" -BackgroundColor Green -ForegroundColor Black}
-if ($UserDetail.EnterpriseVoiceEnabled -eq $true) {Write-Host "PASS: EnterpriseVoiceEnabled = TRUE" -BackgroundColor Green -ForegroundColor Black} else {Write-Host "ERROR: EnterpriseVoiceEnabled = FALSE - Run Set-CsUser with the '-EnterpriseVoiceEnabled $true' option to resolve" -BackgroundColor Red -ForegroundColor White}
+Write-Host "Online Voice Routing Policy    = $($UserDetail.OnlineVoiceRoutingPolicy)" -NoNewline
+if ($UserDetail.OnlineVoiceRoutingPolicy) {Write-Host " - " -NoNewline; Write-Host "Pass" -ForegroundColor Green} else {Write-Host "BLANK - " -NoNewline; Write-Host "FAIL" -ForegroundColor Red}
 
-switch ($UserDetail.TeamsUpgradeEffectiveMode){
-	"TeamsOnly" {Write-Host "PASS: TeamsUpgradeEffectiveMode = TeamsOnly" -BackgroundColor Green -ForegroundColor Black}
-	default {Write-Host "ERROR: TeamsUpgradeEffectiveMode = $($UserDetail.TeamsUpgradeEffectiveMode) - Users may be unable to receive calls from Call Queues and Auto Attendants. User must be in TeamsOnly mode" -BackgroundColor Red -ForegroundColor White}
-}
+Write-Host "Tenant Dial Plan               = $($UserDetail.TenantDialPlan)" -NoNewline
+if ($UserDetail.TenantDialPlan) {Write-Host " - " -NoNewline; Write-Host "Pass" -ForegroundColor Green} else {Write-Host "BLANK - " -NoNewline; Write-Host "FAIL" -ForegroundColor Red}
 
-switch ($UserDetail.HostedVoicemail){
-	"True" {Write-Host "PASS: HostedVoicemail = True" -BackgroundColor Green -ForegroundColor Black}
-	default {Write-Host "ERROR: HostedVoicemail = $($UserDetail.HostedVoicemail) - Users voicemail not hosted online. Run Set-CsUser with the '-HostedVoiceMail $true' option to resolve" -BackgroundColor Red -ForegroundColor White}
-}
+Write-Host "OnPremEnterpriseVoiceEnabled   = $($UserDetail.OnPremEnterpriseVoiceEnabled) - " -NoNewline
+if ($UserDetail.OnPremEnterpriseVoiceEnabled -eq $false) {Write-Host "Pass" -ForegroundColor Green} else {Write-Host "FAIL" -ForegroundColor Red; Write-Host "  User must be migrated to an Online only User to use Teams" -ForegroundColor Yellow}
+
+Write-Host "EnterpriseVoiceEnabled         = $($UserDetail.EnterpriseVoiceEnabled) - " -NoNewline
+if ($UserDetail.EnterpriseVoiceEnabled -eq $true) {Write-Host "Pass" -ForegroundColor Green} else {Write-Host "FAIL" -ForegroundColor Red; Write-Host "  Users voicemail not hosted online. Run Set-CsUser with the '-EnterpriseVoiceEnabled `$true' option to resolve" -ForegroundColor Yellow}
+
+Write-Host "TeamsUpgradeEffectiveMode      = $($UserDetail.TeamsUpgradeEffectiveMode) - " -NoNewline
+if ("TeamsOnly" -eq $UserDetail.TeamsUpgradeEffectiveMode) {Write-Host "Pass" -ForegroundColor Green} else {Write-Host "FAIL" -ForegroundColor Red; Write-Host "  Users may be unable to receive calls from Call Queues and Auto Attendants. User must be in TeamsOnly mode" -ForegroundColor Yellow}
+
+Write-Host "HostedVoicemail                = $($UserDetail.HostedVoicemail) - " -NoNewline
+if ($UserDetail.HostedVoicemail -eq $true) {Write-Host "Pass" -ForegroundColor Green} else {Write-Host "FAIL" -ForegroundColor Red; Write-Host "  Users voicemail not hosted online. Run Set-CsUser with the '-HostedVoiceMail `$true' option to resolve" -ForegroundColor Yellow}
+
+
 
 Write-Host "-----------------"
 
@@ -79,5 +93,6 @@ Write-Host "-----------------"
     Write-Host "https://github.com/sbcconnect"
     Write-Host
     pause
-    clear
+
+
 ````

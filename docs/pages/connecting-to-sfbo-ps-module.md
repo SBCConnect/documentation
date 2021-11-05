@@ -20,8 +20,8 @@ Connect-MicrosoftTeams
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.4.4
-# 2021/05/06 - Jay Antoney
+# Login script Version 0.4.5
+# 2021/11/05 - Jay Antoney
 #
 # Changes
 # - 0.4 - Update to use the new Connect-MicrosoftTeams login action
@@ -30,15 +30,16 @@ Connect-MicrosoftTeams
 # - 0.4.2 - Update to remove several checks blocking the login
 # - 0.4.3 - Force to use MicrosoftTeams PS module version 2.0.0
 # - 0.4.4 - Add in additional error message
+# - 0.4.5 - Update to new Teams PS module v2.3.0
 # 
 # Required Changes at a later date
 # - {nill}
 #
-# Any issues running script, try run the script on Windows 10 V1909 or higher
+# Any issues running script, try run the script on Windows 10 V20H2 or higher
 #
 ####
 
-$requiredMSTeamsPSModuleVersion = "2.0.0"
+$requiredMSTeamsPSModuleVersion = "2.3.0"
 
 #################################
 #
@@ -238,4 +239,5 @@ Write-Host "The tenant you've connected to is: $($tenant.DisplayName)" -Backgrou
 Write-Host
 Write-Host "You're ready to run any further scripts from the SBC Connect website now"
 Write-Host
+
 ````

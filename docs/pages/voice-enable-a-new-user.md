@@ -124,6 +124,7 @@ function Display-UserDetails {
 function Get-sbcResourceAccounts {
     # Get all the resource accounts
     Clear-Host
+    Write-host "Select a resource account" -ForegroundColor Yellow
     Write-Host
     $ResourceAcc = $Global:ResourceAccList
     If (($ResourceAcc.UserPrincipalName -eq $NULL) -and ($ResourceAcc.Count -eq 0)) {
@@ -610,7 +611,7 @@ while ($mainLoop -eq $true) {
                     Write-Host
                     Write-Host "-----------------------------------------------------"
                     Write-Host "User UPN: $($UserUPN)"
-                    if (-not $Global:isResourceAccount) {Write-Host "User DID: $($UserDID)"}
+                    Write-Host "User DID: $($UserDID)"
                     if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
                     Write-Host "Dial Plan: $($finalDialPlanName)"
                     Write-Host "Voice Routing Policy: $($selectedVrp.Identity.Substring(4))"
@@ -634,7 +635,7 @@ while ($mainLoop -eq $true) {
                 Write-Host
                 Write-Host "-----------------------------------------------------"
                 Write-Host "User UPN: $($UserUPN)"
-                if (-not $Global:isResourceAccount) {Write-Host "User DID: $($UserDID)"}
+                Write-Host "User DID: $($UserDID)"
                 if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
                 Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
                 Write-Host "Voice Routing Policy: $($selectedVrp.Identity.Substring(4))"

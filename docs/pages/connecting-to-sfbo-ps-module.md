@@ -14,8 +14,7 @@ PowerShell will prompt for the username and password of the 365 tenant administr
 
 <i class="fas fa-terminal"></i> **Raw PowerShell Code**
 ````PowerShell
-$skypeConnection = New-CsOnlineSession
-Import-PSSession $skypeConnection -AllowClobber
+Connect-MicrosoftTeams
 ````
 
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**

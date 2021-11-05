@@ -1,3 +1,5 @@
+> The PowerShell scripts on this page have been updated to include managing reseouce accounts. Please use the same script to add/remove numbers for Resource Accounts
+
 ## How to voice enable a new or existing user
 Users in Microsoft 365 require several licenses and setting changes before they are able to call using Direct Routing in Microsoft Teams
 
@@ -30,10 +32,17 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 0.2
+# Script version 1.0
+#
+# - Updates to include Resource Account Management
+#
+# TO DO
+# - Confirm if this line is still required - Somewhere around line 631
+#   $UserNumberToAssign = $UserDID
+#
 # Written by Jay Antoney
 # 5G Networks
-# 11 November 2020
+# 5 November 2021
 #
 #####################
 
@@ -45,28 +54,46 @@ function Get-UserUPN {
     $UserUPNloop = 'y'
     while($UserUPNloop -eq 'y') {
         $UserUPN = $null
-        while($UserUPN -notmatch $EmailRegex)
+        while($UserUPN -notmatch $EmailRegex -and $UserUPN -notmatch "ra")
         {
             Write-Host "ERROR: $error"
             $error.Clear()
-            clear
-            Write-Host
-            Write-Host "The tenant you've connected to is: $tenantName" -BackgroundColor Yellow -ForegroundColor Black
+            clear-Host
+            Write-Host ""
+            Write-Host "The tenant you've connected to is: " -NoNewline
+            Write-Host "$($global:tenantDisplayName)"
             Write-Host
             if($UserUPN -ne $null) {Write-Host "$UserUPN isn't a valid UPN. A UPN looks like an email address" -ForegroundColor Yellow; Write-Host}
-            $UserUPN = Read-Host "Please enter in the users full UPN that you're trying to edit"
+            Write-Host
+            Write-Host "Please enter in the users full UPN that you're trying to edit"
+            Write-Host "- OR - type RA for a resoruce account"
+            $UserUPN = Read-Host "Users UPN or RA"
             $UserUPN = $UserUPN.trim()
         }
+        
+        if ($UserUPN -eq "ra") {
+            $UserUPN = (Get-sbcResourceAccounts).UserPrincipalName
+        }
+        
         #Test to make sure the user is real
         $usrDetail = $null
         $error.Clear()
-        try {$usrDetail = Get-CsOnlineUser -Identity $UserUPN -ErrorAction Stop}
+        Write-Host "Getting user details..." -ForegroundColor Yellow
+        try {$usrDetail = Get-CsOnlineUser -Identity "$($UserUPN)" -ErrorAction Stop}
         Catch {Write-Host; Write-Host "No username found with username $UserUPN or the users calling licenses have been removed. Please try again" -ForegroundColor Yellow; pause}
         if (-not $error) {$UserUPNloop = 'n'}
     }
 
+    $Global:isResourceAccount = $null
+    #Write-Host "DEBUG BEFORE isResourceAccount [$($UserUPN) | $($Global:isResourceAccount)]" -ForegroundColor Magenta
+    if ($usrDetail.UserPrincipalName -in $Global:ResourceAccList.UserPrincipalName) {$Global:isResourceAccount = $true} else {$Global:isResourceAccount = $false}
+    #if ($userDetail.UserPrincipalName -in $Global:ResourceAccList.UserPrincipalName) {$Global:isResourceAccount = $true; Write-Host "TRUE-2"} else {$Global:isResourceAccount = $false; Write-Host "FALSE-2"}
+    #Write-Host "DEBUG AFTER isResourceAccount [$($UserUPN) | $($Global:isResourceAccount)]" -ForegroundColor Magenta
+    #pause
     return $usrDetail
 }
+
+
 
 function Display-UserDetails {
     $UserDetail = $Global:UserDetail
@@ -74,6 +101,8 @@ function Display-UserDetails {
     if ($UserDetail.EnterpriseVoiceEnabled -eq $true){
         Write-Host "User is already voice enabled" -ForegroundColor Green
         Write-Host "DisplayName: $($UserDetail.DisplayName)"
+        Write-Host "Is a resource account? " -NoNewline
+        if ($Global:isResourceAccount) {Write-Host "Yes" -ForegroundColor Yellow} else {Write-Host "No"}
         Write-Host "DID Number: $($UserDetail.OnPremLineURI)"
         Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
         if ([string]::IsNullOrWhiteSpace($UserDetail.OnlineVoiceRoutingPolicy)){
@@ -90,6 +119,68 @@ function Display-UserDetails {
         Write-Host "User not currently voice enabled"
     }
     
+}
+
+function Get-sbcResourceAccounts {
+    # Get all the resource accounts
+    Clear-Host
+    Write-Host
+    $ResourceAcc = $Global:ResourceAccList
+    If (($ResourceAcc.UserPrincipalName -eq $NULL) -and ($ResourceAcc.Count -eq 0)) {
+        $tenant = Get-CsTenant | Select DisplayName
+        Write-Host
+        Write-Host "No resource accounts were found. Please login to a tenant that has resource accounts before running this script." -ForegroundColor Yellow
+        Write-Host "The tenant you're connected to is: $($tenant.DisplayName)" -ForegroundColor Yellow
+        pause
+        Break #Exit script but don't close PowerShell to keep the logged in session
+    }
+
+    # List all the Resource accounts and prompt the user to select them
+    If ($ResourceAcc.Count -gt 1) {
+        $ResourceAccList = @()
+        Write-Host
+        If ($ResourceAcc.Count -gt 10) {
+          Write-Host "ID     Phone Number        Type               Resource Account"
+          Write-Host "==     ============        ====               ============"
+        } else {
+          Write-Host "ID    Phone Number        Type               Resource Account"
+          Write-Host "==    ============        ====               ============"
+        }
+        For ($i=0; $i -lt $ResourceAcc.Count; $i++) {
+            $a = $i + 1
+            
+            #Check what the account type is
+            Switch ($ResourceAcc[$i].ApplicationId)
+            {
+                ce933385-9390-45d1-9512-c8d228074e07 {$type = "Auto Attendant"}
+                11cd3e2e-fccb-42ad-ad00-878b93575e07 {$type = "Call Queue    "}
+                default {$type = "              "}
+            }
+            
+            #Check if there is already a phone number on the account
+            if ($ResourceAcc[$i].PhoneNumber)
+            {
+              $phoneNumber = ($ResourceAcc[$i].PhoneNumber).SubString(4)
+              #Pad the phone number to 15 characters
+              while ($phoneNumber.length -lt 15) {$phoneNumber = "$phoneNumber "}
+            } else {
+              $phoneNumber = "               "
+            }
+            #add a space infront of the phone number if it's below 10
+            If ($i -lt 9) {$phoneNumber = " $phoneNumber";}
+            
+            Write-Host ($a, $phoneNumber, $type, $ResourceAcc[$i].UserPrincipalName) -Separator "     "
+        }
+        $Range = '(1-' + $ResourceAcc.Count + ')'
+        Write-Host
+        $Select = Read-Host "Select a Resource Account to Assign number to" $Range
+        $ResourceAccList += $ResourceAcc[$Select-1]
+    }
+    Else { # There is only one Resource Account
+        $ResourceAccList = Get-CsOnlineApplicationInstance
+    }
+
+    Return $ResourceAccList
 }
 
 function Get-UserDID {
@@ -118,10 +209,10 @@ function Get-UserDID {
         Write-Host "A DID must be in E.164 Format. IE: +61299995555"
         Write-Host
         Write-Host "-or enter-"
-        Write-Host "rem    Remove the number from the user but leave calling capabilites enabled"
-        Write-Host "off    Remove all calling capabilities and numbers from the user"
-        Write-Host "n      Next User"
-        Write-Host "e      Exit"
+        Write-Host "rem      Remove the number from the user but leave calling capabilites enabled"
+        Write-Host "off      Remove all calling capabilities and numbers from the user"
+        Write-Host "n        Next User"
+        Write-Host "e        Exit"
         Write-Host
         $UserDID = Read-Host "Please enter the DID number to assign"
         $UserDID = $UserDID.trim()
@@ -150,7 +241,7 @@ function Get-UserEXT {
     $UserDetail = $Global:UserDetail
 
     #Get the users Extension Number
-    while($UserEXT -notmatch $EXTRegex -and $UserEXT -ne 'e' -and $UserEXT -ne $null)
+    while($UserEXT -notmatch $EXTRegex -and $UserEXT -ne 'e' -and $UserEXT -ne $null -and $Global:isResourceAccount -eq $false)
     {
         if ($UserEXT = "TBA") {$UserEXT = $null}
         Clear
@@ -178,6 +269,7 @@ function Get-UserEXT {
         if ([string]::IsNullOrEmpty( $UserEXT )) {$UserEXT = $null}
         Write-Host
     }
+    if ($UserEXT = "TBA") {$UserEXT = $null}
     return $UserEXT
 }
 
@@ -187,11 +279,12 @@ $mainLoop = $true
 while ($mainLoop -eq $true) {
     clear
     Write-Host
+    Write-Host "Loading tenant details..." -ForegroundColor Yellow
 
     #Check we're logged into the Skype for Business Online PowerShell Module
     try {
-        $tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
-        Write-Host "The tenant you're connected to is $($tenantDisplayName)" -ForegroundColor Green
+        $global:tenantDisplayName = (Get-CsTenant | Select DisplayName).DisplayName
+        Write-Host "The tenant you're connected to is $($global:tenantDisplayName)" -ForegroundColor Green
     } catch {
         $activeTeamsSessions = Get-PSSession | Where-Object -FilterScript {$_.Name -like 'SfBPowerShellSessionViaTeamsModule*'}
         Write-Host
@@ -211,7 +304,9 @@ while ($mainLoop -eq $true) {
         $mainLoop = $false
     }
 
-
+    Clear-Host
+    Write-Host "Getting a list of all Resource Accounts..." -ForegroundColor Yellow
+    $Global:ResourceAccList = Get-CsOnlineApplicationInstance
 
     #Get the user's UPN
     $Global:UserDetail = Get-UserUPN
@@ -230,24 +325,39 @@ while ($mainLoop -eq $true) {
                 break
         }
         'rem' {
-                Write-Host
-                Write-Host
-                Write-Host "Remove the users phone number: $($UserDetail.OnPremLineURI)" -ForegroundColor Yellow
-                $error.Clear()
-                try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -ErrorAction Stop}
-                catch {write-host "Unable to remove the number $($UserDetail.OnPremLineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                Write-Host "OK" -ForegroundColor Green
+               $remconfirm = $null
+               while ($remconfirm -ne "yes" -and $remconfirm -ne "no") {
+                    Clear-Host
+                    Write-Host
+                    Write-Host
+                    Write-Host "Removing the users phone number: $($UserDetail.OnPremLineURI)" -ForegroundColor Yellow
+                    Write-Host
+                    Write-Host "Are you sure you want to remove this accounts number?" -ForegroundColor Yellow
+                    $remconfirm = Read-Host "yes/no"
+                }
 
-                Write-Host
-                Write-Host
-                Write-Host "Script Complete" -ForegroundColor Green
-                Write-Host
-                Write-Host
-                pause
+
+                if ($remconfirm -eq "yes") {
+                    $error.Clear()
+                    if ($Global:isResourceAccount) {
+                        try {Set-CsOnlineApplicationInstance -Identity $UserDetail.UserPrincipalName -OnpremPhoneNumber $null -ErrorAction Stop}
+                        catch {write-host "Unable to remove the number $($UserDetail.OnPremLineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                    } else {
+                        try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -ErrorAction Stop}
+                        catch {write-host "Unable to remove the number $($UserDetail.OnPremLineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                    }
+                    Write-Host "OK" -ForegroundColor Green
+                    Write-Host
+                    Write-Host
+                    Write-Host "Script Complete" -ForegroundColor Green
+                    Write-Host
+                    Write-Host
+                    Pause
+                }
                 
                 $nextConfirm = $null
                 while ($nextConfirm -ne 'n' -and $nextConfirm -ne 'e') {
-                    clear
+                    Clear-Host
                     Write-Host
                     Write-Host "What would you like to do now?"
                     Write-Host
@@ -259,38 +369,42 @@ while ($mainLoop -eq $true) {
                 if ($nextConfirm -eq 'e') {$mainLoop = $false; break}
         }
         'off' {
-                $remSelection = $null
-                while ($remSelection -ne 'yes' -and $remSelection -ne 'e') {
-                    clear
-                    Write-Host
-                    Write-Host "-- FINAL CHECK --"
-                    Write-Host
-                    Write-Host "User UPN Selected: $($UserUPN)"
-                    Write-Host "DisplayName: $($UserDetail.DisplayName)"
-                    Write-Host "DID Number: $($UserDetail.OnPremLineURI)"
-                    Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
-                    Write-Host "Online Voice Routing Policy: $($UserDetail.OnlineVoiceRoutingPolicy)"
-                    Write-Host "Tenant Dial Plan: $($UserDetail.TenantDialPlan)"
-                    Write-Host
-                    Write-Host "Are you sure you want to off-board this user from Teams Calling?" -ForegroundColor Yellow
-                    Write-Host
-                    Write-Host "yes    Remove all calling capabilities and numbers from the user"
-                    Write-Host "n      Select a different user"
-                    Write-Host "e      Exit script with no changes"
-                    Write-Host
-                    $remSelection = Read-Host "Please enter selection"
-                    $remSelection = $remSelection.trim()
-                }
-                # Switch the output of the $UserDID selection in case it's REM or OFF
-                switch($remSelection){
-                    'e' {
-                            $mainLoop = $false
-                            break
+                if ($Global:isResourceAccount) {
+                    Write-Host "Sorry there is no OFF for a resource account. Please run the REM command" -ForegroundColor Yellow
+                    Pause
+                } else {
+                    $remSelection = $null
+                    while ($remSelection -ne 'yes' -and $remSelection -ne 'e') {
+                        clear
+                        Write-Host
+                        Write-Host "-- FINAL CHECK --"
+                        Write-Host
+                        Write-Host "User UPN Selected: $($UserUPN)"
+                        Write-Host "DisplayName: $($UserDetail.DisplayName)"
+                        Write-Host "DID Number: $($UserDetail.OnPremLineURI)"
+                        Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
+                        Write-Host "Online Voice Routing Policy: $($UserDetail.OnlineVoiceRoutingPolicy)"
+                        Write-Host "Tenant Dial Plan: $($UserDetail.TenantDialPlan)"
+                        Write-Host
+                        Write-Host "Are you sure you want to off-board this user from Teams Calling?" -ForegroundColor Yellow
+                        Write-Host
+                        Write-Host "yes    Remove all calling capabilities and numbers from the user"
+                        Write-Host "n      Select a different user"
+                        Write-Host "e      Exit script with no changes"
+                        Write-Host
+                        $remSelection = Read-Host "Please enter selection"
+                        $remSelection = $remSelection.trim()
                     }
-                    'n' {
-                            $mainLoop = $true
-                    }
-                    'yes' {
+                    # Switch the output of the $UserDID selection in case it's REM or OFF
+                    switch($remSelection){
+                        'e' {
+                                $mainLoop = $false
+                                break
+                        }
+                        'n' {
+                                $mainLoop = $true
+                        }
+                                                                                                                                                                                                                                                                                                            'yes' {
                             clear
                             Write-Host
                             Write-Host "Removing all calling capabilities and numbers from the user"
@@ -365,12 +479,14 @@ while ($mainLoop -eq $true) {
 
 
                     }
-                }#end switch $remSelection
-
+                    }#end switch $remSelection
+                        
+                }
         }
         default {
                             ##############
                 #Get the users Extension number
+                $UserEXT = $null
                 $UserEXT = Get-UserEXT
 
                 if ($UserEXT -eq 'e') {$mainLoop = $false; break}
@@ -389,8 +505,9 @@ while ($mainLoop -eq $true) {
                     Write-Host
                     Write-Host "What dial plan should we assign to the user?"
                     Write-Host "User UPN: $($UserUPN)"
-                    Write-Host "User DID: $($UserDID)"
+                    if (-not $Global:isResourceAccount) {Write-Host "User DID: $($UserDID)"}
                     if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
+                    if ($Global:isResourceAccount) {Write-Host "Account is a resource account" -ForegroundColor Yellow}
                     Write-Host
                     If ($gotDialPlan.Count -gt 10) {
                         Write-Host "ID     PLAN NAME"
@@ -410,6 +527,13 @@ while ($mainLoop -eq $true) {
                         }
 
                         #add a space infront of the phone number if it's below 10
+                        Switch ($dialPlanName) {
+                            "AU-CentralEast" {$dialPlanName = "$($dialPlanName)      |  NSW & ACT"}
+                            "AU-Queensland" {$dialPlanName = "$($dialPlanName)       |  QLD"}
+                            "AU-CentralandWest" {$dialPlanName = "$($dialPlanName)   |  SA, NT & WA"}
+                            "AU-SouthEast" {$dialPlanName = "$($dialPlanName)        |  VIC & TAS"}
+                        }
+
                         If ($i -lt 9) {$dialPlanName = " $dialPlanName";}
             
                         Write-Host ($a, $dialPlanName) -Separator "    "
@@ -435,7 +559,7 @@ while ($mainLoop -eq $true) {
                 while ($selectvrp -notmatch $vrpPlanRegex) {
                     clear
                     Write-Host
-                    Write-Host "What dial plan should we assign to the user?"
+                    Write-Host "What Voice Routing Policy should we assign to the user?"
                     Write-Host "User UPN: $($UserUPN)"
                     Write-Host "User DID: $($UserDID)"
                     if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
@@ -471,15 +595,24 @@ while ($mainLoop -eq $true) {
 
                 $userReadyConfirm = $null
                 while ($userReadyConfirm -ne 'y' -and $userReadyConfirm -ne 'n' ) {
+                    
+                    $finalDialPlanName = $selectedDialPlan.Identity.Substring(4)
+                    Switch ($finalDialPlanName) {
+                            "AU-CentralEast" {$finalDialPlanName = "$($finalDialPlanName)      |  NSW & ACT"}
+                            "AU-Queensland" {$finalDialPlanName = "$($finalDialPlanName)       |  QLD"}
+                            "AU-CentralandWest" {$finalDialPlanName = "$($finalDialPlanName)   |  SA, NT & WA"}
+                            "AU-SouthEast" {$finalDialPlanName = "$($finalDialPlanName)        |  VIC & TAS"}
+                        }
+                    
                     clear
                     Write-Host
                     Write-Host "Lets check we're all ready to go!" -ForegroundColor Yellow
                     Write-Host
                     Write-Host "-----------------------------------------------------"
                     Write-Host "User UPN: $($UserUPN)"
-                    Write-Host "User DID: $($UserDID)"
+                    if (-not $Global:isResourceAccount) {Write-Host "User DID: $($UserDID)"}
                     if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
-                    Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
+                    Write-Host "Dial Plan: $($finalDialPlanName)"
                     Write-Host "Voice Routing Policy: $($selectedVrp.Identity.Substring(4))"
                     Write-Host "-----------------------------------------------------"
                     Write-Host
@@ -501,7 +634,7 @@ while ($mainLoop -eq $true) {
                 Write-Host
                 Write-Host "-----------------------------------------------------"
                 Write-Host "User UPN: $($UserUPN)"
-                Write-Host "User DID: $($UserDID)"
+                if (-not $Global:isResourceAccount) {Write-Host "User DID: $($UserDID)"}
                 if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
                 Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
                 Write-Host "Voice Routing Policy: $($selectedVrp.Identity.Substring(4))"
@@ -514,16 +647,32 @@ while ($mainLoop -eq $true) {
                 } else {
                     $UserNumberToAssign = "tel:$($UserDID)"
                 }
+                
+
+                $currentStep = 1
 
                 #Give the user a DID number and Voice Enable the user 
-                Write-Host "[1/3] | Assigning the number to the user and Voice Enabling the user" -ForegroundColor Yellow
-                $error.Clear()
-                Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
-                catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                Write-Host "OK" -ForegroundColor Green
+                if (-not $Global:isResourceAccount) { #Skip this if the account is a resource account
+                    $numOfSteps = 3
+                    Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the user and Voice Enabling the user" -ForegroundColor Yellow
+                    $error.Clear()
+                    Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
+                    catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                    Write-Host "OK" -ForegroundColor Green
+                } else {
+                    $numOfSteps = 3
+                    #$UserNumberToAssign = $UserDID #This line is here because there is a bug in MS Teams PS Module V2.3.0 where it wont accept the TEL:+000000000 format
+                    Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the Resource Account" -ForegroundColor Yellow
+                    $error.Clear()
+                    Try {Set-CsOnlineApplicationInstance -Identity "$UserUPN" -OnpremPhoneNumber $UserNumberToAssign | Out-Null}
+                    catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                    Write-Host "OK" -ForegroundColor Green
+                    pause
+                }
+                $currentStep++
 
                 Write-Host
-                Write-Host "[2/3] | Assigning the Voice Routing Policy" -ForegroundColor Yellow
+                Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the Voice Routing Policy" -ForegroundColor Yellow
                 $error.Clear()
                 try {
                     if ($selectedDialPlan.Identity -eq 'Global')
@@ -536,9 +685,10 @@ while ($mainLoop -eq $true) {
                 }
                 catch {write-host "Unable to assign the Voice Routing Policy to the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                 Write-Host "OK" -ForegroundColor Green
+                $currentStep++
 
                 Write-Host
-                Write-Host "[3/3] | Assigning the Dial Plan" -ForegroundColor Yellow
+                Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the Dial Plan" -ForegroundColor Yellow
                 $error.Clear()
                 try {
                     if ($selectedDialPlan.Identity -eq 'Global')
@@ -546,7 +696,7 @@ while ($mainLoop -eq $true) {
                         Write-Host "Global policy selected"
                         Grant-CsTenantDialPlan -Identity "$UserUPN" -PolicyName $null -ErrorAction Stop
                     } else {
-                        Grant-CsTenantDialPlan -Identity "$UserUPN" -PolicyName $selectedDialPlan.Identity -ErrorAction Stop
+                        Grant-CsTenantDialPlan -Identity "$($UserUPN)" -PolicyName $selectedDialPlan.Identity -ErrorAction Stop
                     }
                 }
                 catch {write-host "Unable to assign the Dial Plan to the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}

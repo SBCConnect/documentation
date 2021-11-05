@@ -66,7 +66,7 @@ function Get-UserUPN {
             if($UserUPN -ne $null) {Write-Host "$UserUPN isn't a valid UPN. A UPN looks like an email address" -ForegroundColor Yellow; Write-Host}
             Write-Host
             Write-Host "Please enter in the users full UPN that you're trying to edit"
-            Write-Host "- OR - type RA for a resoruce account"
+            Write-Host "- OR - type RA for a resource account"
             $UserUPN = Read-Host "Users UPN or RA"
             $UserUPN = $UserUPN.trim()
         }

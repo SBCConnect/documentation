@@ -31,6 +31,7 @@ Connect-MicrosoftTeams
 # - 0.4.3 - Force to use MicrosoftTeams PS module version 2.0.0
 # - 0.4.4 - Add in additional error message
 # - 0.4.5 - Update to new Teams PS module v2.3.0
+# - 0.4.6 - Update to new Teams PS module v2.3.1
 # 
 # Required Changes at a later date
 # - {nill}
@@ -39,7 +40,7 @@ Connect-MicrosoftTeams
 #
 ####
 
-$requiredMSTeamsPSModuleVersion = "2.3.0"
+$requiredMSTeamsPSModuleVersion = "2.3.1"
 
 #################################
 #
@@ -239,5 +240,4 @@ Write-Host "The tenant you've connected to is: $($tenant.DisplayName)" -Backgrou
 Write-Host
 Write-Host "You're ready to run any further scripts from the SBC Connect website now"
 Write-Host
-
 ````

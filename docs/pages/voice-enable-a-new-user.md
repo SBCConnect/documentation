@@ -32,7 +32,7 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 1.0
+# Script version 1.0.1
 #
 # - Updates to include Resource Account Management
 #
@@ -657,7 +657,7 @@ while ($mainLoop -eq $true) {
                     $numOfSteps = 3
                     Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the user and Voice Enabling the user" -ForegroundColor Yellow
                     $error.Clear()
-                    Try {Set-CsUser -Id "$($UserUPN)" -EnterpriseVoiceEnabled:$true -HostedVoiceMail:$true -PhoneNumber $UserNumberToAssign -ErrorAction Stop}
+                    Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
                     catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                     Write-Host "OK" -ForegroundColor Green
                 } else {

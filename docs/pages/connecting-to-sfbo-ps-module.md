@@ -20,8 +20,8 @@ Connect-MicrosoftTeams
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.4.5
-# 2021/11/05 - Jay Antoney
+# Login script Version 0.4.6
+# 2021/11/09 - Jay Antoney
 #
 # Changes
 # - 0.4 - Update to use the new Connect-MicrosoftTeams login action

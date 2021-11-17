@@ -1,12 +1,19 @@
 # Adding a new holiday schedule to Microsoft Teams.
 
+A Holiday Schedule provides the ability to add an out of office message to an Auto Attendant over a period of time and set it up for a future date where the policy will be applied and removed automatically.
+
+## Order of Preference
+Teams will preference the following order when a call comes in:
+- Holiday Schedule; then
+- Out of Hours schedule; then
+- During Hours.
 
 
 ## Steps to Create a Holiday Schedule
 1. Log into the **Microsoft Teams Admin Portal**.
    - https://admin.teams.microsoft.com/
 
-1. Go to **Org-wide settings** > **Holidays**.
+1. Go to **Voice** > **Holidays**.
 
 1. Click on **Add** to setup a new holiday.
 
@@ -46,7 +53,7 @@
 1. Log into the **Microsoft Teams Admin Portal**
    - https://admin.teams.microsoft.com/
 
-1. Go to **Org-wide settings** > **Holidays**
+1. Go to **Voice** > **Holidays**
 
 1. Select the holiday from the list.
 

@@ -1,6 +1,20 @@
 ############################
 # THIS SCRIPT CAN ONLY BE RUN ON A TENANT THAT DOESN'T ALREADY HAVE THE DIAL PLANS INSTALLED
 #############################
+#
+# Script version 1.1
+# Script last updated 2nd Decemeber 2021
+# Script by Jay Antoney - 5G Networks (5gn.com.au)
+#
+# CHANGES
+# - 1.1   - Update to support Microsoftteams Powershell module V3.0.0
+# 
+# Required Changes at a later date
+# - {nill}
+#
+# Any issues running script, try run the script on Windows 10 V20H2 or higher
+#
+#############################
 
 
 # $ErrorActionPreference can be set to SilentlyContinue, Continue, Stop, or Inquire for troubleshooting purposes
@@ -107,7 +121,7 @@ function New-PstnTrunk {
                 $addedPstnGWs = @()
                 Clear-Host
                 Write-Host "Checking all domains exist..." -ForegroundColor Yellow
-                $newPstnGws = @(Get-PstnDomainName $newPstnGwsToCheck)
+                $newPstnGws = @(Get-SBCPstnDomainName $newPstnGwsToCheck)
                 if ($newPstnGws.Length -gt 0) {
                     for ($c = 0; $c -lt $newPstnGws.Length; $c++) {
                         # Write-Host "Adding      $($newPstnGws[$c])" -ForegroundColor Yellow
@@ -145,25 +159,38 @@ function New-PstnTrunk {
         $newTrunk = $false
     }
 }
-function Get-PstnDomainName ($domains) {
+function Get-SBCPstnDomainName ($domains) {
     #Check that the domain exists in the tenant
     [System.Collections.ArrayList]$result = @()
     $issue = $false
     $returnDomains = @()
+    $existingDomainList = @()
     $global:PSTNGW = Get-CsOnlinePSTNGateway
+    $listVerifiedDomains = Get-CsTenant | select -ExpandProperty VerifiedDomains
     foreach ($d in $domains) {
-        $value = (Get-CsOnlineSipDomain -Domain $d).status
-        $val = [pscustomobject]@{'domain' = $d; 'result' = $value }
-        $result.add($val) | Out-Null
-        $val = $null
-        if ($value -ne 'Enabled') { $issue = $true }
-        if ($PSTNGW.Identity -match $d) {
-            Write-Host "[EXISTING]  $($d) is alrady configured as a PSTN Gateway in your tenant" -foregroundcolor Green
-        }
-        else {
-            $returnDomains += $d
-        }
+        Write-host "Processing domain $($d)" -ForegroundColor Yellow
+        #$value = (Get-CsOnlineSipDomain -Domain $d).status  #Old depricated command - tested PS v3.0.0
+          
+        #Search if domain is enabled
+        $dmresult = $null
+        #$d = "thestaffshop.com.au"
+        $dmresult = $listVerifiedDomains | Where-Object {$_.Name -eq $d}
+        if ($dmresult) {
+            
+            $result.add($dmresult) | Out-Null
+            if ($dmresult.Status -ne 'Enabled') { $issue = $true; Write-host "- Domain is NOT a valid domain" -ForegroundColor Red } else { Write-host "- Domain is a valid domain" -ForegroundColor Green}
+            if ($PSTNGW.Identity -match $d) {
+                $issue = $true
+                Write-Host "- Doamin is already configured as a PSTN Gateway in the tenant" -foregroundcolor Red
+                $existingDomainList += $d
+            }
+            else {
+                Write-Host "- Doamin is not already configured as a PSTN Gateway in the tenant" -ForegroundColor Green
+                $returnDomains += $d
+            }
+        } 
     }
+    
 
     if ($issue -ne $true) {
         return $returnDomains
@@ -175,6 +202,12 @@ function Get-PstnDomainName ($domains) {
         Write-Host
         foreach ($d in $result) {
             if ($d.result -ne 'Enabled') { Write-Host "-    $($d.domain)" -foregroundcolor Red }
+        }
+        Write-Host
+        Write-Host "The followng domains are already configured as a PSTN Gateway in the tenant." -foregroundcolor Red
+        Write-Host
+        foreach ($d in $existingDomainList) {
+            Write-Host "-    $($d)" -foregroundcolor Red
         }
         Write-Host
         Write-Host "If you've recently added the domain, then you may need to either:"
@@ -267,6 +300,8 @@ function Get-UserUPN {
 ################################################################
 #Check a PSTN Online Gateway is present, if not then we might be deploying a Derived Trunk, so ask
 $PSTNGW = $null
+Clear-Host
+Write-Host "Getting a list of PSTN Online Gateways..."
 $PSTNGW = Get-CsOnlinePSTNGateway
 
 

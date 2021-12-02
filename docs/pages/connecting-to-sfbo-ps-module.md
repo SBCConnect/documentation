@@ -20,8 +20,8 @@ Connect-MicrosoftTeams
 <i class="fas fa-keyboard"></i> **SBC-Easy PowerShell Code**
 ````PowerShell
 ####
-# Login script Version 0.4.6
-# 2021/11/09 - Jay Antoney
+# Login script Version 0.4.7
+# 2021/12/02 - Jay Antoney
 #
 # Changes
 # - 0.4 - Update to use the new Connect-MicrosoftTeams login action
@@ -32,6 +32,7 @@ Connect-MicrosoftTeams
 # - 0.4.4 - Add in additional error message
 # - 0.4.5 - Update to new Teams PS module v2.3.0
 # - 0.4.6 - Update to new Teams PS module v2.3.1
+# - 0.4.7 - Update to new Teams PS module v3.0.0
 # 
 # Required Changes at a later date
 # - {nill}
@@ -40,7 +41,7 @@ Connect-MicrosoftTeams
 #
 ####
 
-$requiredMSTeamsPSModuleVersion = "2.3.1"
+$requiredMSTeamsPSModuleVersion = "3.0.0"
 
 #################################
 #

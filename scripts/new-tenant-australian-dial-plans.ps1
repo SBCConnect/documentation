@@ -2,12 +2,13 @@
 # THIS SCRIPT CAN ONLY BE RUN ON A TENANT THAT DOESN'T ALREADY HAVE THE DIAL PLANS INSTALLED
 #############################
 #
-# Script version 1.1
-# Script last updated 2nd Decemeber 2021
+# Script version 1.2
+# Script last updated 4th Decemeber 2021
 # Script by Jay Antoney - 5G Networks (5gn.com.au)
 #
 # CHANGES
 # - 1.1   - Update to support Microsoftteams Powershell module V3.0.0
+# - 1.2   - Update to clarify the checks of a valid domain name
 # 
 # Required Changes at a later date
 # - {nill}
@@ -122,6 +123,10 @@ function New-PstnTrunk {
                 Clear-Host
                 Write-Host "Checking all domains exist..." -ForegroundColor Yellow
                 $newPstnGws = @(Get-SBCPstnDomainName $newPstnGwsToCheck)
+                Write-Host
+                Write-Host
+                Write-Host
+                Write-Host "Adding PSTN Gateways..."
                 if ($newPstnGws.Length -gt 0) {
                     for ($c = 0; $c -lt $newPstnGws.Length; $c++) {
                         # Write-Host "Adding      $($newPstnGws[$c])" -ForegroundColor Yellow
@@ -161,58 +166,69 @@ function New-PstnTrunk {
 }
 function Get-SBCPstnDomainName ($domains) {
     #Check that the domain exists in the tenant
-    [System.Collections.ArrayList]$result = @()
+    $unverifiedDomains = @()
     $issue = $false
     $returnDomains = @()
     $existingDomainList = @()
     $global:PSTNGW = Get-CsOnlinePSTNGateway
-    $listVerifiedDomains = Get-CsTenant | select -ExpandProperty VerifiedDomains
+    $listVerifiedDomains = @()
+    $listVerifiedDomains = Get-CsTenant | select -ExpandProperty SipDomain
     foreach ($d in $domains) {
         Write-host "Processing domain $($d)" -ForegroundColor Yellow
-        #$value = (Get-CsOnlineSipDomain -Domain $d).status  #Old depricated command - tested PS v3.0.0
-          
-        #Search if domain is enabled
-        $dmresult = $null
-        #$d = "thestaffshop.com.au"
-        $dmresult = $listVerifiedDomains | Where-Object {$_.Name -eq $d}
-        if ($dmresult) {
-            
-            $result.add($dmresult) | Out-Null
-            if ($dmresult.Status -ne 'Enabled') { $issue = $true; Write-host "- Domain is NOT a valid domain" -ForegroundColor Red } else { Write-host "- Domain is a valid domain" -ForegroundColor Green}
+        #$d = "5557-SDC.sbcconnect.com.au"   #TEST LINE
+        #if ($listVerifiedDomains -match $d) {write-host "match"} else { Write-Host "NOT MATCH"}   #TEST LINE
+        if ($listVerifiedDomains -match $d) {
+            Write-host "- Domain is a valid domain" -ForegroundColor Green
+
             if ($PSTNGW.Identity -match $d) {
                 $issue = $true
                 Write-Host "- Doamin is already configured as a PSTN Gateway in the tenant" -foregroundcolor Red
                 $existingDomainList += $d
-            }
-            else {
+            } else {
                 Write-Host "- Doamin is not already configured as a PSTN Gateway in the tenant" -ForegroundColor Green
                 $returnDomains += $d
             }
-        } 
+        } else {
+            $issue = $true
+            Write-host "- Domain is NOT a valid domain" -ForegroundColor Red
+            $listVerifiedDomains
+            $unverifiedDomains += $d
+        }
+
     }
     
-
     if ($issue -ne $true) {
         return $returnDomains
     }
     else {
         Clear-Host
-        Write-Host
-        Write-Host "The followng domains aren't active in the tenant." -foregroundcolor Red
-        Write-Host
-        foreach ($d in $result) {
-            if ($d.result -ne 'Enabled') { Write-Host "-    $($d.domain)" -foregroundcolor Red }
+        if ($unverifiedDomains) {
+            Write-Host
+            Write-Host "The followng domains aren't active in the tenant." -foregroundcolor Red
+            Write-Host
+            foreach ($d in $unverifiedDomains) {
+                Write-Host "-    $($d)" -foregroundcolor Red
+            }
+            Write-Host
+        }
+        if ($existingDomainList) {
+            Write-Host "The followng domains are already configured as a PSTN Gateway in the tenant." -foregroundcolor Red
+            Write-Host
+            foreach ($d in $existingDomainList) {
+                Write-Host "-    $($d)" -foregroundcolor Red
+            }
+            Write-Host
         }
         Write-Host
-        Write-Host "The followng domains are already configured as a PSTN Gateway in the tenant." -foregroundcolor Red
         Write-Host
-        foreach ($d in $existingDomainList) {
-            Write-Host "-    $($d)" -foregroundcolor Red
-        }
+        Write-Host "OPPS - It seems that we weren't able to verify any of the domains you entered" -ForegroundColor Yellow
         Write-Host
         Write-Host "If you've recently added the domain, then you may need to either:"
         Write-Host "- Assign the domain as a primary UPN domain to a licensed user; OR"
         Write-Host "- Wait at least 2 hours after assigning the domain to a user as their Primary UPN Domain."
+        Write-Host
+        Write-Host
+        Write-Host "Alternatively, There may have been a generic error and no domains were able to be verified. Please try re-run the script or wait 1 hour before trying a third time"
         Write-Host
         Write-Host
         Write-Host "Sorry, but we can't continue the script until you've completed all the following steps:"
@@ -338,9 +354,9 @@ if (!$PSTNGW) {
             while ($anotherTrunk -eq 'y') {
                 New-PstnTrunk
                 while ($anotherTrunkInput -ne 'y' -and $anotherTrunkInput -ne 'n') {
-                    Write-Host "Do you want to add another PSTN Gateway?" -ForegroundColor Yellow
+                    Write-Host "TENANT PSTN GATEWAYS" -ForegroundColor Yellow
                     Write-Host
-                    Write-Host "Curent PSTN Gateways are"
+                    Write-Host "Current PSTN Gateways are"
                     foreach ($p in $PSTNGW) {
                         Write-Host "-    $($p.Identity)"
                     }

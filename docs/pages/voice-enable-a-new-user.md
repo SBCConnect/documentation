@@ -32,9 +32,10 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 1.0.1
+# Script version 1.1.0
 #
 # - Updates to include Resource Account Management
+# - V1.1.0 - Update to LuneURI from OnPremLineURI
 #
 # TO DO
 # - Confirm if this line is still required - Somewhere around line 631
@@ -42,7 +43,7 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 #
 # Written by Jay Antoney
 # 5G Networks
-# 5 November 2021
+# 14 December 2021
 #
 #####################
 
@@ -103,7 +104,7 @@ function Display-UserDetails {
         Write-Host "DisplayName: $($UserDetail.DisplayName)"
         Write-Host "Is a resource account? " -NoNewline
         if ($Global:isResourceAccount) {Write-Host "Yes" -ForegroundColor Yellow} else {Write-Host "No"}
-        Write-Host "DID Number: $($UserDetail.OnPremLineURI)"
+        Write-Host "DID Number: $($UserDetail.LineURI)"
         Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
         if ([string]::IsNullOrWhiteSpace($UserDetail.OnlineVoiceRoutingPolicy)){
             Write-Host "Online Voice Routing Policy: {NONE SET}" -foregroundcolor Yellow
@@ -331,7 +332,7 @@ while ($mainLoop -eq $true) {
                     Clear-Host
                     Write-Host
                     Write-Host
-                    Write-Host "Removing the users phone number: $($UserDetail.OnPremLineURI)" -ForegroundColor Yellow
+                    Write-Host "Removing the users phone number: $($UserDetail.LineURI)" -ForegroundColor Yellow
                     Write-Host
                     Write-Host "Are you sure you want to remove this accounts number?" -ForegroundColor Yellow
                     $remconfirm = Read-Host "yes/no"
@@ -342,10 +343,10 @@ while ($mainLoop -eq $true) {
                     $error.Clear()
                     if ($Global:isResourceAccount) {
                         try {Set-CsOnlineApplicationInstance -Identity $UserDetail.UserPrincipalName -OnpremPhoneNumber $null -ErrorAction Stop}
-                        catch {write-host "Unable to remove the number $($UserDetail.OnPremLineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                        catch {write-host "Unable to remove the number $($UserDetail.LineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                     } else {
-                        try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -ErrorAction Stop}
-                        catch {write-host "Unable to remove the number $($UserDetail.OnPremLineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                        try {Set-CsUser -Identity $UserDetail.UserPrincipalName -LineURI $null -ErrorAction Stop}
+                        catch {write-host "Unable to remove the number $($UserDetail.LineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                     }
                     Write-Host "OK" -ForegroundColor Green
                     Write-Host
@@ -382,7 +383,7 @@ while ($mainLoop -eq $true) {
                         Write-Host
                         Write-Host "User UPN Selected: $($UserUPN)"
                         Write-Host "DisplayName: $($UserDetail.DisplayName)"
-                        Write-Host "DID Number: $($UserDetail.OnPremLineURI)"
+                        Write-Host "DID Number: $($UserDetail.LineURI)"
                         Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
                         Write-Host "Online Voice Routing Policy: $($UserDetail.OnlineVoiceRoutingPolicy)"
                         Write-Host "Tenant Dial Plan: $($UserDetail.TenantDialPlan)"
@@ -427,7 +428,7 @@ while ($mainLoop -eq $true) {
                             
                             Write-Host "[3/3] | Removing the users phone number and disabling Enterprise Voice" -ForegroundColor Yellow
                             $error.Clear()
-                            Try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -EnterpriseVoiceEnabled $false -HostedVoiceMail $false -ErrorAction Stop}
+                            Try {Set-CsUser -Identity $UserDetail.UserPrincipalName -LineURI $null -EnterpriseVoiceEnabled $false -HostedVoiceMail $false -ErrorAction Stop}
                             catch {write-host "Unable to remove the number from the user or Disable Enterprise Voice" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                             Write-Host "OK" -ForegroundColor Green
                             Write-Host
@@ -657,7 +658,7 @@ while ($mainLoop -eq $true) {
                     $numOfSteps = 3
                     Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the user and Voice Enabling the user" -ForegroundColor Yellow
                     $error.Clear()
-                    Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
+                    Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -LineURI $UserNumberToAssign -ErrorAction Stop}
                     catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                     Write-Host "OK" -ForegroundColor Green
                 } else {

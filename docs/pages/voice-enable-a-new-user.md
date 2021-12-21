@@ -32,10 +32,12 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 1.1.0
+# Script version 1.1.1
 #
 # - Updates to include Resource Account Management
 # - V1.1.0 - Update to LuneURI from OnPremLineURI
+# - V1.1.1 - Change to LuneURI back to OnPremLineURI after errors "Unable to set "LineURI". This parameter is restricted within Remote Tenant PowerShell."
+#          - Resolved error in EXT processing that resulted in no extension number being set
 #
 # TO DO
 # - Confirm if this line is still required - Somewhere around line 631
@@ -43,7 +45,7 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 #
 # Written by Jay Antoney
 # 5G Networks
-# 14 December 2021
+# 21 December 2021
 #
 #####################
 
@@ -245,7 +247,7 @@ function Get-UserEXT {
     #Get the users Extension Number
     while($UserEXT -notmatch $EXTRegex -and $UserEXT -ne 'e' -and $UserEXT -ne $null -and $Global:isResourceAccount -eq $false)
     {
-        if ($UserEXT = "TBA") {$UserEXT = $null}
+        if ($UserEXT -eq "TBA") {$UserEXT = $null}
         Clear
         Write-Host
         Display-UserDetails
@@ -271,7 +273,7 @@ function Get-UserEXT {
         if ([string]::IsNullOrEmpty( $UserEXT )) {$UserEXT = $null}
         Write-Host
     }
-    if ($UserEXT = "TBA") {$UserEXT = $null}
+    if ($UserEXT -eq "TBA") {$UserEXT = $null}
     return $UserEXT
 }
 
@@ -656,9 +658,9 @@ while ($mainLoop -eq $true) {
                 #Give the user a DID number and Voice Enable the user 
                 if (-not $Global:isResourceAccount) { #Skip this if the account is a resource account
                     $numOfSteps = 3
-                    Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the user and Voice Enabling the user" -ForegroundColor Yellow
+                    Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the user and Voice Enabling the user    |    $($UserNumberToAssign)" -ForegroundColor Yellow
                     $error.Clear()
-                    Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -LineURI $UserNumberToAssign -ErrorAction Stop}
+                    Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
                     catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                     Write-Host "OK" -ForegroundColor Green
                 } else {

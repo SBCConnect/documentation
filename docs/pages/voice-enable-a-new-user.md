@@ -32,13 +32,14 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 1.1.2
+# Script version 1.2-beta1
 #
 # - Updates to include Resource Account Management
 # - V1.1.0 - Update to LuneURI from OnPremLineURI
 # - V1.1.1 - Change to LuneURI back to OnPremLineURI after errors "Unable to set "LineURI". This parameter is restricted within Remote Tenant PowerShell."
 #          - Resolved error in EXT processing that resulted in no extension number being set
 # - V1.1.2 - Update rem and off to OnPremLineURI from LineURI
+# - v1.2-beta1 - Begin to change RA selection to a table process
 #
 # TO DO
 # - Confirm if this line is still required - Somewhere around line 631
@@ -98,6 +99,39 @@ function Get-UserUPN {
 }
 
 
+function Format-PhoneNumber{
+
+param(
+[Parameter (Mandatory = $true)] [String]$number
+)
+
+    switch($number.Substring(0,3)){
+                611 {
+                        $phoneNum = $number.Substring(0,2) + " " + $number.Substring(2,4) + " " + $number.Substring(6,3) + " " + $number.Substring(9,3)
+                }
+                614 {
+                        $phoneNum = $number.Substring(0,2) + " 0" + $number.Substring(2,3) + " " + $number.Substring(5,3) + " " + $number.Substring(8,3)
+                }
+                612 {
+                        $phoneNum = $number.Substring(0,2) + " 0" + $number.Substring(2,1) + " " + $number.Substring(3,4) + " " + $number.Substring(7,4)
+                }
+                617 {
+                        $phoneNum = $number.Substring(0,2) + " 0" + $number.Substring(2,1) + " " + $number.Substring(3,4) + " " + $number.Substring(7,4)
+                }
+                618 {
+                        $phoneNum = $number.Substring(0,2) + " 0" + $number.Substring(2,1) + " " + $number.Substring(3,4) + " " + $number.Substring(7,4)
+                }
+                613 {
+                        $phoneNum = $number.Substring(0,2) + " 0" + $number.Substring(2,1) + " " + $number.Substring(3,4) + " " + $number.Substring(7,4)
+                }
+                default {
+                    $phoneNum = $number
+                }
+
+            }
+            return $phoneNum
+}
+
 
 function Display-UserDetails {
     $UserDetail = $Global:UserDetail
@@ -142,50 +176,50 @@ function Get-sbcResourceAccounts {
 
     # List all the Resource accounts and prompt the user to select them
     If ($ResourceAcc.Count -gt 1) {
-        $ResourceAccList = @()
+        $ResourceAccTable = @()
         Write-Host
-        If ($ResourceAcc.Count -gt 10) {
-          Write-Host "ID     Phone Number        Type               Resource Account"
-          Write-Host "==     ============        ====               ============"
-        } else {
-          Write-Host "ID    Phone Number        Type               Resource Account"
-          Write-Host "==    ============        ====               ============"
-        }
+
         For ($i=0; $i -lt $ResourceAcc.Count; $i++) {
             $a = $i + 1
-            
+            Write-host "1" -ForegroundColor Red
             #Check what the account type is
             Switch ($ResourceAcc[$i].ApplicationId)
             {
                 ce933385-9390-45d1-9512-c8d228074e07 {$type = "Auto Attendant"}
                 11cd3e2e-fccb-42ad-ad00-878b93575e07 {$type = "Call Queue    "}
-                default {$type = "              "}
+                default {$type = "{UNKNOWN}"}
             }
-            
-            #Check if there is already a phone number on the account
-            if ($ResourceAcc[$i].PhoneNumber)
-            {
-              $phoneNumber = ($ResourceAcc[$i].PhoneNumber).SubString(4)
-              #Pad the phone number to 15 characters
-              while ($phoneNumber.length -lt 15) {$phoneNumber = "$phoneNumber "}
-            } else {
-              $phoneNumber = "               "
+
+            if ($ResourceAcc[$i].PhoneNumber) {
+                $pnumber = Format-PhoneNumber -number $ResourceAcc[$i].PhoneNumber
+                } else {
+                $pnumber = ""
+                }
+                Write-host "2" -ForegroundColor Red
+
+            $row = "" | Select-Object Id,PhoneNumber,Type,AccountUPN
+            $row.id = $a.ToString() + "   "
+            $row.phonenumber = $pnumber + "   "
+            $row.type = $type + "   "
+            $row.accountUPN = $ResourceAcc[$i].UserPrincipalName
+
+            $ResourceAccTable += $row
+
             }
-            #add a space infront of the phone number if it's below 10
-            If ($i -lt 9) {$phoneNumber = " $phoneNumber";}
-            
-            Write-Host ($a, $phoneNumber, $type, $ResourceAcc[$i].UserPrincipalName) -Separator "     "
-        }
+            Write-host "3" -ForegroundColor Red
+           $ResourceAccTable | Format-Table -AutoSize
+           $ResourceAccTable
+
         $Range = '(1-' + $ResourceAcc.Count + ')'
         Write-Host
         $Select = Read-Host "Select a Resource Account to Assign number to" $Range
-        $ResourceAccList += $ResourceAcc[$Select-1]
+        $ResourceAccToReturn = $ResourceAcc[$Select-1]
     }
     Else { # There is only one Resource Account
-        $ResourceAccList = Get-CsOnlineApplicationInstance
+        $ResourceAccToReturn = Get-CsOnlineApplicationInstance
     }
 
-    Return $ResourceAccList
+    Return $ResourceAccToReturn.UserPrincipalName
 }
 
 function Get-UserDID {
@@ -429,6 +463,7 @@ while ($mainLoop -eq $true) {
                             catch {write-host "Unable to remove the Dial Plan from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                             Write-Host "OK" -ForegroundColor Green
                             
+                            Write-Host
                             Write-Host "[3/3] | Removing the users phone number and disabling Enterprise Voice" -ForegroundColor Yellow
                             $error.Clear()
                             Try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -EnterpriseVoiceEnabled $false -HostedVoiceMail $false -ErrorAction Stop}

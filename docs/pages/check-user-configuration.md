@@ -79,8 +79,14 @@ if ("TeamsOnly" -eq $UserDetail.TeamsUpgradeEffectiveMode) {Write-Host "Pass" -F
 Write-Host "HostedVoicemail                = $($UserDetail.HostedVoicemail) - " -NoNewline
 if ($UserDetail.HostedVoicemail -eq $true) {Write-Host "Pass" -ForegroundColor Green} else {Write-Host "FAIL" -ForegroundColor Red; Write-Host "  Users voicemail not hosted online. Run Set-CsUser with the '-HostedVoiceMail `$true' option to resolve" -ForegroundColor Yellow}
 
+Write-Host "-----------------"
 
+Write-Host "User's Call Forward Settings... loading"
+Write-Host
 
+Get-CsUserCallingSettings -Identity $UserDetail.UserPrincipalName
+
+Write-Host
 Write-Host "-----------------"
 
 

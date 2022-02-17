@@ -32,13 +32,14 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 1.1.2
+# Script version 1.1.3
 #
 # - Updates to include Resource Account Management
 # - V1.1.0 - Update to LuneURI from OnPremLineURI
 # - V1.1.1 - Change to LuneURI back to OnPremLineURI after errors "Unable to set "LineURI". This parameter is restricted within Remote Tenant PowerShell."
 #          - Resolved error in EXT processing that resulted in no extension number being set
 # - V1.1.2 - Update rem and off to OnPremLineURI from LineURI
+# - V1.1.3 - Correction to Dial Plan and Voice Routing Policy selection screens where there was either Only GLOBAL or GLOBAL + 1 available for selection
 #
 # TO DO
 # - Confirm if this line is still required - Somewhere around line 631
@@ -46,7 +47,7 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 #
 # Written by Jay Antoney
 # 5G Networks
-# 07 February 2022
+# 17 February 2022
 #
 #####################
 
@@ -521,7 +522,13 @@ while ($mainLoop -eq $true) {
                         Write-Host "ID    PLAN NAME"
                         Write-Host "--    ---------"
                     }
-                    For ($i=0; $i -lt $gotDialPlan.Count; $i++) {
+
+                    if ($gotDialPlan.Count -le 0) {
+                        $totalDialplanCount = 1
+                    } else {
+                        $totalDialplanCount = $gotDialPlan.Count
+                    }
+                    For ($i=0; $i -lt $totalDialplanCount; $i++) {
                         $a = $i + 1
             
                         #Check if there is already a phone number on the account
@@ -549,6 +556,15 @@ while ($mainLoop -eq $true) {
                     $selectedDialPlan = $gotDialPlan[$selectDialPlan-1]
                 }
 
+                $finalDialPlanName = $selectedDialPlan.Identity.Substring(4)
+                    Switch ($finalDialPlanName) {
+                            "AU-CentralEast" {$finalDialPlanName = "$($finalDialPlanName)      |  NSW & ACT"}
+                            "AU-Queensland" {$finalDialPlanName = "$($finalDialPlanName)       |  QLD"}
+                            "AU-CentralandWest" {$finalDialPlanName = "$($finalDialPlanName)   |  SA, NT & WA"}
+                            "AU-SouthEast" {$finalDialPlanName = "$($finalDialPlanName)        |  VIC & TAS"}
+                            DEFAULT {$finalDialPlanName = $selectedDialPlan.Identity}
+                        }
+
 
                 ##############
                 # List and select the Voice Routing Policy to assign to the user
@@ -568,8 +584,9 @@ while ($mainLoop -eq $true) {
                     Write-Host "User UPN: $($UserUPN)"
                     Write-Host "User DID: $($UserDID)"
                     if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
-                    Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
+                    Write-Host "Dial Plan: $($finalDialPlanName)"
                     Write-Host
+
                     If ($gotVRP.Count -gt 10) {
                         Write-Host "ID     PLAN NAME"
                         Write-Host "--     ---------"
@@ -577,7 +594,14 @@ while ($mainLoop -eq $true) {
                         Write-Host "ID    PLAN NAME"
                         Write-Host "--    ---------"
                     }
-                    For ($i=0; $i -lt $gotVRP.Count; $i++) {
+
+                    if ($gotVRP.Count -le 0) {
+                        $totalVRPCount = 1
+                    } else {
+                        $totalVRPCount = $gotVRP.Count
+                    }
+
+                    For ($i=0; $i -lt $totalVRPCount; $i++) {
                         $a = $i + 1
             
                         #Check if there is already a phone number on the account
@@ -592,22 +616,16 @@ while ($mainLoop -eq $true) {
             
                         Write-Host ($a, $vrpPlanName) -Separator "    "
                     }
-                    $Range = '(1-' + $gotDialPlan.Count + ')'
+                    $Range = '(1-' + $gotVRP.Count + ')'
                     Write-Host
-                    $selectvrp = Read-Host "Select dial plan to assign " $Range
+                    $selectvrp = Read-Host "Select voice routing policy to assign " $Range
                     $selectedVrp = $gotVRP[$selectvrp-1]
                 }
 
                 $userReadyConfirm = $null
                 while ($userReadyConfirm -ne 'y' -and $userReadyConfirm -ne 'n' ) {
                     
-                    $finalDialPlanName = $selectedDialPlan.Identity.Substring(4)
-                    Switch ($finalDialPlanName) {
-                            "AU-CentralEast" {$finalDialPlanName = "$($finalDialPlanName)      |  NSW & ACT"}
-                            "AU-Queensland" {$finalDialPlanName = "$($finalDialPlanName)       |  QLD"}
-                            "AU-CentralandWest" {$finalDialPlanName = "$($finalDialPlanName)   |  SA, NT & WA"}
-                            "AU-SouthEast" {$finalDialPlanName = "$($finalDialPlanName)        |  VIC & TAS"}
-                        }
+                    
                     
                     clear
                     Write-Host
@@ -641,7 +659,7 @@ while ($mainLoop -eq $true) {
                 Write-Host "User UPN: $($UserUPN)"
                 Write-Host "User DID: $($UserDID)"
                 if ($userEXT) {Write-Host "User EXT: $($UserEXT)"}
-                Write-Host "Dial Plan: $($selectedDialPlan.Identity.Substring(4))"
+                Write-Host "Dial Plan: $($finalDialPlanName)"
                 Write-Host "Voice Routing Policy: $($selectedVrp.Identity.Substring(4))"
                 Write-Host "-----------------------------------------------------"
                 Write-Host
@@ -680,7 +698,7 @@ while ($mainLoop -eq $true) {
                 Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the Voice Routing Policy" -ForegroundColor Yellow
                 $error.Clear()
                 try {
-                    if ($selectedDialPlan.Identity -eq 'Global')
+                    if ($selectedVrp.Identity -eq 'Global')
                     {
                         Write-Host "Global policy selected"
                         Grant-CsOnlineVoiceRoutingPolicy -Identity "$UserUPN" -PolicyName $null -ErrorAction Stop

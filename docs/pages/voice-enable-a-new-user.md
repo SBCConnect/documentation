@@ -32,7 +32,7 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 ````PowerShell
 ######## DO NOT CHANGE BELOW THIS LINE - THE SCRIPT WILL PROMT FOR ALL VARIABLES ########
 #
-# Script version 1.1.3
+# Script version 1.2
 #
 # - Updates to include Resource Account Management
 # - V1.1.0 - Update to LuneURI from OnPremLineURI
@@ -40,6 +40,7 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 #          - Resolved error in EXT processing that resulted in no extension number being set
 # - V1.1.2 - Update rem and off to OnPremLineURI from LineURI
 # - V1.1.3 - Correction to Dial Plan and Voice Routing Policy selection screens where there was either Only GLOBAL or GLOBAL + 1 available for selection
+# - V1.2.0 - Updates to the powershell modules after a login default of V4.1.1 was required
 #
 # TO DO
 # - Confirm if this line is still required - Somewhere around line 631
@@ -47,7 +48,7 @@ Need to connect? See [Connecting to Skype for Business Online PowerShell Module]
 #
 # Written by Jay Antoney
 # 5G Networks
-# 17 February 2022
+# 28 JUNE 2022
 #
 #####################
 
@@ -215,8 +216,8 @@ function Get-UserDID {
         Write-Host "A DID must be in E.164 Format. IE: +61299995555"
         Write-Host
         Write-Host "-or enter-"
-        Write-Host "rem      Remove the number from the user but leave calling capabilites enabled"
-        Write-Host "off      Remove all calling capabilities and numbers from the user"
+        Write-Host "rem      Remove the number from the user and disable enterprise calling"
+        #Write-Host "off      Remove all calling capabilities and numbers from the user"   ### REMOVED from V1.2.0 as there is no difference between rem and off now - Jay A
         Write-Host "n        Next User"
         Write-Host "e        Exit"
         Write-Host
@@ -338,20 +339,24 @@ while ($mainLoop -eq $true) {
                     Write-Host
                     Write-Host "Removing the users phone number: $($UserDetail.LineURI)" -ForegroundColor Yellow
                     Write-Host
-                    Write-Host "Are you sure you want to remove this accounts number?" -ForegroundColor Yellow
+                    Write-Host "Are you sure you want to remove this accounts phone number?" -ForegroundColor Yellow
                     $remconfirm = Read-Host "yes/no"
                 }
 
-
+                 
                 if ($remconfirm -eq "yes") {
                     $error.Clear()
-                    if ($Global:isResourceAccount) {
-                        try {Set-CsOnlineApplicationInstance -Identity $UserDetail.UserPrincipalName -OnpremPhoneNumber $null -ErrorAction Stop}
-                        catch {write-host "Unable to remove the number $($UserDetail.LineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                    } else {
-                        try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -ErrorAction Stop}
-                        catch {write-host "Unable to remove the number $($UserDetail.LineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                    }
+                        try {Remove-CsPhoneNumberAssignment -Identity $UserDetail.UserPrincipalName -RemoveAll -ErrorAction Stop}
+                        catch {write-host "Unable to remove the number $($UserDetail.LineURI) from the user $($UserDetail.UserPrincipalName)" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+
+                    # Below block removed from V1.2.0 onwards - JAY A
+                    #if ($Global:isResourceAccount) {
+                    #    try {Set-CsOnlineApplicationInstance -Identity $UserDetail.UserPrincipalName -OnpremPhoneNumber $null -ErrorAction Stop}
+                    #    catch {write-host "Unable to remove the number $($UserDetail.LineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                    #} else {
+                    #    try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -ErrorAction Stop}
+                    #    catch {write-host "Unable to remove the number $($UserDetail.LineURI) from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+                    #}
                     Write-Host "OK" -ForegroundColor Green
                     Write-Host
                     Write-Host
@@ -374,121 +379,121 @@ while ($mainLoop -eq $true) {
                 }
                 if ($nextConfirm -eq 'e') {$mainLoop = $false; break}
         }
-        'off' {
-                if ($Global:isResourceAccount) {
-                    Write-Host "Sorry there is no OFF for a resource account. Please run the REM command" -ForegroundColor Yellow
-                    Pause
-                } else {
-                    $remSelection = $null
-                    while ($remSelection -ne 'yes' -and $remSelection -ne 'e') {
-                        clear
-                        Write-Host
-                        Write-Host "-- FINAL CHECK --"
-                        Write-Host
-                        Write-Host "User UPN Selected: $($UserUPN)"
-                        Write-Host "DisplayName: $($UserDetail.DisplayName)"
-                        Write-Host "DID Number: $($UserDetail.LineURI)"
-                        Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
-                        Write-Host "Online Voice Routing Policy: $($UserDetail.OnlineVoiceRoutingPolicy)"
-                        Write-Host "Tenant Dial Plan: $($UserDetail.TenantDialPlan)"
-                        Write-Host
-                        Write-Host "Are you sure you want to off-board this user from Teams Calling?" -ForegroundColor Yellow
-                        Write-Host
-                        Write-Host "yes    Remove all calling capabilities and numbers from the user"
-                        Write-Host "n      Select a different user"
-                        Write-Host "e      Exit script with no changes"
-                        Write-Host
-                        $remSelection = Read-Host "Please enter selection"
-                        $remSelection = $remSelection.trim()
-                    }
-                    # Switch the output of the $UserDID selection in case it's REM or OFF
-                    switch($remSelection){
-                        'e' {
-                                $mainLoop = $false
-                                break
-                        }
-                        'n' {
-                                $mainLoop = $true
-                        }
-                                                                                                                                                                                                                                                                                                            'yes' {
-                            clear
-                            Write-Host
-                            Write-Host "Removing all calling capabilities and numbers from the user"
-                            
-                            Write-Host
-                            Write-Host
-                            Write-Host "[1/3] | Remove the users Voice Routing Policy" -ForegroundColor Yellow
-                            $error.Clear()
-                            try {Grant-CsOnlineVoiceRoutingPolicy -Identity $UserDetail.UserPrincipalName -PolicyName $null -ErrorAction Stop}
-                            catch {write-host "Unable to remove the Voice Routing Policy from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                            Write-Host "OK" -ForegroundColor Green
-
-                            Write-Host
-                            Write-Host "[2/3] | Remove the Dial Plan" -ForegroundColor Yellow
-                            $error.Clear()
-                            try {Grant-CsTenantDialPlan -Identity $UserDetail.UserPrincipalName -PolicyName $null -ErrorAction Stop}
-                            catch {write-host "Unable to remove the Dial Plan from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                            Write-Host "OK" -ForegroundColor Green
-                            
-                            Write-Host "[3/3] | Removing the users phone number and disabling Enterprise Voice" -ForegroundColor Yellow
-                            $error.Clear()
-                            Try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -EnterpriseVoiceEnabled $false -HostedVoiceMail $false -ErrorAction Stop}
-                            catch {write-host "Unable to remove the number from the user or Disable Enterprise Voice" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                            Write-Host "OK" -ForegroundColor Green
-                            Write-Host
-                            Write-Host
-
-                            #Confirm that voice services have been removed
-                            Write-Host "Waiting 4 seconds for scripts to complete..."
-                            Start-Sleep -Seconds 4
-                            Write-Host "Confirming users voice services have been disabled"
-                            Write-Host
-                            
-                            #Get the user's UPN
-                            $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
-                            
-                            #Check enterprisevoiceenabled is $false
-                            if ($Global:UserDetail.enterprisevoiceenabled -eq $true) {
-                                #enterprisevoiceenabled is still enabled
-                                $ievecheck = 0;
-                                while ($Global:UserDetail.enterprisevoiceenabled -eq $true -and $ievecheck -lt 2) {
-                                    Write-Host "Scripts not complete - Waiting a further 4 seconds for scripts to complete..."
-                                    Start-Sleep -Seconds 4
-                                    $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
-                                    Write-Host
-                                    $ievecheck++
-                                }
-                                if ($ievecheck -gt 2) {Write-Host "Scripts have been run but are taking longer than expected to complete. Please wait 20 minutes for the platform to remove the calling capabilities from the user" -ForegroundColor Yellow; Write-Host;}
-                            } else {
-                                #enterprisevoiceenabled has been disabled
-                                Write-Host "The users voice services have been disabled and numbers removed" -ForegroundColor Green
-                                Write-Host
-                            }
-
-                            Write-Host
-                            Write-Host "Script Complete" -ForegroundColor Green
-                            Write-Host
-                            
-                            #Check with the user what to do now                                            
-                            $nextConfirm = $null
-                            while ($nextConfirm -ne 'n' -and $nextConfirm -ne 'e') {
-                                clear
-                                Write-Host
-                                Write-Host "What would you like to do now?"
-                                Write-Host
-                                Write-Host "n     Next user"
-                                Write-Host "e     Exit"
-                                Write-Host
-                                $nextConfirm = Read-Host "Please confirm all OK [n/e]"
-                            }
-                            if ($nextConfirm -eq 'e') {$mainLoop = $false; break}
-
-
-                    }
-                    }#end switch $remSelection
-                        
-                }
-        }
+#        'off' {
+#                if ($Global:isResourceAccount) {
+#                    Write-Host "Sorry there is no OFF for a resource account. Please run the REM command" -ForegroundColor Yellow
+#                    Pause
+#                } else {
+#                    $remSelection = $null
+#                    while ($remSelection -ne 'yes' -and $remSelection -ne 'e') {
+#                        clear
+#                        Write-Host
+#                        Write-Host "-- FINAL CHECK --"
+#                        Write-Host
+#                        Write-Host "User UPN Selected: $($UserUPN)"
+#                        Write-Host "DisplayName: $($UserDetail.DisplayName)"
+#                        Write-Host "DID Number: $($UserDetail.LineURI)"
+#                        Write-Host "Hosted Voicemail Policy: $($UserDetail.HostedVoicemailPolicy)"
+#                        Write-Host "Online Voice Routing Policy: $($UserDetail.OnlineVoiceRoutingPolicy)"
+#                        Write-Host "Tenant Dial Plan: $($UserDetail.TenantDialPlan)"
+#                        Write-Host
+#                        Write-Host "Are you sure you want to off-board this user from Teams Calling?" -ForegroundColor Yellow
+#                        Write-Host
+#                        Write-Host "yes    Remove all calling capabilities and numbers from the user"
+#                        Write-Host "n      Select a different user"
+#                        Write-Host "e      Exit script with no changes"
+#                        Write-Host
+#                        $remSelection = Read-Host "Please enter selection"
+#                        $remSelection = $remSelection.trim()
+#                    }
+#                    # Switch the output of the $UserDID selection in case it's REM or OFF
+#                    switch($remSelection){
+#                        'e' {
+#                                $mainLoop = $false
+#                                break
+#                        }
+#                        'n' {
+#                                $mainLoop = $true
+#                        }
+#                                                                                                                                                                                                                                                                                                            'yes' {
+#                            clear
+#                            Write-Host
+#                            Write-Host "Removing all calling capabilities and numbers from the user"
+#                            
+#                            Write-Host
+#                            Write-Host
+#                            Write-Host "[1/3] | Remove the users Voice Routing Policy" -ForegroundColor Yellow
+#                            $error.Clear()
+#                            try {Grant-CsOnlineVoiceRoutingPolicy -Identity $UserDetail.UserPrincipalName -PolicyName $null -ErrorAction Stop}
+#                            catch {write-host "Unable to remove the Voice Routing Policy from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+#                            Write-Host "OK" -ForegroundColor Green
+#
+#                            Write-Host
+#                            Write-Host "[2/3] | Remove the Dial Plan" -ForegroundColor Yellow
+#                            $error.Clear()
+#                            try {Grant-CsTenantDialPlan -Identity $UserDetail.UserPrincipalName -PolicyName $null -ErrorAction Stop}
+#                            catch {write-host "Unable to remove the Dial Plan from the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+#                            Write-Host "OK" -ForegroundColor Green
+#                            
+#                            Write-Host "[3/3] | Removing the users phone number and disabling Enterprise Voice" -ForegroundColor Yellow
+#                            $error.Clear()
+#                            Try {Set-CsUser -Identity $UserDetail.UserPrincipalName -OnPremLineURI $null -EnterpriseVoiceEnabled $false -HostedVoiceMail $false -ErrorAction Stop}
+#                            catch {write-host "Unable to remove the number from the user or Disable Enterprise Voice" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+#                            Write-Host "OK" -ForegroundColor Green
+#                            Write-Host
+#                            Write-Host
+#
+#                            #Confirm that voice services have been removed
+#                            Write-Host "Waiting 4 seconds for scripts to complete..."
+#                            Start-Sleep -Seconds 4
+#                            Write-Host "Confirming users voice services have been disabled"
+#                            Write-Host
+#                            
+#                            #Get the user's UPN
+#                            $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
+#                            
+#                            #Check enterprisevoiceenabled is $false
+#                            if ($Global:UserDetail.enterprisevoiceenabled -eq $true) {
+#                                #enterprisevoiceenabled is still enabled
+#                                $ievecheck = 0;
+#                                while ($Global:UserDetail.enterprisevoiceenabled -eq $true -and $ievecheck -lt 2) {
+#                                    Write-Host "Scripts not complete - Waiting a further 4 seconds for scripts to complete..."
+#                                    Start-Sleep -Seconds 4
+#                                    $Global:UserDetail = Get-CsOnlineUser -Identity $UserUPN
+#                                    Write-Host
+#                                    $ievecheck++
+#                                }
+#                                if ($ievecheck -gt 2) {Write-Host "Scripts have been run but are taking longer than expected to complete. Please wait 20 minutes for the platform to remove the calling capabilities from the user" -ForegroundColor Yellow; Write-Host;}
+#                            } else {
+#                                #enterprisevoiceenabled has been disabled
+#                                Write-Host "The users voice services have been disabled and numbers removed" -ForegroundColor Green
+#                                Write-Host
+#                            }
+#
+#                            Write-Host
+#                            Write-Host "Script Complete" -ForegroundColor Green
+#                            Write-Host
+#                            
+#                            #Check with the user what to do now                                            
+#                            $nextConfirm = $null
+#                            while ($nextConfirm -ne 'n' -and $nextConfirm -ne 'e') {
+#                                clear
+#                                Write-Host
+#                                Write-Host "What would you like to do now?"
+#                                Write-Host
+#                                Write-Host "n     Next user"
+#                                Write-Host "e     Exit"
+#                                Write-Host
+#                                $nextConfirm = Read-Host "Please confirm all OK [n/e]"
+#                            }
+#                            if ($nextConfirm -eq 'e') {$mainLoop = $false; break}
+#
+#
+#                    }
+#                    }#end switch $remSelection
+#                        
+#                }
+#        }
         default {
                             ##############
                 #Get the users Extension number
@@ -666,32 +671,42 @@ while ($mainLoop -eq $true) {
                 Write-Host
                 
                 if ($userEXT) {
-                    $UserNumberToAssign = "tel:$($UserDID);ext=$($UserEXT)"
+                    $UserNumberToAssign = "$($UserDID);ext=$($UserEXT)"  ##tel: no longer required from v1.2.0 - Jay A
                 } else {
-                    $UserNumberToAssign = "tel:$($UserDID)"
+                    $UserNumberToAssign = "$($UserDID)"  ##tel: no longer required from v1.2.0 - Jay A
                 }
                 
 
                 $currentStep = 1
 
-                #Give the user a DID number and Voice Enable the user 
-                if (-not $Global:isResourceAccount) { #Skip this if the account is a resource account
-                    $numOfSteps = 3
+                $numOfSteps = 3
                     Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the user and Voice Enabling the user    |    $($UserNumberToAssign)" -ForegroundColor Yellow
                     $error.Clear()
-                    Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
+                    #Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
+                    Try {Set-CsPhoneNumberAssignment -Identity "$UserUPN" -PhoneNumber $UserNumberToAssign -PhoneNumberType "DirectRouting" -ErrorAction Stop}
                     catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
                     Write-Host "OK" -ForegroundColor Green
-                } else {
-                    $numOfSteps = 3
-                    $UserNumberToAssign = $UserDID #This line is here because there is a bug in MS Teams PS Module V2.3.0 where it wont accept the TEL:+000000000 format
-                    Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the Resource Account" -ForegroundColor Yellow
-                    $error.Clear()
-                    Try {Set-CsOnlineApplicationInstance -Identity "$UserUPN" -OnpremPhoneNumber $UserNumberToAssign | Out-Null}
-                    catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
-                    Write-Host "OK" -ForegroundColor Green
-                    #pause
-                }
+
+### There is no difference in the selection between User and Resource account now. Removing code from V1.2.0 - Jay A
+#                #Give the user a DID number and Voice Enable the user 
+#                if (-not $Global:isResourceAccount) { #Skip this if the account is a resource account
+#                    $numOfSteps = 3
+#                    Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the user and Voice Enabling the user    |    $($UserNumberToAssign)" -ForegroundColor Yellow
+#                    $error.Clear()
+#                    #Try {Set-CsUser -Identity "$UserUPN" -EnterpriseVoiceEnabled $true -HostedVoiceMail $true -OnPremLineURI $UserNumberToAssign -ErrorAction Stop}
+#                    Try {Set-CsPhoneNumberAssignment -Identity "$UserUPN" -PhoneNumber $UserNumberToAssign -PhoneNumberType "DirectRouting" -ErrorAction Stop}
+#                    catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+#                    Write-Host "OK" -ForegroundColor Green
+#                } else {
+#                    $numOfSteps = 3
+#                    $UserNumberToAssign = $UserDID #This line is here because there is a bug in MS Teams PS Module V2.3.0 where it wont accept the TEL:+000000000 format
+#                    Write-Host "[$($currentStep)/$($numOfSteps)] | Assigning the number to the Resource Account" -ForegroundColor Yellow
+#                    $error.Clear()
+#                    Try {Set-CsOnlineApplicationInstance -Identity "$UserUPN" -OnpremPhoneNumber $UserNumberToAssign | Out-Null}
+#                    catch {write-host "Unable to assign the number to the user or Voice Enable the user" -ForegroundColor Red; write-host;write-host "---- ERROR ----"; write-host $Error; write-host "---- END ERROR ----"; write-host; write-host "The script will now exit. Please note that changes may have been made" -ForegroundColor Red; write-host; write-host; pause; break}
+#                    Write-Host "OK" -ForegroundColor Green
+#                    #pause
+#                }
                 $currentStep++
 
                 Write-Host
